@@ -5,7 +5,7 @@ import App from './App';
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
 
-import {Row,Col,Button,Notification,Message} from 'element-ui'  //按需引用element-ui组件
+import {Row,Col,Button,Input,Notification,Message} from 'element-ui'  //按需引用element-ui组件
 
 import router from './router';
 import './assets/style.scss'
@@ -14,6 +14,7 @@ import './assets/style.scss'
 Vue.use(Row);
 Vue.use(Col);
 Vue.use(Button);
+Vue.use(Input);
 
 //没看懂
 Vue.prototype.$notify = Notification;
