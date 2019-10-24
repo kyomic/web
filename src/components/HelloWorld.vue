@@ -1,9 +1,9 @@
 <template>
   <div class="hello">
-    
+    hello world
   </div>
 
-  
+
 </template>
 
 <script>
@@ -14,6 +14,9 @@ export default {
       msg: 'Welcome to Your Vue.js App',
     };
   },
+  mounted(){
+    console.log("HelloWorld is mounted")
+  }
 };
 </script>
 
