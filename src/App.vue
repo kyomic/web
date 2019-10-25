@@ -6,27 +6,41 @@
                     <HomeMenu></HomeMenu>
                 </div>
             </el-col>
-            <el-col :sm="24">
-                <HeaderSearch></HeaderSearch>
+            <el-col class="mobile-header" :sm="8">
+                <div class="hidden-sm-and-up">
+                    <i>back</i>
+                </div>
+                <div class="menu-right">
+                    <HeaderSearch></HeaderSearch>
+                    <div class="btn-drawer hidden-sm-and-up" v-on:click="showDrawer">
+                        <i class="el-icon-menu"></i>
+                    </div>
+                </div>
+                
             </el-col>
-            
         </el-row>
-       
+        <el-drawer
+            title="导航"
+            :visible.sync="drawer">
+            <div>
+                <Sidebar></Sidebar>
+            </div>
+            
+        </el-drawer>
         <el-row id="app">
             <el-col class="content" :xs="24" :sm="18">
                 <router-view/>
             </el-col>     
             <el-col class="slider" :xs="0" :sm="4">
-                <ul>
-                    <li>1</li>
-                    <li>2</li>
-                    <li>3</li>
-                </ul>
+                <Sidebar></Sidebar>
             </el-col>                   
         </el-row>
-
+        
         <div class="footer">
-            <div class="mobile-menu hidden-sm-and-up">
+            <div class="info">
+                @copyright
+            </div>
+            <div class=" mobile-footer-menu hidden-sm-and-up">
                 <HomeMenu></HomeMenu>  
             </div>
             
@@ -39,18 +53,33 @@
 
 import HomeMenu from "@/components/base/HomeMenu"
 import HeaderSearch from "@/components/HeaderSearch"
-
+import Sidebar from "@/components/Sidebar"
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+console.log("Sidebar", Sidebar)
 import Devices from '@/lib/core/Devices';
 export default {
   name: 'App',
-  components: {HomeMenu, HeaderSearch},
+  components: {HomeMenu, HeaderSearch, Sidebar },
   data(){
     return {
-        search_kw:""
+        search_kw:"",
+        drawer:false
+    }
+  },
+  computed:{
+    ...mapState('search', [
+        'shown'
+    ])
+  },
+  methods:{
+    ...mapMutations("search", ["showSearch"]),
+    showDrawer(){
+        this.drawer = true
     }
   },
   mounted(){
     Devices.getInstance().context = window;
+    console.log("this",this)
     return;
    //使用Message组件
     this.$message({
@@ -75,8 +104,25 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+.footer{
+    padding-top: 50px;
+    text-align: center;
+}
 .mobile-menu{
     text-align: center;
     padding-top: 20px;
+}
+.mobile-header{
+    display: flex;
+    justify-content:space-between;
+}
+.btn-drawer{
+    display: inline-block;
+}
+.mobile-footer-menu{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
 }
 </style>

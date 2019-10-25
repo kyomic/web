@@ -5,9 +5,11 @@ import App from './App';
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
 
-import {Row,Col,Button,Input,Notification,Message} from 'element-ui'  //按需引用element-ui组件
+import {Row,Col,Button,Input,Notification,Message, Drawer} from 'element-ui'  //按需引用element-ui组件
 
 import router from './router';
+import store from './store'
+
 import './assets/style.scss'
 
 //将element组件内容挂载到Vue上
@@ -15,6 +17,7 @@ Vue.use(Row);
 Vue.use(Col);
 Vue.use(Button);
 Vue.use(Input);
+Vue.use(Drawer);
 
 //没看懂
 Vue.prototype.$notify = Notification;
@@ -64,6 +67,7 @@ requireComponent.keys().forEach(fileName => {
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>',
 });

@@ -6,6 +6,7 @@ class Devices{
 		EventEmitter( this );
 
 		this.evtOnResize = this.onResize.bind( this );
+		this.evtOnLoad = this.onLoad.bind( this );
 	}
 
 	/**
@@ -46,6 +47,9 @@ class Devices{
 	onResize(){
 		this.emit('resize', {type:'resize', data: this.viewSize });
 	}
+	onLoad(){
+		this.emit('load', {type:'load', data: this.viewSize });
+	}
 
 	/**
 	 * @member {any} obj - 设置上下文，目前仅支持window,后续支持轻应用
@@ -57,6 +61,7 @@ class Devices{
 		if( obj ){
 			this._context = obj;
 			this._context.addEventListener("resize", this.evtOnResize );
+			this._context.addEventListener("DOMContentLoaded", this.evtOnLoad );
 		}else{
 			throw new Error("*** Devices.context: 空的context ***");
 		}
@@ -72,6 +77,7 @@ class Devices{
 	 */
 	get grid24code(){
 		let width = this.viewSize.width;
+		console.log("size", this.viewSize)
 		if( width ){
 			if( width < 768 ){
 				return 'xs';
