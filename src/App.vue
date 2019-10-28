@@ -57,6 +57,7 @@ import Sidebar from "@/components/Sidebar"
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 console.log("Sidebar", Sidebar)
 import Devices from '@/lib/core/Devices';
+
 export default {
   name: 'App',
   components: {HomeMenu, HeaderSearch, Sidebar },
@@ -69,16 +70,29 @@ export default {
   computed:{
     ...mapState('search', [
         'shown'
-    ])
+    ]),
+    ...mapState('env', ['grid24code']),
+    ...mapGetters('env', ['mobile'])
   },
   methods:{
     ...mapMutations("search", ["showSearch"]),
+    ...mapMutations("env", ["setGrid24"]),
+
     showDrawer(){
         this.drawer = true
+    },
+    checkSize(){
+        //更新env.mobile类型
+        let code = Devices.getInstance().grid24code;
+        this.setGrid24( code );
     }
   },
   mounted(){
     Devices.getInstance().context = window;
+
+
+    Devices.getInstance().on('resize', this.checkSize );
+    Devices.getInstance().on('load', this.checkSize );
     console.log("this",this)
     return;
    //使用Message组件
