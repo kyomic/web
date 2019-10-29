@@ -57,6 +57,10 @@ import Sidebar from "@/components/Sidebar"
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 console.log("Sidebar", Sidebar)
 import Devices from '@/lib/core/Devices';
+import config from '@/lib/config';
+import axios from 'axios';
+
+console.log("CONFIG", config)
 
 export default {
   name: 'App',
@@ -94,6 +98,12 @@ export default {
     Devices.getInstance().on('resize', this.checkSize );
     Devices.getInstance().on('load', this.checkSize );
     console.log("this",this)
+ 
+    axios.get( config.api + '/api/user/list').then( res=>{
+      console.log("res======",res)
+    }).catch(e=>{
+      console.error('*** Error:' + e + " ***")
+    })
     return;
    //使用Message组件
     this.$message({
@@ -106,6 +116,8 @@ export default {
       message: 'element-ui安装成功',
       type: 'success'
     });
+
+
   }
 }
 </script>
