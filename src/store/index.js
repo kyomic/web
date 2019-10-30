@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 
 import env from './base/env'
 import search from './modules/search'
+import article from './modules/article'
 
 
 Vue.use(Vuex);
@@ -10,7 +11,8 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   modules: {
   	env,
-  	search
+  	search,
+  	article
   }
 });
  

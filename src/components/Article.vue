@@ -1,4 +1,4 @@
-<template>
+<template class="page-article">
   <div class="hello">
     <el-row>
         <el-col class="col hidden-xs-only"  :xs="{offset:100}" :sm="9" :md="6" :lg="0" :xl="0">123</el-col>

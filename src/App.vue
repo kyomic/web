@@ -1,12 +1,12 @@
 <template>
-    <div>
+    <div class="root" id="app">
         <el-row type="flex" justify="space-between" class="header">
             <el-col class="hidden-xs-only">
                 <div>
                     <HomeMenu></HomeMenu>
                 </div>
             </el-col>
-            <el-col class="mobile-header" :sm="8">
+            <el-col :class="mobile?'mobile-header':'mobile-header mobile-header-full'" :sm="8">
                 <div class="hidden-sm-and-up">
                     <i>back</i>
                 </div>
@@ -24,18 +24,16 @@
             :visible.sync="drawer">
             <div>
                 <Sidebar></Sidebar>
-            </div>
-            
+            </div>            
         </el-drawer>
-        <el-row id="app">
-            <el-col class="content" :xs="24" :sm="18">
+        <el-row class="container" ref="abc" @scroll.native="onScroll">
+            <el-col class="page-wrap" :xs="24" :sm="18">
                 <router-view/>
             </el-col>     
             <el-col class="slider" :xs="0" :sm="4">
                 <Sidebar></Sidebar>
-            </el-col>                   
-        </el-row>
-        
+            </el-col>
+        </el-row>        
         <div class="footer">
             <div class="info">
                 @copyright
@@ -55,7 +53,7 @@ import HomeMenu from "@/components/base/HomeMenu"
 import HeaderSearch from "@/components/HeaderSearch"
 import Sidebar from "@/components/Sidebar"
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
-console.log("Sidebar", Sidebar)
+
 import Devices from '@/lib/core/Devices';
 import config from '@/lib/config';
 import axios from 'axios';
@@ -89,6 +87,18 @@ export default {
         //更新env.mobile类型
         let code = Devices.getInstance().grid24code;
         this.setGrid24( code );
+
+        let html = Devices.getInstance().query("html");
+        if( html && this.mobile ){
+          html.className = 'mobile'
+        }
+    },
+    abc:function(){
+      alert(1)
+    },
+    onScroll(){
+      console.log("scrolling.......")
+      Devices.getInstance().emit('scroll');
     }
   },
   mounted(){
@@ -97,8 +107,8 @@ export default {
 
     Devices.getInstance().on('resize', this.checkSize );
     Devices.getInstance().on('load', this.checkSize );
-    console.log("this",this)
- 
+    console.log("this",this,"container")
+
     axios.get( config.api + '/api/user/list').then( res=>{
       console.log("res======",res)
     }).catch(e=>{
@@ -122,13 +132,16 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+.header{
+  position: relative;
+  z-index: 10;
 }
 .footer{
     padding-top: 50px;
@@ -142,13 +155,45 @@ export default {
     display: flex;
     justify-content:space-between;
 }
+.mobile-header-full{
+  .menu-right{
+    width: 100%;
+  }
+  
+}
 .btn-drawer{
     display: inline-block;
 }
 .mobile-footer-menu{
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
+    background: white;
 }
+
+html.mobile{
+  height: 100%;
+  overflow: hidden;
+  body,.root{
+    height: 100%;
+    overflow: hidden;
+  }
+  .container{
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .page-wrap{
+    margin-top: 45px;
+    margin-bottom: 45px;
+    height:100%;
+    overflow: hidden;
+  }
+}
+
+
 </style>

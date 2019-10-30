@@ -73,10 +73,33 @@ let webList = Mock.mock({
         'ip': '@ip' //随机生成一个ip地址
     }]
 })
+
+let article = {
+    list : Mock.mock({
+        'list|5': [{
+            'id|+1': 1,
+            'desc': '@cparagraph(2)', //生成一段2句话的中文文本,
+            'paragraph2': '@paragraph(3)', //生成一个3句话的英文文本
+            'title': '@cparagraph(1)', //随机生成一个英文标题
+            'ctitle': '@ctitle', //随机生成一个中文标题
+        }],
+        'pagination':{
+            current:1,
+            total:100,
+            pagesize:10,
+            count:5
+        }
+    }),
+    detail: Mock.mock({
+        'id': 1,
+        'desc': '@cparagraph(2)',
+        'title': '@cparagraph(1)'
+    })
+} 
 // console.log(webList);
 
 let address = Mock.mock({
-    'addressList|5': [{
+    'data|5': [{
         'id|+1': 1,
         'region': '@region', //生成一个大区
         'province': '@province', //生成一个省份
@@ -92,6 +115,12 @@ const proxy = {
     {id: 1, username: 'kenny', sex: 6 },
     {id: 2, username: 'kenny', sex: 6 }
   ],
+  'GET /api/article/list': ( req, res )=>{
+    return res.send({status:200,data:article.list })
+  },
+  'GET /api/article/detail': ( req, res )=>{
+    return res.send({status:200,data:article.detail })
+  },
   'POST /api/login/account': (req, res) => {
     const { password, username } = req.body;
     if (password === '888888' && username === 'admin') {

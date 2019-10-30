@@ -11,6 +11,7 @@ import router from './router';
 import store from './store'
 
 import './assets/style.scss'
+import 'element-ui/lib/theme-chalk/display.css';
 
 //将element组件内容挂载到Vue上
 Vue.use(Row);

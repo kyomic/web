@@ -9,6 +9,15 @@ class Devices{
 		this.evtOnLoad = this.onLoad.bind( this );
 	}
 
+	query( selector ){
+		if( this.context ){
+			let doc = this.context.document;
+			if( doc ){
+				return doc.querySelector( selector );
+			}
+		}
+		return null;
+	}
 	/**
 	 * 可视区域大小
 	 * @member

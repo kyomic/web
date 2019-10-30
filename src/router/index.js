@@ -1,7 +1,9 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import HelloWorld from '@/components/HelloWorld';
-import Article from '@/components/Article';
+import article from '@/pages/article/article';
+import article_detail from '@/pages/article/article_detail';
+
 import NotFound from '@/components/NotFound';
 import Element from '@/components/Element';
 
@@ -9,7 +11,7 @@ import Element from '@/components/Element';
 
 Vue.use(Router);
 
-console.log("Article", Article)
+console.log("Article", article)
 console.log("Element", Element)
 export default new Router({
 	mode:"history",
@@ -22,7 +24,12 @@ export default new Router({
 	{
 		path: "/article",
 		name: "Article",
-		component: Article,
+		component: article
+	},
+	{
+		path: "/article/detail",
+		name: "article_detail",
+		component:article_detail
 	},
 	{
 		path: "/element",
