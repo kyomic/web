@@ -132,7 +132,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="less">
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -140,8 +140,12 @@ export default {
   color: #2c3e50;
 }
 .header{
-  position: relative;
+  position: absolute;
   z-index: 10;
+  font-size: 20*@rem;
+  height: 30*@rem;
+  width:100%;
+  padding: 5px;
 }
 .footer{
     padding-top: 50px;
@@ -178,23 +182,22 @@ html.mobile{
   body,.root{
     height: 100%;
     overflow: hidden;
-  }
-  .root{
-    padding: 10px;
+    font-size: 14*@rem;
   }
   .container{
     height: 100%;
     width: 100%;
     overflow: hidden;
-    position: relative;
+    position: absolute;
     left: 0;
     top: 0;
+    padding-top: 40*@rem; /* top space */
+    padding-bottom: 40*@rem; /* bottom space */
   }
   .page-wrap{
-    margin-top: 45px;
-    margin-bottom: 45px;
     height:100%;
     overflow: hidden;
+    position: relative;
   }
 }
 

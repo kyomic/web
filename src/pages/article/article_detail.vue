@@ -1,6 +1,6 @@
 <template>
-	<div class="1">
-		<h2>{{currentArticle.title}}</h2>
+	<div class="article-item">
+		<h2 class="title">{{currentArticle.title}}</h2>
 		<div>
 			{{currentArticle.desc}}
 		</div>
@@ -8,6 +8,7 @@
 </template>
 <script>
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+import "./article.less"
 export default {
 	name: 'Article',
 	data() {

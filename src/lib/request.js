@@ -18,7 +18,7 @@ request.get = ( url, option ) =>{
 				}else{
 					reject( res );
 				}
-			},0);
+			},1000);
 		}).catch(e=>{
 			reject(e);
 		})

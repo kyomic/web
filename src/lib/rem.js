@@ -12,7 +12,7 @@
  */
 !function( win, option ) {
     option             = option || {};
-    var settings       = { designWidth : 320, designFontSize :20, handleResize : true, maxCount : 20, maxWidth : 480 },
+    var settings       = { designWidth : 640, designFontSize :40, handleResize : true, maxCount : 20, maxWidth : 480 },
         MAX_COUNT      = option.maxCount || settings.maxCount,
         handleResize   = option.handleResize || settings.handleResize,
         designWidth    = option.designWidth || settings.designWidth,
@@ -25,6 +25,9 @@
     function _getNewFontSize() {
         var isPad = /(iPad).*OS\s([\d_]+)/i.test( navigator.userAgent )
         var w = win.innerWidth;
+        if( w >= 768){
+            return 20;
+        }
         if ( isPad && (w > maxWidth) ) {
             w                = maxWidth;
             root.style.width = maxWidth + 'px';
