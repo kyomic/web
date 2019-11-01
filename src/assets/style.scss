@@ -10,3 +10,16 @@ $--font-path: '~element-ui/lib/theme-chalk/fonts';
 body{
 	font-family: 'Quicksand', 'Avenir', Helvetica, Arial, sans-serif
 }
+
+h2{
+	font-size: 14px;
+}
+a{
+	text-decoration: none;
+	color: $--color-primary;
+}
+
+@rem : 0.01rem;
+@pxUnit : 1px;
+
+$rem : 0.01rem;

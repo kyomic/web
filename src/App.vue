@@ -179,11 +179,14 @@ html.mobile{
     height: 100%;
     overflow: hidden;
   }
+  .root{
+    padding: 10px;
+  }
   .container{
     height: 100%;
     width: 100%;
     overflow: hidden;
-    position: absolute;
+    position: relative;
     left: 0;
     top: 0;
   }

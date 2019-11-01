@@ -58,9 +58,25 @@ exports.cssLoaders = function (options) {
   return {
     css: generateLoaders(),
     postcss: generateLoaders(),
-    less: generateLoaders('less'),
-    sass: generateLoaders('sass', { indentedSyntax: true }),
-    scss: generateLoaders('sass'),
+    //less: generateLoaders('less'),
+    less:generateLoaders('less').concat(
+      {
+        loader: 'sass-resources-loader',
+        options: {
+          resources: path.resolve(__dirname, '../src/assets/variables.less')//这里按照你的文件路径填写
+        }
+      }
+    ),
+    sass: generateLoaders('sass', { indentedSyntax: true }),    
+    //scss: generateLoaders('sass'),
+    scss:generateLoaders('sass').concat(
+      {
+        loader: 'sass-resources-loader',
+        options: {
+          resources: path.resolve(__dirname, '../src/assets/variables.scss')//这里按照你的文件路径填写
+        }
+      }
+    ),
     stylus: generateLoaders('stylus'),
     styl: generateLoaders('stylus')
   }
