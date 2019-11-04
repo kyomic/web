@@ -1,7 +1,8 @@
 // initial state
 // shape: [{ id, quantity }]
 const state = {
-  grid24code:""
+  grid24code:"",
+  router:{}
 }
 
 
@@ -29,6 +30,13 @@ const actions = {
 const mutations = {
   setGrid24( state, payload ){
     state.grid24code = payload;
+  },
+  updateRouter( state, payload ){    
+    state.router = {
+      ...payload,
+      current:payload.to
+    }
+    console.log("更新路由:", state.router )
   }
 }
 

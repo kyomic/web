@@ -2,21 +2,30 @@
     <div class="root" id="app">
         <el-row type="flex" justify="space-between" class="header">
             <el-col class="hidden-xs-only">
-                <div>
-                    <HomeMenu></HomeMenu>
-                </div>
+                <HomeMenu></HomeMenu>
             </el-col>
             <el-col :class="mobile?'mobile-header':'mobile-header mobile-header-full'" :sm="8">
                 <div class="hidden-sm-and-up">
                     <i>back</i>
                 </div>
                 <div class="menu-right">
-                    <HeaderSearch></HeaderSearch>
+                    <HeaderSearch :router="router.go"></HeaderSearch>
                     <div class="btn-drawer hidden-sm-and-up" v-on:click="showDrawer">
                         <i class="el-icon-menu"></i>
                     </div>
+                    <div class="btn-drawer hidden-sm-and-up">
+                        <div v-if="isLogined">
+                          <router-link :to="'/account/info?id='+userinfo.user_id" >
+                            <i class="el-icon-user-solid">{{userinfo.user_id}}</i>
+                          </router-link>
+                        </div>
+                        <div v-else>
+                          <router-link :to="loginurl" >
+                          <i class="el-icon-menu"></i>
+                          </router-link>
+                        </div>
+                    </div>
                 </div>
-                
             </el-col>
         </el-row>
         <el-drawer
@@ -26,6 +35,7 @@
                 <Sidebar></Sidebar>
             </div>            
         </el-drawer>
+        <!-- 内容区开始 -->
         <el-row class="container" ref="abc" @scroll.native="onScroll">
             <el-col class="page-wrap" :xs="24" :sm="18">
                 <router-view/>
@@ -33,9 +43,10 @@
             <el-col class="slider" :xs="0" :sm="4">
                 <Sidebar></Sidebar>
             </el-col>
-        </el-row>        
+        </el-row>      
+        <!-- 内容区结束 -->  
         <div class="footer">
-            <div class="info">
+            <div class="info" style="display:none">
                 @copyright
             </div>
             <div class=" mobile-footer-menu hidden-sm-and-up">
@@ -63,6 +74,13 @@ console.log("CONFIG", config)
 export default {
   name: 'App',
   components: {HomeMenu, HeaderSearch, Sidebar },
+  metaInfo: {
+    title: 'This is the test',
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no' }
+    ]
+  },
   data(){
     return {
         search_kw:"",
@@ -73,12 +91,24 @@ export default {
     ...mapState('search', [
         'shown'
     ]),
-    ...mapState('env', ['grid24code']),
-    ...mapGetters('env', ['mobile'])
+    ...mapState('env', ['grid24code','router']),
+    ...mapGetters('env', ['mobile']),
+    ...mapGetters('user',['isLogined', 'userinfo']),
+    loginurl:function(){
+      let ref = '';
+      if( this.router && this.router.current ){
+        ref = this.router.current.fullPath;
+      }
+      return '/account/login?ref=' + ref
+    },
+    router_str(){
+      return'';
+      return JSON.stringify( this.router.to )
+    }
   },
   methods:{
     ...mapMutations("search", ["showSearch"]),
-    ...mapMutations("env", ["setGrid24"]),
+    ...mapMutations("env", ["setGrid24","updateRouter"]),
 
     showDrawer(){
         this.drawer = true
@@ -114,20 +144,8 @@ export default {
     }).catch(e=>{
       console.error('*** Error:' + e + " ***")
     })
-    return;
-   //使用Message组件
-    this.$message({
-      type:'success',
-      message:'element-ui安装成功'
-    });
-   //使用Message组件
-    this.$notify({
-      title: '成功',
-      message: 'element-ui安装成功',
-      type: 'success'
-    });
-
-
+    console.log("@@@@@@@@@@@@@@@@@", this)
+    this.updateRouter( {to:this.$route} );
   }
 }
 </script>
@@ -143,7 +161,6 @@ export default {
   position: absolute;
   z-index: 10;
   font-size: 20*@rem;
-  height: 30*@rem;
   width:100%;
   padding: 5px;
 }
@@ -176,30 +193,7 @@ export default {
     background: white;
 }
 
-html.mobile{
-  height: 100%;
-  overflow: hidden;
-  body,.root{
-    height: 100%;
-    overflow: hidden;
-    font-size: 14*@rem;
-  }
-  .container{
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    position: absolute;
-    left: 0;
-    top: 0;
-    padding-top: 40*@rem; /* top space */
-    padding-bottom: 40*@rem; /* bottom space */
-  }
-  .page-wrap{
-    height:100%;
-    overflow: hidden;
-    position: relative;
-  }
-}
+
 
 
 </style>

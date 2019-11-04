@@ -2,10 +2,11 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue';
 import App from './App';
+import VueMeta from 'vue-meta'
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
 
-import {Row,Col,Button,Input,Notification,Message, Drawer} from 'element-ui'  //按需引用element-ui组件
+import {Row,Col,Button,Input,Notification,Message, Drawer, Form, FormItem} from 'element-ui'  //按需引用element-ui组件
 
 import router from './router';
 import store from './store'
@@ -20,7 +21,11 @@ Vue.use(Row);
 Vue.use(Col);
 Vue.use(Button);
 Vue.use(Input);
+Vue.use(Form);
+Vue.use(FormItem)
 Vue.use(Drawer);
+
+Vue.use(VueMeta)
 
 //没看懂
 Vue.prototype.$notify = Notification;
@@ -75,4 +80,14 @@ new Vue({
   template: '<App/>',
 });
 
-
+/** 去更新store.env中的state */
+router.beforeEach((to, from, next) => {
+  //console.log(to.matched)
+  console.log("路由钩子:", store);
+  console.log( to, from ,next)
+  if( to && to.name !='search'){
+    store.commit('search/showSearch', false );
+  }
+  store.commit('env/updateRouter', {to, from});
+  next();
+});

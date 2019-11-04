@@ -4,6 +4,12 @@ import HelloWorld from '@/components/HelloWorld';
 import article from '@/pages/article/article';
 import article_detail from '@/pages/article/article_detail';
 
+import login from '@/pages/account/login';
+import {info as userinfo} from '@/pages/account/info'
+
+import search from '@/pages/search/search'
+console.log("search", search)
+
 import NotFound from '@/components/NotFound';
 import Element from '@/components/Element';
 
@@ -18,12 +24,26 @@ export default new Router({
 	routes: [
 	{
 		path: '/',
-		name: 'HelloWorld',
+		name: 'home',
 		component: HelloWorld,
+		meta: {
+            title: "HelloWorld",
+            show: true
+        }
+	},
+	{
+		path: "/account/login",
+		name:"account_login",
+		component:login
+	},
+	{
+		path: "/account/info",
+		name:"account_info",
+		component:userinfo
 	},
 	{
 		path: "/article",
-		name: "Article",
+		name: "article",
 		component: article
 	},
 	{
@@ -33,8 +53,13 @@ export default new Router({
 	},
 	{
 		path: "/element",
-		name: "Element",
+		name: "element",
 		component: Element,
+	},
+	{
+		path: "/search",
+		name: "search",
+		component: search
 	},
     {
     	path:'*',

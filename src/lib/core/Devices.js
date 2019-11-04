@@ -109,6 +109,13 @@ class Devices{
 		}
 		return '';
 	}
+
+	get currentPage(){
+		return {
+			url:location.href
+		}
+	}
+	
 	static getInstance(){
 		if( !Devices.instance ){
 			Devices.instance = new Devices();

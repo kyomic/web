@@ -96,6 +96,24 @@ let article = {
         'title': '@cparagraph(1)'
     })
 } 
+
+let search = {
+    list : Mock.mock({
+        'list|1-5': [{
+            'id|+1': 1,
+            'desc': '@cparagraph(2)', //生成一段2句话的中文文本,
+            'paragraph2': '@paragraph(3)', //生成一个3句话的英文文本
+            'title': '@cparagraph(1)', //随机生成一个英文标题
+            'ctitle': '@ctitle', //随机生成一个中文标题
+        }],
+        'pagination':{
+            current:1,
+            total:100,
+            pagesize:10,
+            count:5
+        }
+    })
+}
 // console.log(webList);
 
 let address = Mock.mock({
@@ -111,6 +129,12 @@ let address = Mock.mock({
 
 const proxy = {
   'GET /api/user': {id: 1, username: 'kenny', sex: 6 },
+  'GET /api/user/login':{
+    status:200,
+    data:{
+        token:'abc',user_id:111
+    }
+  },
   'GET /api/user/list': [
     {id: 1, username: 'kenny', sex: 6 },
     {id: 2, username: 'kenny', sex: 6 }
@@ -120,6 +144,9 @@ const proxy = {
   },
   'GET /api/article/detail': ( req, res )=>{
     return res.send({status:200,data:article.detail })
+  },
+  'GET /api/search':( req, res)=>{
+    return res.send({status:200, data:search.list})
   },
   'POST /api/login/account': (req, res) => {
     const { password, username } = req.body;

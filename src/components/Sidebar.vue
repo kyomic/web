@@ -1,9 +1,11 @@
 <template>
-	<ul>
-		<li>1</li>
-		<li>2</li>
-		<li>3</li>
-	</ul>
+  <div class="mod-sidebar">
+    <div class="sidebar-item">
+      <h4>
+        小伙伴们
+      </h4>
+    </div>
+  </div>
 </template>
 <script>
 export default {
@@ -18,3 +20,8 @@ export default {
   }
 };
 </script>
+<style lang="less">
+  .mod-sidebar{
+    padding: 10*@rem;
+  }
+</style>

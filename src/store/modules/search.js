@@ -1,7 +1,19 @@
 // initial state
 // shape: [{ id, quantity }]
+import {
+    search
+}
+from '@/lib/api';
+
 const state = {
-  shown:true
+  shown:true,
+
+  loading:false,
+  keyword:"",
+  list: {
+    data: [],
+    pagination: {}
+  },
 }
 
 
@@ -28,7 +40,20 @@ const actions = {
    */
   actionCall({ state,rootState,commit,dispatch, getters,rootGetters }, data ){
     console.log("app.actions.actionCall", data);
-  }
+  },
+
+  async query({ state, commit, dispatch }, payload) {
+    console.log("搜索：", payload)
+    if( !payload ){
+      return;
+    }
+    state.loading = true;
+    let data = await search(payload);
+    state.loading = false;
+    state.keyword = payload.keyword;   
+    commit('setArticle', data);
+    return data;
+  }, 
   
 }
 
@@ -40,6 +65,21 @@ const mutations = {
 
   showSearch( state, bol ){
     state.shown = bol;
+  },
+
+  setArticle( state, payload ){
+    state.list = {
+      data: payload.list || [],
+      pagination: {...payload.pagination}
+    }
+  },
+  appendArticle( state, payload ){
+    console.log("添加文章 ", payload)
+    state.list = {
+      data: state.list.data.concat(payload.list || []),
+      pagination: {...payload.pagination}
+    }
+    console.log("state", state)
   }
 }
 
