@@ -20,7 +20,7 @@ Vue.use(Router);
 console.log("Article", article)
 console.log("Element", Element)
 export default new Router({
-	mode:"history",
+	//mode:"history",
 	routes: [
 	{
 		path: '/',
