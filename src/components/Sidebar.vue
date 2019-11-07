@@ -2,6 +2,11 @@
   <div class="mod-sidebar">
     <div class="sidebar-item">
       <h4>
+        <a href="/admin.html">管理</a>
+      </h4>
+    </div>
+    <div class="sidebar-item">
+      <h4>
         小伙伴们
       </h4>
     </div>

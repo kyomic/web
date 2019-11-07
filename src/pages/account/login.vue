@@ -19,6 +19,7 @@ import qs from 'qs';
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import request from "@/lib/request"
 import urls from "@/lib/core/urls"
+import store from "@/lib/core/store"
 
 import ScrollView from "@/components/ScrollView";
 
@@ -94,10 +95,17 @@ export default {
             			try{
             				ref = decodeURIComponent(ref)
             			}catch(e){}
-            			console.log('ref', ref)
+            		}
+            		console.log("登录信息", res);
+            		store.set('user_id', res.user_id);
+            		store.set('token', res.token);
+            		console.log("url", qs.parse( url ), url)
+            		if( ref && /admin/ig.exec( ref )){
+            			location.href = ref;
+            		}else{
             			this.$router.back();
             		}
-            		console.log("url", qs.parse( url ), url)
+            		
             	}else{
             		console.log("loginerrr")
             	}

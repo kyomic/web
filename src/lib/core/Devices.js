@@ -1,4 +1,6 @@
 import EventEmitter from 'event-emitter'
+import DevicesType from './consts/DevicesType'
+
 
 class Devices{
 	constructor(){
@@ -79,6 +81,13 @@ class Devices{
 
 	get context(){
 		return this._context;
+	}
+
+	get runtimeType(){
+		if( this._context ){
+
+		}
+		return DevicesType.BROWSER;
 	}
 	/**
 	 * 返回 24栅格的代码，如：xs(<768)、sm(>=768)、md(>=992)、lg(>=1200) 和 xl(>=1920)

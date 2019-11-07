@@ -1,12 +1,13 @@
 // initial state
 // shape: [{ id, quantity }]
 import {
-  syncinfo,
+  loginstate,
   login,
   logout,
   register
 }
 from '@/lib/api';
+import store from '@/lib/core/store'
 
 const state = {
   base:{},
@@ -42,8 +43,21 @@ const getters = {
 
 // actions
 const actions = {
-  async syncinfo({ state }, payload ){
-    let data = await syncinfo();
+  /** 
+   * 同步服务器登录态
+   * @method
+   */
+  async loginstate({ state, commit }, payload ){
+    let token = store.get('token');
+    let user_id = store.get('user_id');
+    let data = null;
+    if( token ){
+      data = {
+        user_id, token
+      }
+    }else{
+      data = await loginstate();
+    }
     commit('updateUserInfo', data );
     return data;
   },

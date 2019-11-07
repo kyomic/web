@@ -109,7 +109,7 @@ export default {
   methods:{
     ...mapMutations("search", ["showSearch"]),
     ...mapMutations("env", ["setGrid24","updateRouter"]),
-
+    ...mapActions('user',['loginstate']),
     showDrawer(){
         this.drawer = true
     },
@@ -133,8 +133,6 @@ export default {
   },
   mounted(){
     Devices.getInstance().context = window;
-
-
     Devices.getInstance().on('resize', this.checkSize );
     Devices.getInstance().on('load', this.checkSize );
     console.log("this",this,"container")
@@ -146,6 +144,11 @@ export default {
     })
     console.log("@@@@@@@@@@@@@@@@@", this)
     this.updateRouter( {to:this.$route} );
+    let path = this.$route.fullPath;
+    if( /admin/ig.exec(path)){
+      location.href = "/admin.html#" +path
+    }
+    this.loginstate();
   }
 }
 </script>

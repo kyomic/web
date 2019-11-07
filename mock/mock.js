@@ -139,6 +139,12 @@ const proxy = {
     {id: 1, username: 'kenny', sex: 6 },
     {id: 2, username: 'kenny', sex: 6 }
   ],
+  'GET /api/user/state':{
+    status:200,
+    data:{
+        token:'abc',user_id:111
+    }
+  },
   'GET /api/article/list': ( req, res )=>{
     return res.send({status:200,data:article.list })
   },

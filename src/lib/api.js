@@ -13,8 +13,8 @@ export async function search( params ){
 	return request.get(`/api/search/?${stringify(params)}`);
 }
 
-export async function syncinfo( params ){
-	return request.get(`/api/user/info`);
+export async function loginstate( params ){
+	return request.get(`/api/user/state`);
 }
 export async function login( params ){
 	return request.get(`/api/user/login/?${stringify(params)}`);
