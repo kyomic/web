@@ -37,6 +37,9 @@ let admin_article = {
 	methods:{
 		onEditHandler:function(){
 			console.log("click", arguments)
+			this.$router.push({
+				path:"/admin/article_edit", query:{'id':1}
+			})
 		},
 		onSlotProps:function(){
 			console.log("得到子组件属性", arguments)

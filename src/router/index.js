@@ -9,7 +9,7 @@ import login from '@/pages/account/login';
 import {info as userinfo} from '@/pages/account/info'
 import search from '@/pages/search/search'
 
-import { admin_index, admin_article } from '@/pages/admin';
+import { admin_index, admin_article, admin_article_edit } from '@/pages/admin';
 console.log("admin_article", admin_index)
 
 import NotFound from '@/components/NotFound';
@@ -87,6 +87,11 @@ let adminRouter = [
 		path:"/admin/article",
 		name:"admin_article",
 		component:admin_article,
+	},
+	{
+		path:"/admin/article_edit",
+		name:"admin_article_edit",
+		component:admin_article_edit,
 	}
 ];
 routerOptions.routes = routerOptions.routes.concat( webRouter );
