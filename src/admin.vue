@@ -21,7 +21,7 @@
                 <admin_menu></admin_menu>
             </div>            
         </el-drawer>
-        <div class="container">
+        <div class="container" ref="container">
           <router-view/>
         </div>
         
@@ -76,10 +76,21 @@ export default {
     }
   },
   mounted(){
-    Devices.getInstance().context = window;
-    Devices.getInstance().on('resize', this.checkSize );
-    Devices.getInstance().on('load', this.checkSize );
+    let devices = Devices.getInstance()
+    devices.context = window;
+    devices.on('resize', this.checkSize );
+    devices.on('load', this.checkSize );
 
+    /*
+    console.log(".this.$refs.container", this)
+    let scroller = this.$refs.container.querySelector("[data-scrollview]");
+    if( scroller ){
+      scroller.addEventListener('scroll', (e)=>{
+        console.log('emit','reachbottom', this)
+        this.$emit("reachbottom");
+      })
+    }
+    */
     this.loginstate().then(res=>{
       /*
       if( false || !res || !res.level || res.level < 3 ){
@@ -98,6 +109,20 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+html.mobile{
+  .root{
+    display: flex;
+    flex-direction:column;
+  }
+  .container{
+    flex:1;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    position: static;
+  }
 }
 .header{
   z-index: 10;
@@ -134,6 +159,15 @@ export default {
     background: white;
 }
 
+
+.mod-table{
+  .el-button--mini{
+    padding: 5px;
+  }
+  .el-button+.el-button{
+    margin-left: 5px;
+  }
+}
 
 
 

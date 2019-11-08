@@ -30,3 +30,4 @@ export async function register( params ){
 export async function upload( option ){
 	return request.upload(`/api/upload/`, option );
 }
+

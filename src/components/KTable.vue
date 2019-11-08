@@ -1,7 +1,6 @@
 <template>
 	<div class="mod-table">
-		<div class="com-table-wrapper">
-			<i v-if="loading" class="el-icon-loading"></i>
+		<div class="com-table-wrapper">			
 			<table cellspacing="0" cellpadding="0" border="0">
 				<thead>
 					<tr>
@@ -12,6 +11,7 @@
 					<slot v-slot:template v-bind="item"></slot>
 				</tr>
 			</table>
+			<i v-if="loading" class="el-icon-loading"></i>
 		</div>
 	</div>
 </template>

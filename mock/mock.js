@@ -76,11 +76,12 @@ let webList = Mock.mock({
 
 let article = {
     list : Mock.mock({
-        'list|5': [{
+        'list|15': [{
             'id|+1': 1,
             'desc': '@cparagraph(2)', //生成一段2句话的中文文本,
             'paragraph2': '@paragraph(3)', //生成一个3句话的英文文本
             'title': '@cparagraph(1)', //随机生成一个英文标题
+            'date':'2010-10',
             'ctitle': '@ctitle', //随机生成一个中文标题
         }],
         'pagination':{

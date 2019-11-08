@@ -6,6 +6,8 @@ import user from './modules/user'
 import search from './modules/search'
 import article from './modules/article'
 
+import admin_article from "./modules/admin/article";
+
 
 Vue.use(Vuex);
 
@@ -14,7 +16,10 @@ const store = new Vuex.Store({
   	env,
   	user,
   	search,
-  	article
+  	article,
+
+
+  	admin_article
   }
 });
  

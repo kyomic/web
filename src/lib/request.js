@@ -28,6 +28,31 @@ request.get = ( url, option ) =>{
 		params: params
 	})
 }
+request.post = ( url, option ) =>{
+	if( !/https?/ig.exec(url)){
+		url = config.api + url;
+	}
+	let params = Object.assign({}, option);
+	params = Object.assign({}, params );
+	return new Promise((resolve,reject)=>{
+		axios.post( url, {
+			params: params
+		}).then(res=>{
+			setTimeout(()=>{
+				if( res && res.data && res.data.status == 200 ){
+					resolve( res.data.data );
+				}else{
+					reject( res );
+				}
+			},1000);
+		}).catch(e=>{
+			reject(e);
+		})
+	});
+	return axios.get( url, {
+		params: params
+	})
+}
 request.upload = ( url, option ) =>{
 	if( !/https?/ig.exec(url)){
 		url = config.api + url;

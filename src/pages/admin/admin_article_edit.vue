@@ -1,68 +1,72 @@
 <template>
 	<div class="page-wrap page-wrap-scroll page-admin admin_article_edit">
-		<el-form :label-position="mobile?'top':'left'" ref="form" :model="form" label-width="80px">
-		  <el-form-item label="标题">
-			<el-input v-model="form.name"></el-input>
-		  </el-form-item>
-		  <el-form-item label="分类">
-			<el-select v-model="form.region" placeholder="文章分类">
-			  <el-option label="区域一" value="shanghai"></el-option>
-			  <el-option label="区域二" value="beijing"></el-option>
-			</el-select>
-		  </el-form-item>
-		  <el-form-item label="发布日期">
-			<el-col :span="11">
-			  <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;"></el-date-picker>
-			</el-col>
-			<el-col class="line" :span="2">-</el-col>
-			<el-col :span="11">
-			  <el-time-picker placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
-			</el-col>
-		  </el-form-item>
-		  <el-form-item label="标签">
-		  	<el-tag
-			  :key="tag"
-			  v-for="tag in form.dynamicTags"
-			  closable
-			  :disable-transitions="false"
-			  @close="handleClose(tag)">
-			  {{tag}}
-			</el-tag>
-			<el-input
-			  class="input-new-tag"
-			  v-if="inputVisible"
-			  v-model="inputValue"
-			  ref="saveTagInput"
-			  size="small"
-			  @keyup.enter.native="handleInputConfirm"
-			  @blur="handleInputConfirm"
-			></el-input>
-			<el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
-		  </el-form-item>
-		</el-form>
-		<div class="editor-wrapper">
-			<div id="editor" ref="editor">
-				<!-- html code -->
+		<div class="wrapper">
+			<el-form :label-position="mobile?'top':'left'" ref="form" :model="form" label-width="80px">
+			  <el-form-item label="标题">
+				<el-input v-model="form.name"></el-input>
+			  </el-form-item>
+			  <el-form-item label="分类">
+				<el-select v-model="form.region" placeholder="文章分类">
+				  <el-option label="区域一" value="shanghai"></el-option>
+				  <el-option label="区域二" value="beijing"></el-option>
+				</el-select>
+			  </el-form-item>
+			  <el-form-item label="发布日期">
+				<el-col :span="11">
+				  <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;"></el-date-picker>
+				</el-col>
+				<el-col class="line" :span="2">-</el-col>
+				<el-col :span="11">
+				  <el-time-picker placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
+				</el-col>
+			  </el-form-item>
+			  <el-form-item label="标签">
+			  	<el-tag
+				  :key="tag"
+				  v-for="tag in form.dynamicTags"
+				  closable
+				  :disable-transitions="false"
+				  @close="handleClose(tag)">
+				  {{tag}}
+				</el-tag>
+				<el-input
+				  class="input-new-tag"
+				  v-if="inputVisible"
+				  v-model="inputValue"
+				  ref="saveTagInput"
+				  size="small"
+				  @keyup.enter.native="handleInputConfirm"
+				  @blur="handleInputConfirm"
+				></el-input>
+				<el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
+			  </el-form-item>
+			</el-form>
+			<div class="editor-wrapper">
+				<div id="editor" ref="editor">
+					<!-- html code -->
+				</div>
 			</div>
+			<el-form :label-position="mobile?'top':'left'" :model="formBottom" label-width="80px">
+			  <el-form-item label="是否发布">
+				<el-switch v-model="form.delivery"></el-switch>
+			  </el-form-item>
+			  <el-form-item label="是否公开">
+				<el-switch v-model="form.open"></el-switch>
+			  </el-form-item>
+			  <el-form-item>
+				<el-button type="primary" @click="onSubmit">立即创建</el-button>
+				<el-button @click="onCancel">取消</el-button>
+			  </el-form-item>
+			</el-form>
 		</div>
-		<el-form :label-position="mobile?'top':'left'" :model="formBottom" label-width="80px">
-		  <el-form-item label="是否发布">
-			<el-switch v-model="form.delivery"></el-switch>
-		  </el-form-item>
-		  <el-form-item label="是否公开">
-			<el-switch v-model="form.open"></el-switch>
-		  </el-form-item>
-		  <el-form-item>
-			<el-button type="primary" @click="onSubmit">立即创建</el-button>
-			<el-button>取消</el-button>
-		  </el-form-item>
-		</el-form>
 	</div>
 </template>
 <script>
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import Quill from 'quill'
 import { upload } from '@/lib/api';
+import { modify_article } from '@/lib/adminapi';
+
 import Devices from '@/lib/core/Devices';
 
 import '@/lib/extends/quill/1.3.6/quill.snow.css';
@@ -164,11 +168,15 @@ let admin_article_edit = {
 					if( findInsert ){
 						let base64 = findInsert.insert.image;
 						if( base64 ){
-							this.uploadVideo().then(res=>{
+							this.uploadVideo({base64}).then(res=>{
 								quill.insertEmbed(index, 'image', res.url);
 								//删除本地图片
 								quill.deleteText(index+1,1)
 							}).catch(e=>{
+								this.$message({
+						          message: '图片上传出错,点击图片重试上传',
+						          type: 'warning'
+						        });
 							})	
 							
 						}
@@ -181,9 +189,13 @@ let admin_article_edit = {
 			Devices.getInstance().delegate(editor,'img','click', (e)=>{
 				let img = e.target;
 				if( img && /^data/ig.exec( img.src )){
-					this.uploadVideo().then(res=>{
+					this.uploadVideo({base64:img.src}).then(res=>{
 						img.setAttribute('src', res.url );
 					}).catch(e=>{
+						this.$message({
+				          message: '图片上传出错,点击图片重试上传',
+				          type: 'warning'
+				        });
 					})				
 				}
 				console.log(img)
@@ -196,9 +208,16 @@ let admin_article_edit = {
 			//console.log(this.$refs.editor.querySelector(".ql-editor").innerHTML)
 		},	
 		onSubmit:function(){
-			console.log("提交数据", {
+			let data = {
 				...this.form, ...this.formBottom, content:this.$refs.editor.querySelector(".ql-editor").innerHTML
+			}
+			console.log("提交数据",data );
+			modify_article( data, this ).then( res =>{
+
 			})
+		},
+		onCancel:function(){
+			this.$router.back()
 		},
 		handleClose(tag) {
 			this.form.dynamicTags.splice(this.form.dynamicTags.indexOf(tag), 1);
@@ -218,11 +237,9 @@ let admin_article_edit = {
 	        this.inputVisible = false;
 	        this.inputValue = '';
 		},
-		async uploadVideo(){
-			console.log("uploadddd", upload)
+		async uploadVideo( data ){
 			let res = await upload({
-				params:{a:1},
-				data:{base64:1}
+				data:data
 			});
 			return res;
 		}

@@ -56,6 +56,7 @@ class Devices{
 	    }
 	    target.__evtMap[ id ] = (e)=>{
 	        let tar = e.target;
+	        console.log(e)
 	        if( this.containDom(target, tar)){
 	            if( handler.call(tar, e) === false ){
 	                e.stopPropagation();
@@ -65,6 +66,7 @@ class Devices{
 	            }
 	        }
 	    }
+	    console.log(target, selector)
 	    target.addEventListener(evt, target.__evtMap[ id ]);
 	}
 

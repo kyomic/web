@@ -59,17 +59,29 @@ html.mobile{
     height:100%;
     overflow: hidden;
     position: relative;
+    >.wrapper{
+      height: 100%;
+      width:100%;
+    }
   }
   .page-wrap-scroll{
-    overflow-x:hidden;
-    overflow-y:scroll;
+    >.wrapper{
+      overflow-x:hidden;
+      overflow-y:scroll;
+    }
+    
   }
   /* 消除header的40px的高度差*/
   .page-wrap-scroll > *:last-child{
-    margin-bottom: 40*$rem;
+    
   }
   .el-drawer__header{
   	padding: 10*$rem;
+  }
+
+  .el-message{
+    min-width: auto;
+    width: 90%;
   }
 }
 .header{

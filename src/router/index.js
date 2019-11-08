@@ -93,6 +93,12 @@ let adminRouter = [
 		name:"admin_article_edit",
 		component:admin_article_edit,
 	}
+	,
+	{
+		path:"/admin/article_detail",
+		name:"article_detail",
+		component:article_detail,
+	}
 ];
 routerOptions.routes = routerOptions.routes.concat( webRouter );
 routerOptions.routes = routerOptions.routes.concat( adminRouter );
