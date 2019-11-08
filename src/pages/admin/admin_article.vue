@@ -1,5 +1,5 @@
 <template>
-	<div class="page-admin admin_article>">
+	<div class="page-wrap page-admin admin_article>">
 		<KTable :data="tableData" :loading="loading" v-slot:default="scope">
 			<KTableColumn label="标题" prop="title" :column="scope"></KTableColumn>
 			<KTableColumn label="日期" prop="date" :column="scope"></KTableColumn>

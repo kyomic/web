@@ -7,8 +7,8 @@ import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
 
 import {
-  Row,Col,Button,Input,Notification,Message, Drawer, Form, FormItem,
-  Table, TableColumn
+  Row,Col,Button,Notification,Message, Drawer, Form, FormItem,
+  Table, TableColumn,Checkbox,CheckboxGroup,Radio,RadioGroup,Input,Select,Option,Switch,DatePicker,TimePicker,Tag
 } from 'element-ui'  //按需引用element-ui组件
 
 import router from './router';
@@ -27,10 +27,21 @@ Vue.use(Col);
 Vue.use(Button);
 Vue.use(Input);
 Vue.use(Form);
-Vue.use(FormItem)
+Vue.use(FormItem);
+Vue.use(Checkbox);
+Vue.use(CheckboxGroup);
+Vue.use(Radio);
+Vue.use(RadioGroup);
+Vue.use(Select);
+Vue.use(Option);
+Vue.use(Switch);
+Vue.use(DatePicker);
+Vue.use(TimePicker);
+Vue.use(Tag);
 Vue.use(Drawer);
 Vue.use(Table);
 Vue.use(TableColumn);
+
 
 Vue.use(VueMeta)
 

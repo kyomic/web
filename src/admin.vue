@@ -21,7 +21,10 @@
                 <admin_menu></admin_menu>
             </div>            
         </el-drawer>
-        <router-view/>
+        <div class="container">
+          <router-view/>
+        </div>
+        
     </div>  
 </template>
 
@@ -50,15 +53,33 @@ export default {
   },
   computed:{
     ...mapGetters('user',['isLogined', 'userinfo']),
+    ...mapState(  'env', ['grid24code','router']),
+    ...mapGetters('env', ['mobile']),
+
   },
   methods:{
     ...mapActions('user',['loginstate']),
+    ...mapMutations("env", ["setGrid24","updateRouter"]),
+
     showDrawer:function(){
       this.drawer = true;
+    },
+    checkSize(){
+        //更新env.mobile类型
+        let code = Devices.getInstance().grid24code;
+        this.setGrid24( code );
+        console.log("checkSize", code)
+        let html = Devices.getInstance().query("html");
+        if( html && this.mobile ){
+          html.className = 'mobile'
+        }
     }
   },
   mounted(){
     Devices.getInstance().context = window;
+    Devices.getInstance().on('resize', this.checkSize );
+    Devices.getInstance().on('load', this.checkSize );
+
     this.loginstate().then(res=>{
       /*
       if( false || !res || !res.level || res.level < 3 ){
