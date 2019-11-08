@@ -25,3 +25,8 @@ export async function logout( params ){
 export async function register( params ){
 	return request.get(`/api/search/?${stringify(params)}`);
 }
+
+
+export async function upload( option ){
+	return request.upload(`/api/upload/`, option );
+}

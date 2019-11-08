@@ -151,6 +151,16 @@ const proxy = {
   'GET /api/article/detail': ( req, res )=>{
     return res.send({status:200,data:article.detail })
   },
+  'POST /api/upload': (req, res)=>{
+    let rnd = Math.random()>0.5;
+    if( rnd ){
+        return res.send({status:200,data:{
+            'url':'https://www.baidu.com/img/baidu_jgylogo3.gif'
+        } })
+    }else{
+        return res.send({status:400,data:null })
+    }
+  },
   'GET /api/search':( req, res)=>{
     return res.send({status:200, data:search.list})
   },

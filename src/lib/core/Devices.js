@@ -1,5 +1,6 @@
 import EventEmitter from 'event-emitter'
 import DevicesType from './consts/DevicesType'
+import utils from './utils'
 
 
 class Devices{
@@ -20,6 +21,63 @@ class Devices{
 		}
 		return null;
 	}
+	/**
+	 * 父容器是否包含子容器
+	 * @param {DOM} parent - 父容器
+	 * @param {DOM} child - 子容器
+	 * @return {boolean}
+	 */
+	containDom( parent, child ){
+		if( child == parent ){
+	        return true;
+	    }
+	    let p = child.parentNode;
+	    while(p){
+	        if( p == parent ){
+	            return true;
+	        }
+	        p = p.parentNode;
+	    }
+	    return false;
+	}
+
+	/**
+	 * 简单的事件代理
+	 * @param {DOM} target - 被代理的DOM
+	 
+	 * @param {string} selector - css选择器
+	 * @param {string} evt - 事件类型
+	 * @param {function} handler - 事件回调函数
+	 */
+	delegate( target, selector, evt , handler ){
+	    let id = utils.stringhash( target.nodeName + target.id + evt + selector );
+	    if( !target.__evtMap ){
+	        target.__evtMap = {};
+	    }
+	    target.__evtMap[ id ] = (e)=>{
+	        let tar = e.target;
+	        if( this.containDom(target, tar)){
+	            if( handler.call(tar, e) === false ){
+	                e.stopPropagation();
+	                try{
+	                    e.cancelBubble = true;
+	                }catch(e){}
+	            }
+	        }
+	    }
+	    target.addEventListener(evt, target.__evtMap[ id ]);
+	}
+
+	undelegate( target, evt, selector ){
+	    let id = utils.stringhash( target.nodeName + target.id + evt + selector );
+	    if( target.__evtMap ){
+	       let handler = target.__evtMap[ id ];
+	       if( handler ){
+	           target.removeEventListener(evt, handler );
+	       }
+	    }
+	}
+
 	/**
 	 * 可视区域大小
 	 * @member
