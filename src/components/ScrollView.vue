@@ -22,9 +22,9 @@ export default {
   	loading:{
   		type:Boolean,default:false, required:false
   	},
-  	onReachBottom:{
-  		type:Function,required:false,
-  	}
+    scrollTop:{
+      type:Number,default:0,required:false
+    }
   },
   computed:{},
   methods:{
@@ -36,13 +36,16 @@ export default {
   		let scrollTop = dom.scrollTop;
   		let scrollHeight = dom.scrollHeight;
   		let viewHeight = dom.offsetHeight;
+      this.onScroll && this.onScroll(e);
+      this.$emit('scroll', e);
   		if( scrollTop >= scrollHeight - viewHeight ){
-  			this.onReachBottom && this.onReachBottom();
+  			this.$emit('reachbottom', e);
   		}
   	}
   },
   mounted(){
   	console.log("###################", this.$refs)
+    this.$refs.scroll.scrollTop = this.scrollTop;
   }
 };
 </script>

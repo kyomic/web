@@ -7,7 +7,7 @@
 				<KTableColumn label="其它" prop="other" :column="scope" class="hidden-xs-only"></KTableColumn>
 				<KTableColumn label="操作" prop="action" :column="scope">
 					<template v-slot:template>
-			        	<el-button size="mini" @click.native="onEditHandler(scope)">Edit</el-button>
+			        	<el-button size="mini" @click.native="onEditHandler(scope)">编辑</el-button>
 			        	<el-button size="mini" @click.native="onViewHandler(scope)">详情</el-button>
 			        </template>
 				</KTableColumn>
@@ -84,7 +84,7 @@ let admin_article = {
 		if( !this.tableData || !this.tableData.length ){
 			this.nextPage();
 		}else{
-			this.$refs.wrapper.querySelector(".mod-table").scrollTop = this.scrollTop;			
+			this.$refs.wrapper.querySelector(".mod-table").scrollTop = this.scrollTop;
 		}
 	}
 }
@@ -97,7 +97,7 @@ export default admin_article;
 	}
 	.mod-table{
 		thead td:last-child{
-			width:80*@rem;
+			width:85*@rem;
 		};
 	}
 </style>

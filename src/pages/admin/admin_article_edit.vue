@@ -65,7 +65,7 @@
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import Quill from 'quill'
 import { upload } from '@/lib/api';
-import { modify_article } from '@/lib/adminapi';
+import { article_modify } from '@/lib/adminapi';
 
 import Devices from '@/lib/core/Devices';
 
@@ -212,7 +212,8 @@ let admin_article_edit = {
 				...this.form, ...this.formBottom, content:this.$refs.editor.querySelector(".ql-editor").innerHTML
 			}
 			console.log("提交数据",data );
-			modify_article( data, this ).then( res =>{
+
+			article_modify( data, this ).then( res =>{
 
 			})
 		},

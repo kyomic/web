@@ -1,5 +1,5 @@
 <template>
-	<ScrollView :loading="loading" :onReachBottom="onReachBottom" v-if="mobile">		
+	<ScrollView :loading="loading" :scrollTop="scrollTop" @reachbottom="onReachBottom" @scroll="onWrapperScroll" v-if="mobile">		
 		<div class="article-item" v-for="(item) in list.data">
 			<div class="article-header">
 				<h2 class="title">
@@ -41,16 +41,22 @@ export default {
 	computed:{
 
 		...mapState('article',['loading']),
-		...mapGetters('article', ['list']),
+		...mapGetters('article', ['list','scrollTop']),
 		...mapGetters('env', ['mobile'])
 	},
 	methods:{
 		...mapActions("article", ["nextPage"]),
+		...mapMutations('article',['updateScroll']),
+
 		onReachBottom:function(){
 			this.page +=1;
 			if( this.page > this.maxpage) return;
 			this.nextPage();
-		}
+		},
+		onWrapperScroll:function(e){
+			let target = e.currentTarget;
+			this.updateScroll( target.scrollTop );
+		},
 	},
 
 

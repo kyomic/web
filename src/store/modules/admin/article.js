@@ -1,13 +1,10 @@
 import request from '@/lib/request';
-import {
-    getArticleList, getArticleById 
-}
-from '@/lib/api';
+import { api } from '@/services/api';
+let api_article = api.article;
 
 // initial state
 // shape: [{ id, quantity }]
 const state = {
-    loading: true,
     list: {
         data: [],
         pagination: {}
@@ -20,7 +17,6 @@ const state = {
 // getters
 const getters = {
     list: function(state) {
-        console.log("getter. ", state.list)
         return state.list
     },
     scrollTop(state){
@@ -32,7 +28,7 @@ const getters = {
 // actions
 const actions = {
     async nextPage({dispatch}) {
-        return dispatch('getList', {
+        return dispatch('list', {
             page: 1
         })
     },
@@ -42,11 +38,9 @@ const actions = {
         commit('showArticle', data );
     },
 
-    async getList({ state, commit, dispatch }, payload) {
-        state.loading = true;
-        let data = await getArticleList(payload);
-        state.loading = false;        
-        commit('appendArticle', data);
+    async list({ state, commit, dispatch }, payload) {
+        let data = await api_article.list(payload);
+        commit('append', data);
         return data;
     }, 
 
@@ -55,12 +49,13 @@ const actions = {
 
 // mutations
 const mutations = {
-    appendArticle(state, payload) {
-        console.log("添加文章 ", payload)
+    updateScroll( state, payload ){
+        state.scrollTop = payload;
+    },
+    append(state, payload) {
         state.list = {
             data: state.list.data.concat(payload.list || []),
-            pagination: {...payload.pagination
-            }
+            pagination: {...payload.pagination }
         }
         console.log("state", state)
     },
@@ -69,9 +64,6 @@ const mutations = {
         state.currentArticle = payload;
     },
 
-    updateScroll( state, payload ){
-        state.scrollTop = payload;
-    },
     mutationsCall(state, payload) {
         console.log("app.mutations.mutationsCall:");
     },
