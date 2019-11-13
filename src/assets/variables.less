@@ -1,2 +1,12 @@
 @rem : 1/20rem;  //1rem = 10px
 @pxUnit : 1px;
+
+
+//元素过渡效果
+.transition (@prop: all, @time: 0.5s, @ease: ease, @delay: 0s) {
+    -webkit-transition : @prop @time @ease @delay;
+    -moz-transition    : @prop @time @ease @delay;
+    -o-transition      : @prop @time @ease @delay;
+    -ms-transition     : @prop @time @ease @delay;
+    transition         : @prop @time @ease @delay;
+}

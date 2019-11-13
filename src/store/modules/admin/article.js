@@ -52,7 +52,10 @@ const mutations = {
     updateScroll( state, payload ){
         state.scrollTop = payload;
     },
+
     append(state, payload) {
+        
+        
         state.list = {
             data: state.list.data.concat(payload.list || []),
             pagination: {...payload.pagination }

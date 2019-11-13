@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 //index去控制管理或web首页
 import index from '@/pages/index';
+import test from '@/pages/test'
 import article from '@/pages/article/article';
 import article_detail from '@/pages/article/article_detail';
 
@@ -9,7 +10,11 @@ import login from '@/pages/account/login';
 import {info as userinfo} from '@/pages/account/info'
 import search from '@/pages/search/search'
 
-import { admin_index, admin_article, admin_article_edit } from '@/pages/admin';
+import { 
+	admin_index, admin_article, admin_article_edit,
+	admin_task,admin_task_edit,
+	admin_figure, admin_figure_edit
+} from '@/pages/admin';
 console.log("admin_article", admin_index)
 
 import NotFound from '@/components/NotFound';
@@ -67,6 +72,11 @@ let webRouter = [
 		component: search
 	},
 	{
+		path: "/test",
+		name: "test",
+		component: test
+	},
+	{
 		path:'*',
 		name:'404',
 		component:NotFound
@@ -98,6 +108,26 @@ let adminRouter = [
 		path:"/admin/article_detail",
 		name:"article_detail",
 		component:article_detail,
+	},
+	{
+		path:"/admin/task",
+		name:"admin_task",
+		component:admin_task,
+	},
+	{
+		path:"/admin/task_edit",
+		name:"admin_task_edit",
+		component:admin_task_edit,
+	},
+	{
+		path:"/admin/figure",
+		name:"admin_figure",
+		component:admin_figure,
+	},
+	{
+		path:"/admin/figure_edit",
+		name:"admin_figure_edit",
+		component:admin_figure_edit,
 	}
 ];
 routerOptions.routes = routerOptions.routes.concat( webRouter );

@@ -1,7 +1,7 @@
 <template>
 	<div class="page-wrap page-admin admin_article>">
 		<div class="wrapper" ref="wrapper">
-			<KTable :data="tableData" :loading="loading" v-slot:default="scope" @scroll.native="onWrapperScroll">
+			<KTable :data="tableData" :loading="loading" :mobile="mobile" v-slot:default="scope" @scroll.native="onWrapperScroll">
 				<KTableColumn label="标题" prop="title" :column="scope"></KTableColumn>
 				<KTableColumn label="日期" prop="date" :column="scope"></KTableColumn>
 				<KTableColumn label="其它" prop="other" :column="scope" class="hidden-xs-only"></KTableColumn>

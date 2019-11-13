@@ -1,16 +1,7 @@
 <template>
-	<td class="com-tablecolumn">
-    <!-- 如果没配置$row，则显示为表头 -->
-    <slot name="template" v-if="column && column.$row ">{{displayLabel}}</slot>
-    <div v-else>
-      {{label}}
-      <div class="table-sort" v-if="column && column.sort">
-        <i class="el-icon-caret-top" v-if="column && column.sort=='desc'" />
-        <i class="el-icon-caret-bottom" v-else />
-      </div>
-      
-    </div>
-	</td>
+  <div>
+    <slot name="header">header</slot>
+  </div>
 </template>
 <script>
 
@@ -19,16 +10,16 @@ import Devices from '@/lib/core/Devices';
 
 
 export default {
-  name: 'KTableColumn',
+  name: 'KTableHeader',
   data() {
     return {
     };
   },
   props:{
-  	loading:{
-  		type:Boolean,default:false, required:false
-  	},
-  	label:{
+    loading:{
+      type:Boolean,default:false, required:false
+    },
+    label:{
       type:String, default:"", required:false
     },
     /** 表格单元格的字段名 */

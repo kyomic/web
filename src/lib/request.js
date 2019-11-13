@@ -32,19 +32,14 @@ request.post = ( url, option ) =>{
 	if( !/https?/ig.exec(url)){
 		url = config.api + url;
 	}
-	let params = Object.assign({}, option);
-	params = Object.assign({}, params );
+	option = option || {};
 	return new Promise((resolve,reject)=>{
-		axios.post( url, {
-			params: params
-		}).then(res=>{
-			setTimeout(()=>{
-				if( res && res.data && res.data.status == 200 ){
-					resolve( res.data.data );
-				}else{
-					reject( res );
-				}
-			},1000);
+		axios.post( url, option.data ).then(res=>{
+			if( res && res.data && res.data.status == 200 ){
+				resolve( res.data.data );
+			}else{
+				reject( res );
+			}
 		}).catch(e=>{
 			reject(e);
 		})

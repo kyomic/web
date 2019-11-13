@@ -4,14 +4,23 @@
 			<table cellspacing="0" cellpadding="0" border="0">
 				<thead>
 					<tr>
-						<slot></slot>
+						<slot></slot>            
 					</tr>
 				</thead>
 				<tr v-for="item in tableData">
 					<slot v-slot:template v-bind="item"></slot>
 				</tr>
 			</table>
-			<i v-if="loading" class="el-icon-loading"></i>
+			<div class="com-loading" v-if="loading">
+				<i class="el-icon-loading"></i>
+			</div>
+			<el-pagination
+        background
+        layout="prev, pager, next"
+        :total="pagination.total" :page-size="pagination.pagesize"
+        @current-change="onPageChange"
+         v-if="!mobile">
+      </el-pagination>
 		</div>
 	</div>
 </template>
@@ -33,6 +42,16 @@ export default {
   	loading:{
   		type:Boolean,default:true, required:false
   	},
+    mobile:{
+      type:Boolean,default:false, required:true
+    },
+    pagination:{
+      type:Object, required:false,default:function(){
+        return {
+          total:1,pagesize:1
+        }
+      }
+    },
   	data:{
   		type:Array,required:true, 
   		default:function(){
@@ -66,6 +85,9 @@ export default {
   	}
   },
   methods:{
+    onPageChange( page ){
+      this.$emit('current-change', page);
+    }
   },
   mounted(){
   	console.log("###################", this)
@@ -73,26 +95,6 @@ export default {
 };
 </script>
 <style lang="less">
-	.mod-table{
-		height: 100%;
-		width: 100%;
-		overflow-x: hidden;
-		overflow-y: scroll;
-		position: absolute;
-		table{
-			table-layout: fixed;
-			width: 100%;
-		}
-		td{
-			border-bottom:1px solid #ebeef5;
-		}
-		
-	}
-	.mod-table{
-		font-size: 12*@rem;
-		td{
-			padding: 10px 10px;
-		}
-	}
+	
 	
 </style>

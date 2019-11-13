@@ -8,11 +8,13 @@ import camelCase from 'lodash/camelCase'
 
 import {
   Row,Col,Button,Notification,Message, Drawer, Form, FormItem,
+  Progress,Pagination,
   Table, TableColumn,Checkbox,CheckboxGroup,Radio,RadioGroup,Input,Select,Option,Switch,DatePicker,TimePicker,Tag
 } from 'element-ui'  //按需引用element-ui组件
 
 import router from './router';
 import store from './store'
+import Devices from '@/lib/core/Devices'
 
 import './assets/style.scss'
 import './assets/normalize.css'
@@ -34,6 +36,8 @@ Vue.use(Radio);
 Vue.use(RadioGroup);
 Vue.use(Select);
 Vue.use(Option);
+Vue.use(Progress);
+Vue.use(Pagination);
 Vue.use(Switch);
 Vue.use(DatePicker);
 Vue.use(TimePicker);
@@ -48,6 +52,38 @@ Vue.use(VueMeta)
 //没看懂
 Vue.prototype.$notify = Notification;
 Vue.prototype.$message = Message;
+
+Vue.prototype.$network = function(e){
+  let msg = e.data ? e.data.msg : e;
+  this.$message({
+    message:( msg +""),
+    showClose:true,
+    duration:0,
+    type:'error'
+  })
+}
+
+Vue.prototype.$layoutTable = function(){
+  let header = this.$root.$el.querySelector('.header');
+  let headerHeight = 0;
+  if( header ){
+    headerHeight = header.offsetHeight;
+  }
+  let devices = Devices.getInstance();
+  if( !devices.context ){
+    devices.context = window;
+  }
+  if( devices.grid24code.indexOf("xs") == -1){
+    //pc
+    return ;
+  }
+  if( this.$refs["mod-table-header"] && this.$refs["mod-table"]){
+    let height = this.$refs["mod-table-header"].offsetHeight;   
+
+    let view = devices.viewSize;
+    this.$refs["mod-table"].$el.style.cssText = "height:"+(view.height - height - headerHeight )+"px"
+  }
+}
 
 Vue.config.productionTip = false;
 
