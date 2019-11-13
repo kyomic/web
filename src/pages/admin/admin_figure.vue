@@ -2,6 +2,7 @@
 	<div class="page-wrap page-admin admin_article>">
 		<div class="wrapper" ref="wrapper">
 			<KTable :mobile="mobile" :data="tableData" :pagination="list.pagination" :loading="hasLoading" v-slot:default="scope" @scroll.native="onWrapperScroll" @current-change="onPageChange" ref="mod-table">
+				<KTableColumn label="ID" prop="figure_id" :column="scope" @click.native="onClick(scope)"></KTableColumn>
 				<KTableColumn label="缩略图" :column="scope">
 					<template v-slot:template>
 						<img :src="'http://php.tt.com/'+scope.figure_thumbs" v-if="scope.figure_thumbs" />
@@ -151,6 +152,9 @@ export default admin_figure;
 		width: 100*@rem;
 	}
 	.mod-table{
+		thead td:first-child{
+			width:20*@rem;
+		};
 		thead td:last-child{
 			width:45*@rem;
 		};

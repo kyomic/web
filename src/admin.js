@@ -8,7 +8,7 @@ import camelCase from 'lodash/camelCase'
 
 import {
   Row,Col,Button,Notification,Message, Drawer, Form, FormItem,
-  Progress,Pagination,
+  Progress,Pagination,Image,
   Table, TableColumn,Checkbox,CheckboxGroup,Radio,RadioGroup,Input,Select,Option,Switch,DatePicker,TimePicker,Tag
 } from 'element-ui'  //按需引用element-ui组件
 
@@ -45,6 +45,7 @@ Vue.use(Tag);
 Vue.use(Drawer);
 Vue.use(Table);
 Vue.use(TableColumn);
+Vue.use(Image)
 
 
 Vue.use(VueMeta)
@@ -54,7 +55,7 @@ Vue.prototype.$notify = Notification;
 Vue.prototype.$message = Message;
 
 Vue.prototype.$network = function(e){
-  let msg = e.data ? e.data.msg : e;
+  let msg = e.data ? (e.data.msg||'未知错误') : e;
   this.$message({
     message:( msg +""),
     showClose:true,

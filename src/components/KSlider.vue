@@ -21,6 +21,7 @@
 
 <script>
 let animationDuration = 500;
+let slotsLength = 0;
 export default {
   name: 'KSlider',
   components:{},
@@ -37,15 +38,6 @@ export default {
     };
   },
   props:{
-  	loading:{
-  		type:Boolean,default:true, required:false
-  	},
-  	data:{
-  		type:Array,required:false, 
-  		default:function(){
-  			return []
-  		},
-  	}
   },
   computed:{
     offset(){
@@ -109,39 +101,60 @@ export default {
         //this.index = this.childs.length - 1;
       }     
     },
+
+    onUpdated( force = false){
+      if( slotsLength != this.$slots.default.length || force ){
+        slotsLength = this.$slots.default.length;
+        let root = this.$refs["mod-slider"];
+        let content = root.querySelector(".content");
+        let childs = (this.$slots.default || []).filter(res=>{
+          return res && res.elm && res.elm.nodeType ==1 ;
+        })
+        childs = childs.map(res=> res.elm );
+        
+
+        let height = root.offsetHeight;
+        let width  = root.offsetWidth;
+        console.log("width====", width)
+        if( !height && childs && childs.length ){
+          height = childs[0].offsetHeight;
+        }
+        if( !height ){
+          throw new Error("*** 请设置KSlider下子元素高度或者KSlider本身高度 ***");
+        }
+        this.childs = childs;
+        this.height = height;
+        this.width = width;
+
+        console.log("新的子节点", childs, "单条宽度:", this.width)
+        this.childs = childs;        
+        let code = childs.reduce((current,value,index,arr)=>{
+          return current + value.outerHTML
+        },'');
+        content.innerHTML = [code,code,code].join('');
+        content.style.width = this.width * this.childs.length *3 + 'px';
+        this.redraw();
+      }
+      
+    },
     redraw(){
       let root = this.$refs["mod-slider"].querySelector(".content");
-      let childs = Array.from(root.childNodes).filter(res=>res.nodeType==1);
-      childs.map(res=>{
-        res.style.width = this.width + "px"
-      })      
+      if( root ){
+        Array.from(root.childNodes).map(res=>{
+          res.style.width = this.width + "px"
+        })
+      }  
       this.initOffset = -(this.childs.length * this.width);
     }
   },
+  beforeUpdate(){    
+  },
+  updated(){
+    this.onUpdated();
+  },
   mounted(){
-    let root = this.$refs["mod-slider"];
-    let content = root.querySelector(".content");
-
-    let childs = (this.$slots.default || []).filter(res=>{
-      return res && res.elm && res.elm.nodeType ==1 ;
-    })
-    childs = childs.map(res=> res.elm );
-    let height = root.offsetHeight;
-    let width  = root.offsetWidth;
-    if( !height && childs && childs.length ){
-      height = childs[0].offsetHeight;
-    }
-    
-    if( !height ){
-      throw new Error("*** 请设置KSlider下子元素高度或者KSlider本身高度 ***");
-    }
-    this.height = height;
-    this.width = width;
-    this.childs = childs;
-    let code = content.innerHTML;
-    content.innerHTML = [code,code,code].join('');
-    content.style.width = this.width * this.childs.length *3 + 'px';
-    this.redraw();
+    console.log("KSlider mounted .childs", this.$slots)
+    this.onUpdated( true );
   }
 };
 </script>
@@ -151,13 +164,13 @@ export default {
     width: 100%;
     height: 100%;
     background: #ccc;
+    overflow: hidden;
     .content{
       transition-timing-function: cubic-bezier(0.1, 0.57, 0.1, 1);
       transform: translate(0, 0px) translateZ(0px); 
 
       >div{
         float:left;
-        height: 100%;
         transition-timing-function: cubic-bezier(0.1, 0.57, 0.1, 1);
         transition-duration: 0ms;
         transform: translate(0, 0px) translateZ(0px);
@@ -194,9 +207,10 @@ export default {
     }
     .dot-pager{
       position: absolute;
-      bottom: 0;
+      bottom: 5*@rem;
       text-align: center;
       width: 100%;
+      line-height: 100%;
       >.dot{
         display: inline-block;
       }

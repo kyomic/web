@@ -18,7 +18,14 @@ export async function update( option, context = null ){
 	return request.post(`${host}/index.php/ajax/figure/update/?${stringify(option.params)}`, option );
 }
 
-
+export async function make_thumbs( params, context = null ){
+	if( context ) return cacher( info, params, context );
+	return request.get(`${host}/index.php/ajax/figure/make_thumbs/?${stringify(params)}`);
+}
+export async function update_figure( params, context = null ){
+	if( context ) return cacher( info, params, context );
+	return request.get(`${host}/index.php/ajax/figure/update_figure/?${stringify(params)}`);
+}
 export default {
-	list,info,update
+	list,info,update, make_thumbs, update_figure
 }

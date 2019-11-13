@@ -2,12 +2,7 @@
   <div class="hello">
     hello world
     <KSlider class="kslider" >
-      <div class="item"><span>1</span></div>
-      <div class="item"><span>2</span></div>
-      <div class="item"><span>3</span></div>
-      <div class="item"><span>4</span></div>
-      <div class="item"><span>5</span></div>
-      <div class="item"><span>6</span></div>
+      <div  v-for="(item,index) in data" :class="'item '+ item"><span>{{item}}</span></div>
     </KSlider>
   </div>
 
@@ -21,10 +16,16 @@ export default {
   components:{ KSlider },
   data() {
     return {
+      data:[1,2,3],
       msg: 'Welcome to Your Vue.js App',
     };
   },
   mounted(){
+
+    setTimeout(()=>{
+      this.data=['a','b','c','d','e']
+      console.log("newdata",this.data)
+    },5000)
   }
 };
 </script>
@@ -36,5 +37,6 @@ export default {
   .kslider span{
     display: block;
     height: 100%;
+    border: 1px solid red;
   }
 </style>
