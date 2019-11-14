@@ -5,6 +5,7 @@ import env from './base/env'
 import user from './modules/user'
 import search from './modules/search'
 import article from './modules/article'
+import blog from './modules/blog'
 
 import admin_article from "./modules/admin/article";
 import admin_task from "./modules/admin/task";
@@ -19,6 +20,7 @@ const store = new Vuex.Store({
   	user,
   	search,
   	article,
+  	blog,
 
 
   	admin_article,

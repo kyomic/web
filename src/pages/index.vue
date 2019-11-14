@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    hello world
+    基于Vue的BLOG, 快速构建ing...
   </div>
 
 

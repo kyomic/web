@@ -3,20 +3,20 @@
 		<div class="article-item" v-for="(item) in list.data">
 			<div class="article-header">
 				<h2 class="title">
-					<router-link :to="'/article/detail/?id=' + item.id">{{item.title}}</router-link>
+					<router-link :to="'/article/detail/?id=' + item.id">{{item.log_Title}}</router-link>
 				</h2>
 			</div>
-            <div class="article-content">{{item.desc}}</div>
+            <div class="article-content">{{item.log_Intro}}</div>
         </div>
 	</ScrollView>
 	<div v-else>
 		<div class="article-item" v-for="(item) in list.data">
 			<div class="article-header">
 				<h2 class="title">
-					<router-link :to="'/article/detail/?id=' + item.id">{{item.title}}</router-link>
+					<router-link :to="'/article/detail/?id=' + item.id">{{item.log_Title}}</router-link>
 				</h2>
 			</div>
-            <div class="article-content">{{item.desc}}</div>
+            <div class="article-content">{{item.log_Intro}}</div>
         </div>
 	</div>
 </template>
@@ -39,18 +39,14 @@ export default {
 		};
 	},
 	computed:{
-
-		...mapState('article',['loading']),
-		...mapGetters('article', ['list','scrollTop']),
+		...mapState('blog',['loading', 'list', 'scrollTop']),
 		...mapGetters('env', ['mobile'])
 	},
 	methods:{
-		...mapActions("article", ["nextPage"]),
-		...mapMutations('article',['updateScroll']),
+		...mapActions("blog", ["nextPage"]),
+		...mapMutations('blog',['updateScroll']),
 
 		onReachBottom:function(){
-			this.page +=1;
-			if( this.page > this.maxpage) return;
 			this.nextPage();
 		},
 		onWrapperScroll:function(e){
@@ -70,7 +66,7 @@ export default {
 		}
 		
 		//this.nextPage();
-		console.log("artilce is mounted", this.list)
+		console.log("artilce is mounted", this)
 	}
 };
 </script>

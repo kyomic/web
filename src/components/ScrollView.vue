@@ -37,8 +37,10 @@ export default {
   		let scrollHeight = dom.scrollHeight;
   		let viewHeight = dom.offsetHeight;
       this.onScroll && this.onScroll(e);
+      console.log("scroll.........", scrollTop, scrollHeight, scrollHeight - viewHeight)
       this.$emit('scroll', e);
   		if( scrollTop >= scrollHeight - viewHeight ){
+        console.log("reachbottom")
   			this.$emit('reachbottom', e);
   		}
   	}
