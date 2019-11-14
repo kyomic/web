@@ -142,7 +142,7 @@ let admin_task = {
 export {admin_task};
 export default admin_task;
 </script>
-<style lang="less">
+<style lang="less" scoped>
 	.action{
 		width: 100*@rem;
 	}

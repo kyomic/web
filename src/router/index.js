@@ -19,7 +19,7 @@ console.log("admin_article", admin_index)
 
 import NotFound from '@/components/NotFound';
 import Element from '@/components/Element';
-
+import config from '@/lib/config';
 
 
 Vue.use(Router);
@@ -27,7 +27,7 @@ Vue.use(Router);
 console.log("Article", article)
 console.log("Element", Element)
 let routerOptions = {
-	//mode:"history", 
+	mode:config.routerMode, 
 	routes:[]
 }
 

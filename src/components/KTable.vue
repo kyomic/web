@@ -1,6 +1,15 @@
 <template>
 	<div class="mod-table">
-		<div class="com-table-wrapper">			
+		<div class="com-table-wrapper">
+      <div class="table-fixed">
+        <table cellspacing="0" cellpadding="0" border="0">
+            <thead>
+              <tr>
+                <slot></slot>            
+              </tr>
+            </thead>
+        </table>
+      </div>
 			<table cellspacing="0" cellpadding="0" border="0">
 				<thead>
 					<tr>
@@ -95,6 +104,11 @@ export default {
 };
 </script>
 <style lang="less">
-	
+	.table-fixed{
+    position: fixed;
+    background: white;
+    width: 100%;
+    z-index: 1;/*td中有些元素是absolute*/
+  }
 	
 </style>

@@ -3,7 +3,7 @@
         <el-row type="flex" justify="space-between" class="header">
             <el-col>
                 <div class="menu-left">
-                    <a href="/">首页1</a>
+                    <a :href="home">首页1</a>
                 </div>
             </el-col>
             <el-col>                
@@ -31,6 +31,7 @@
 <script>
 import Devices from '@/lib/core/Devices';
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+import config from '@/lib/config'
 
 import admin_menu from '@/pages/admin/admin_menu'
 console.log("CONFIG( ADMIN)", admin_menu)
@@ -56,6 +57,12 @@ export default {
     ...mapState(  'env', ['grid24code','router']),
     ...mapGetters('env', ['mobile']),
 
+    home(){
+      if( config.dev ){
+        return '/'
+      }
+      return config.host.www;
+    }
   },
   methods:{
     ...mapActions('user',['loginstate']),

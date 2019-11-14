@@ -1,8 +1,12 @@
 // initial state
 // shape: [{ id, quantity }]
+import config from '@/lib/config';
+let host = config.host;
+
 const state = {
   grid24code:"",
-  router:{}
+  router:{},
+  host
 }
 
 
