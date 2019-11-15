@@ -5,7 +5,7 @@
 				<KTableColumn label="ID" prop="figure_id" :column="scope" @click.native="onClick(scope)"></KTableColumn>
 				<KTableColumn label="缩略图" :column="scope">
 					<template v-slot:template>
-						<img :src="'http://php.tt.com/'+scope.figure_thumbs" v-if="scope.figure_thumbs" />
+						<img :src=" host.www + '/'+scope.figure_thumbs" v-if="scope.figure_thumbs" />
 						<div v-else>empty</div>
 					</template>
 				</KTableColumn>
@@ -51,7 +51,7 @@ let admin_figure = {
 	computed:{
 	  	//环境状态
 	  	...mapState('admin_figure',['list','scrollTop','currentPage']),
-	    ...mapState('env', ['grid24code','router']),
+	    ...mapState('env', ['grid24code','router','host']),
 	    ...mapGetters('env', ['mobile']),
 	    //用户状态
 	    ...mapGetters('user',['isLogined', 'userinfo']),

@@ -37,14 +37,14 @@
 				</el-form-item>
 				<el-form-item label="缩略图">
 					<div class="img-thumbs">
-						<img :src="'http://php.tt.com/'+form.figure_thumbs" v-if="form.figure_thumbs"></img>
+						<img :src=" host.www + '/'+form.figure_thumbs" v-if="form.figure_thumbs"></img>
 						<el-button @click="onMakeThumbs" v-else>手动生成</el-button>
 					</div>
 				</el-form-item>
 				<el-form-item label="产品图">
 					<KSlider class="kslider" v-if="form.figure_imgs && form.figure_imgs.length">
 						<div class="item" v-for="(item,index) in thumbs">
-							<img :src="'http://php.tt.com/'+item"></img>
+							<img :src=" host.www + '/'+item"></img>
 						</div>
 					</KSlider>
 					<el-button @click="onUpdateOriginData">{{updating?'更新中...':'同步数据'}}</el-button>

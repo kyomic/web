@@ -1,21 +1,28 @@
 <template>
-	<div class="article-item">
-		<h2 class="title">{{currentArticle.title}}</h2>
-		<div>
-			{{currentArticle.desc}}
+	<div class="page-wrap page-wrap-scroll">		
+		<div class="wrapper">
+			<i v-if="loading" class="el-icon-loading loading"></i>
+			<div class="article-item" v-show="!loading">
+				<div class="article-header">
+					<h2 class="title">
+						{{item.log_Title}}
+					</h2>
+					<div class="meta">
+						<span class="meta-author">作者:{{item.log_Author}}</span>
+						<span class="meta-author">日期:{{item.log_PostTime}}</span>
+					</div>
+				</div>
+	            <div class="article-content">
+	            	<div class="content" v-html="item.log_Intro">
+	            	</div>
+	            </div>
+	            <div class="article-footer">
+	            </div>
+			</div>
+			
 		</div>
-		<div class="article-footer">
-			<div class="btn btn-reply" @click="onComment">评论</div>
-		</div>
-		<div class="comment" v-if="showCommentBox">
-			<el-input
-				type="textarea"
-				:rows="2"
-				placeholder="请输入内容"
-				v-model="comment">
-			</el-input>
-		</div>
-	</div>
+	</div>	
+	
 </template>
 <script>
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
@@ -30,11 +37,15 @@ export default {
 	},
 	computed:{
 		...mapState('env', ["router"]),
-		...mapState('article',['currentArticle']),
+		...mapState('blog',['loading','detail']),
 		...mapGetters('user', ['isLogined']),
+
+		item(){
+			return this.detail
+		}
 	},
 	methods:{
-		...mapActions("article", ["getArticle"]),
+		...mapActions("blog", ["info"]),
 		onComment:function(){
 			if( !this.isLogined ){
 				this.$router.push({path: '/account/login', query: {'ref': this.router.current.fullPath}})
@@ -46,9 +57,7 @@ export default {
 	},
 	mounted(){
 		let id = this.$route.query.id;
-		this.getArticle({id:id}).catch(e=>{
-			console.error(e);
-		})
+		this.info({id:id})
 	}
 };
 </script>

@@ -37,7 +37,7 @@
         </el-drawer>
         <!-- 内容区开始 -->
         <el-row class="container" ref="abc" @scroll.native="onScroll">
-            <el-col class="page-wrap" :xs="24" :sm="18">
+            <el-col class="page-wrap page-wrap-scroll" :xs="24" :sm="18">
                 <router-view/>
             </el-col>     
             <el-col class="slider" :xs="0" :sm="4">
@@ -51,6 +51,7 @@
             </div>
             <div class=" mobile-footer-menu hidden-sm-and-up">
                 <HomeMenu></HomeMenu>  
+                <a class="beian" target='_blank'>鄂ICP备06007021号</a>
             </div>
             
         </div>
@@ -167,10 +168,6 @@ export default {
   width:100%;
   padding: 5px;
 }
-.footer{
-    padding-top: 50px;
-    text-align: center;
-}
 .mobile-menu{
     text-align: center;
     padding-top: 20px;
@@ -189,13 +186,14 @@ export default {
     display: inline-block;
 }
 .mobile-footer-menu{
-    position: fixed;
-    bottom: 0;
-    left: 0;
     width: 100%;
     background: white;
+    margin-top: 5*@rem;
 }
-
+.beian{
+  color: #ccc;
+  font-size: 9px;
+}
 
 
 

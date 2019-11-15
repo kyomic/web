@@ -89,3 +89,10 @@ html.mobile{
 	background: white;
 	height: 40*$rem;
 }
+.footer{
+  height: 40*$rem;
+  border-top: 1px solid #ECECEC;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+}

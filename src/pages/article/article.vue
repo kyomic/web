@@ -1,12 +1,19 @@
 <template>
 	<ScrollView :loading="loading" :scrollTop="scrollTop" @reachbottom="onReachBottom" @scroll="onWrapperScroll" v-if="mobile">		
-		<div class="article-item" v-for="(item) in list.data">
+		<div class="mod-article article-item" v-for="(item) in list.data">
 			<div class="article-header">
 				<h2 class="title">
 					<router-link :to="'/article/detail/?id=' + item.id">{{item.log_Title}}</router-link>
 				</h2>
+				<div class="meta">
+					<span class="meta-author">作者:{{item.log_Author}}</span>
+					<span class="meta-author">日期:{{item.log_PostTime}}</span>
+				</div>
 			</div>
-            <div class="article-content">{{item.log_Intro}}</div>
+            <div class="article-content">
+            	<div class="content" v-html="item.log_Intro">
+            	</div>
+            </div>
         </div>
 	</ScrollView>
 	<div v-else>
