@@ -1,5 +1,5 @@
 <template>
-	<ScrollView :loading="loading" :scrollTop="scrollTop" @reachbottom="onReachBottom" @scroll="onWrapperScroll" v-if="mobile">		
+	<div class="page-wrap-content">
 		<div class="mod-article article-item" v-for="(item) in list.data">
 			<div class="article-header">
 				<h2 class="title">
@@ -10,25 +10,17 @@
 					<span class="meta-author">日期:{{item.log_PostTime}}</span>
 				</div>
 			</div>
-            <div class="article-content">
-            	<div class="content" v-html="item.log_Intro">
-            	</div>
-            </div>
-        </div>
-	</ScrollView>
-	<div v-else>
-		<div class="article-item" v-for="(item) in list.data">
-			<div class="article-header">
-				<h2 class="title">
-					<router-link :to="'/article/detail/?id=' + item.id">{{item.log_Title}}</router-link>
-				</h2>
-			</div>
-            <div class="article-content">{{item.log_Intro}}</div>
-        </div>
+	        <div class="article-content">
+	        	<div class="content" v-html="item.log_Intro">
+	        	</div>
+	        </div>
+	    </div>
+	    <i v-if="loading" class="el-icon-loading loading"></i>
 	</div>
 </template>
 <script>
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+import Debug from "@/lib/debug";
 import request from "@/lib/request"
 
 import ScrollView from "@/components/ScrollView";
@@ -36,7 +28,7 @@ import "./article.less"
 
 export default {
 	name: 'Article',
-	components: { ScrollView },
+	components: {},
 	data() {
 		return {
 			maxpage:3,
@@ -56,24 +48,39 @@ export default {
 		onReachBottom:function(){
 			this.nextPage();
 		},
-		onWrapperScroll:function(e){
-			let target = e.currentTarget;
+		onScroll(e){
+			console.log("scroll.............")
+			let target = e;
 			this.updateScroll( target.scrollTop );
 		},
 	},
 
-
+	beforeDestroy(){
+		if( this.onScrollHandler ){
+			this.$root.$off('scroll',this.onScrollHandler )
+			this.onScrollHandler = null;
+		}
+		if( this.onReachBottomHandler ){
+			this.$root.$off('reachbottom',this.onReachBottomHandler )
+		}
+		
+	},
 	mounted(){
 		let data = this.list.data;
 		if( !data || data.length <=0 ){
 			this.nextPage().then(res=>{
-				console.log("loaded..******")
 				this.nextPage()
-			})
+			}).catch(e=>{
+				this.$network(e);
+			});
 		}
-		
+		this.$root.$onScroll = this.onScroll;
+		this.$root.$onScrollBottom = this.onReachBottom;
+		this.onScrollHandler = this.onScroll.bind(this);
+		this.onReachBottomHandler = this.onReachBottom.bind(this);
+		this.$root.$on('scroll',this.onScrollHandler )
+		this.$root.$on('reachbottom',this.onReachBottomHandler )
 		//this.nextPage();
-		console.log("artilce is mounted", this)
 	}
 };
 </script>

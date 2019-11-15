@@ -12,6 +12,7 @@ import router from './router';
 import store from './store'
 
 import './assets/style.scss'
+import './assets/common.less';
 import './assets/normalize.css'
 import 'element-ui/lib/theme-chalk/display.css';
 import './lib/rem.js'
@@ -80,6 +81,18 @@ new Vue({
   template: '<App/>',
 });
 
+Vue.prototype.$network = function(e){
+  let msg = e.data ? (e.data.msg||'未知错误') : e;
+  this.$message({
+    message:( msg +""),
+    showClose:true,
+    duration:0,
+    type:'error'
+  })
+}
+Vue.prototype.$updateTitle = function( str ){
+  document.title = str;
+}
 /** 去更新store.env中的state */
 router.beforeEach((to, from, next) => {
   //console.log(to.matched)

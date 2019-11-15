@@ -1,25 +1,22 @@
 <template>
-	<div class="page-wrap page-wrap-scroll">		
-		<div class="wrapper">
-			<i v-if="loading" class="el-icon-loading loading"></i>
-			<div class="article-item" v-show="!loading">
-				<div class="article-header">
-					<h2 class="title">
-						{{item.log_Title}}
-					</h2>
-					<div class="meta">
-						<span class="meta-author">作者:{{item.log_Author}}</span>
-						<span class="meta-author">日期:{{item.log_PostTime}}</span>
-					</div>
+	<div class="page-wrap-content">
+		<i v-if="loading" class="el-icon-loading loading"></i>
+		<div class="article-item" v-show="!loading">
+			<div class="article-header">
+				<h2 class="title">
+					{{item.log_Title}}
+				</h2>
+				<div class="meta">
+					<span class="meta-author">作者:{{item.log_Author}}</span>
+					<span class="meta-author">日期:{{item.log_PostTime}}</span>
 				</div>
-	            <div class="article-content">
-	            	<div class="content" v-html="item.log_Intro">
-	            	</div>
-	            </div>
-	            <div class="article-footer">
-	            </div>
 			</div>
-			
+            <div class="article-content">
+            	<div class="content" v-html="item.log_Intro">
+            	</div>
+            </div>
+            <div class="article-footer">
+            </div>
 		</div>
 	</div>	
 	
@@ -57,7 +54,9 @@ export default {
 	},
 	mounted(){
 		let id = this.$route.query.id;
-		this.info({id:id})
+		this.info({id:id}).then(res=>{
+			this.$updateTitle( res.log_Title );
+		})
 	}
 };
 </script>

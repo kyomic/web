@@ -12,6 +12,7 @@
 .mod-table{
 	width: 100%;
 	font-size: 12*@rem;
+	text-align: left;
 	.com-loading{
 		padding-top: 20*@rem;
 		padding-bottom: 30*@rem;
@@ -34,14 +35,30 @@
 			width: 100%;
 		}
 	}
+	
+	.com-table-wrapper{
+		position: relative;
+		table{
+			padding-top: 30*@rem;
+		}
+		thead{
+			display: none;
+
+		}
+	}
+	.table-fixed{
+		table{
+			padding-top:0;
+		}
+		thead{
+			display: table-header-group;
+		}
+	}
 }
+
 .mobile{
 	.mod-table{
-		height: 100%;
-		width: 100%;
-		overflow-x: hidden;
-		overflow-y: scroll;
-		position: absolute;
+		
 	}
 }
 

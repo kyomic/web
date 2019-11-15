@@ -37,8 +37,8 @@ class StoreList{
 		        state.currentPage = page;
 		        console.log("nextPage", page, total)
 		        if( page <= total || page == 1){
-		            dispatch('appendPage', {page})
-		        }     
+		        	return dispatch('appendPage', {page})
+		        }   
 		        
 		    },
 
@@ -60,7 +60,7 @@ class StoreList{
 		    async appendPage({state,commit}, payload ){
 		    	state.loading = true;
 		    	let data = await api.list(payload);
-		    	state.loading = false;
+		    	state.loading = false;		    			    	
         		commit('append', data)
 		    },
 

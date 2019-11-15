@@ -6,7 +6,7 @@
             </el-col>
             <el-col :class="mobile?'mobile-header':'mobile-header mobile-header-full'" :sm="8">
                 <div class="hidden-sm-and-up">
-                    <i>back</i>
+                    <i class="el-icon-s-home"></i>
                 </div>
                 <div class="menu-right">
                     <HeaderSearch :router="router.go"></HeaderSearch>
@@ -21,7 +21,7 @@
                         </div>
                         <div v-else>
                           <router-link :to="loginurl" >
-                          <i class="el-icon-menu"></i>
+                          <i class="el-icon-user-solid"></i>
                           </router-link>
                         </div>
                     </div>
@@ -75,13 +75,7 @@ console.log("CONFIG", config)
 export default {
   name: 'App',
   components: {HomeMenu, HeaderSearch, Sidebar },
-  metaInfo: {
-    title: 'This is the test',
-    meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no' }
-    ]
-  },
+  metaInfo: {},
   data(){
     return {
         search_kw:"",
@@ -128,14 +122,22 @@ export default {
       alert(1)
     },
     onScroll(){
-      console.log("scrolling.......")
       Devices.getInstance().emit('scroll');
     }
   },
   mounted(){
-    Devices.getInstance().context = window;
-    Devices.getInstance().on('resize', this.checkSize );
-    Devices.getInstance().on('load', this.checkSize );
+    let devices = Devices.getInstance();
+    devices.context = window;
+    devices.on('resize', this.checkSize );
+    devices.on('load', this.checkSize );
+    devices.on('scroll', (e)=>{
+      this.$root.$emit("scroll", e.data );
+    })
+    devices.on('reachbottom', (e)=>{
+      this.$root.$emit("reachbottom", e.data );
+    })
+
+
     console.log("this",this,"container")
 
     axios.get( config.api + '/api/user/list').then( res=>{
@@ -144,12 +146,13 @@ export default {
       console.error('*** Error:' + e + " ***")
     })
     console.log("@@@@@@@@@@@@@@@@@", this)
+
     this.updateRouter( {to:this.$route} );
     let path = this.$route.fullPath;
     if( /admin/ig.exec(path)){
       location.href = "/admin.html#" +path
     }
-    this.loginstate();
+    //this.loginstate();
   }
 }
 </script>
@@ -161,13 +164,7 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
-.header{
-  position: absolute;
-  z-index: 10;
-  font-size: 20*@rem;
-  width:100%;
-  padding: 5px;
-}
+
 .mobile-menu{
     text-align: center;
     padding-top: 20px;

@@ -22,7 +22,9 @@
             </div>            
         </el-drawer>
         <div class="container" ref="container">
-          <router-view/>
+          <div class="page-wrap">
+            <router-view/>
+          </div>
         </div>
         
     </div>  
@@ -83,10 +85,16 @@ export default {
     }
   },
   mounted(){
-    let devices = Devices.getInstance()
+    let devices = Devices.getInstance();
     devices.context = window;
     devices.on('resize', this.checkSize );
     devices.on('load', this.checkSize );
+    devices.on('scroll', (e)=>{
+      this.$root.$emit("scroll", e.data );
+    })
+    devices.on('reachbottom', (e)=>{
+      this.$root.$emit("reachbottom", e.data );
+    })
 
     /*
     console.log(".this.$refs.container", this)
@@ -117,30 +125,10 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
+.container{
+  padding-bottom: 0;/**override*/
+}
 
-html.mobile{
-  .root{
-    display: flex;
-    flex-direction:column;
-  }
-  .container{
-    flex:1;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    position: static;
-  }
-}
-.header{
-  z-index: 10;
-  font-size: 20*@rem;
-  width:100%;
-  padding: 5px;
-}
-.footer{
-    padding-top: 50px;
-    text-align: center;
-}
 .mobile-menu{
     text-align: center;
     padding-top: 20px;

@@ -39,42 +39,7 @@ a{
 	}
 }
 html.mobile{
-  height: 100%;
-  overflow: hidden;
-  body,.root{
-    height: 100%;
-    overflow: hidden;
-    font-size: 14*$rem;
-  }
-  .container{
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    position: absolute;
-    left: 0;
-    top: 0;
-    
-  }
-  .page-wrap{
-    height:100%;
-    overflow: hidden;
-    position: relative;
-    >.wrapper{
-      height: 100%;
-      width:100%;
-    }
-  }
-  .page-wrap-scroll{
-    >.wrapper{
-      overflow-x:hidden;
-      overflow-y:scroll;
-    }
-    
-  }
-  /* 消除header的40px的高度差*/
-  .page-wrap-scroll > *:last-child{
-    
-  }
+  
   .el-drawer__header{
   	padding: 10*$rem;
   }
@@ -84,15 +49,34 @@ html.mobile{
     width: 90%;
   }
 }
+.page-wrap-content{
+  text-align: center;
+  .loading{
+    font-size: 16*$rem;
+    margin-top: 30*$rem;
+    margin-bottom: 30*$rem;
+  }
+}
+
 .header{
 	border-bottom: 1px solid #EAEAEA;
 	background: white;
 	height: 40*$rem;
+  width: 100%;
+  padding: 5*$rem;
+  position: fixed;
+  top: 0;
+  z-index: 10;
+}
+.container{
+  font-size: 14*$rem;
 }
 .footer{
   height: 40*$rem;
   border-top: 1px solid #ECECEC;
   width: 100%;
-  position: absolute;
+  position: fixed;
   bottom: 0;
+  font-size: 14*$rem;
+  background: white;
 }

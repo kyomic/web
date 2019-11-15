@@ -10,6 +10,7 @@ class Devices{
 
 		this.evtOnResize = this.onResize.bind( this );
 		this.evtOnLoad = this.onLoad.bind( this );
+		this.evtOnScroll = this.onScroll.bind( this );
 	}
 
 	query( selector ){
@@ -115,11 +116,35 @@ class Devices{
 		return {width:0,height:0}
 	}
 
+	get scrollPosition(){
+		if( this.context ){
+			let doc = document,
+	        body = doc.body,
+	        html = doc.documentElement;
+	        return {
+	        	x: html.scrollLeft || body.scrollLeft,
+	        	y: html.scrollTop || body.scrollTop
+	        }
+		}
+		return {x:0,y:0};
+	}
+
 	onResize(){
 		this.emit('resize', {type:'resize', data: this.viewSize });
 	}
 	onLoad(){
 		this.emit('load', {type:'load', data: this.viewSize });
+	}
+	onScroll(){
+		let data = {
+			scrollTop: this.scrollPosition.y,
+			clientHeight: this.viewSize.height,
+			scrollHeight: this.scrollSize.height
+		}
+		this.emit('scroll',{type:'scroll', data })
+		if( data.scrollTop + data.clientHeight >= data.scrollHeight ){
+			this.emit('reachbottom', {type:'reachbottom', data })
+		}
 	}
 
 	/**
@@ -133,6 +158,10 @@ class Devices{
 			this._context = obj;
 			this._context.addEventListener("resize", this.evtOnResize );
 			this._context.addEventListener("DOMContentLoaded", this.evtOnLoad );
+
+			if( this._context.document ){
+				this._context.document.addEventListener('scroll', this.evtOnScroll )
+			}
 		}else{
 			throw new Error("*** Devices.context: 空的context ***");
 		}

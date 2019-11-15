@@ -1,33 +1,30 @@
 <template>
-	<div class="page-wrap page-admin admin_article>">
-		<div class="wrapper" ref="wrapper">
-			<KTable :mobile="mobile" :data="tableData" :pagination="list.pagination" :loading="hasLoading" v-slot:default="scope" @scroll.native="onWrapperScroll" @current-change="onPageChange" ref="mod-table">
-				<KTableColumn label="ID" prop="figure_id" :column="scope" @click.native="onClick(scope)"></KTableColumn>
-				<KTableColumn label="缩略图" :column="scope">
-					<template v-slot:template>
-						<img :src=" host.www + '/'+scope.figure_thumbs" v-if="scope.figure_thumbs" />
-						<div v-else>empty</div>
-					</template>
-				</KTableColumn>
-				<KTableColumn label="名称" prop="figure_name" :column="scope" @click.native="onClick(scope)"></KTableColumn>
-				<KTableColumn label="状态"  :column="scope">
-					<template v-slot:template>
-						<div>
-							{{scope.figure_release_date}}
-							{{scope.figure_price.replace('日圓 +消費稅','円')}}
-						</div>
-					</template>
-				</KTableColumn>
-				<KTableColumn label="操作" prop="action" :column="scope">
-					<template v-slot:template>
-			        	<el-button size="mini" @click.native="onEditHandler(scope)">修改</el-button>
-			        </template>
-				</KTableColumn>
-
-				
-			</KTable>
-		</div>
-		
+	<div class="page-wrap-content admin_article>">
+		<KTable :mobile="mobile" :data="tableData" :pagination="list.pagination" :loading="false" v-slot:default="scope" @scroll.native="onWrapperScroll" @current-change="onPageChange" ref="mod-table">
+			<KTableColumn label="ID" prop="figure_id" :column="scope" @click.native="onClick(scope)"></KTableColumn>
+			<KTableColumn label="缩略图" :column="scope">
+				<template v-slot:template>
+					<img :src=" host.www + '/'+scope.figure_thumbs" v-if="scope.figure_thumbs" />
+					<div v-else>empty</div>
+				</template>
+			</KTableColumn>
+			<KTableColumn label="名称" prop="figure_name" :column="scope" @click.native="onClick(scope)"></KTableColumn>
+			<KTableColumn label="状态"  :column="scope">
+				<template v-slot:template>
+					<div>
+						{{scope.figure_release_date}}
+						{{scope.figure_price.replace('日圓 +消費稅','円')}}
+					</div>
+				</template>
+			</KTableColumn>
+			<KTableColumn label="操作" prop="action" :column="scope">
+				<template v-slot:template>
+		        	<el-button size="mini" @click.native="onEditHandler(scope)">修改</el-button>
+		        </template>
+			</KTableColumn>
+			
+		</KTable>
+		<i v-if="hasLoading" class="el-icon-loading loading"></i>
 	</div>
 </template>
 
@@ -102,16 +99,10 @@ let admin_figure = {
 		onClick:function( row ){
 			console.log('click', row)
 		},
-		onWrapperScroll(e){
-			let target = e.currentTarget;
-			let height = target.offsetHeight;
-			let scrollHeight = target.scrollHeight;
-
-			this.updateScroll( target.scrollTop );
-			if( target.scrollTop >=  scrollHeight - height ){
-				this.loading = true;
-				this.nextPage();
-			}
+		onScroll(e){},
+		onReachBottom(e){
+			this.loading = true;
+			this.nextPage();
 		},
 		onPageChange(page){
 			this.loading = true;
@@ -121,6 +112,16 @@ let admin_figure = {
 			console.log("得到子组件属性", arguments)
 			return arguments[0]
 		}
+	},
+	beforeDestroy(){
+		if( this.onScrollHandler ){
+			this.$root.$off('scroll',this.onScrollHandler )
+			this.onScrollHandler = null;
+		}
+		if( this.onReachBottomHandler ){
+			this.$root.$off('reachbottom',this.onReachBottomHandler )
+		}
+		
 	},
 	mounted(){
 		console.log("tableData", this.list)
@@ -135,13 +136,17 @@ let admin_figure = {
 				this.$network(e);
 			});
 		}else{
-			this.$el.querySelector(".mod-table").scrollTop = this.scrollTop;
+			//this.$el.querySelector(".mod-table").scrollTop = this.scrollTop;
 		}
+		this.$root.$onScroll = this.onScroll;
+		this.$root.$onScrollBottom = this.onReachBottom;
+		this.onScrollHandler = this.onScroll.bind(this);
+		this.onReachBottomHandler = this.onReachBottom.bind(this);
+		this.$root.$on('scroll',this.onScrollHandler )
+		this.$root.$on('reachbottom',this.onReachBottomHandler )
+
 
 		this.$layoutTable();
-	},
-	beforeDestroy(){
-		console.log("将要销毁")
 	}
 }
 export {admin_figure};

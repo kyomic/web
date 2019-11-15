@@ -38,7 +38,7 @@
 				<el-form-item label="缩略图">
 					<div class="img-thumbs">
 						<img :src=" host.www + '/'+form.figure_thumbs" v-if="form.figure_thumbs"></img>
-						<el-button @click="onMakeThumbs" v-else>手动生成</el-button>
+						<el-button @click="onMakeThumbs">同步生成</el-button>
 					</div>
 				</el-form-item>
 				<el-form-item label="产品图">
@@ -81,7 +81,7 @@ let admin_figure_edit = {
 	},
 	computed:{
 		//环境状态
-		...mapState('env', ['grid24code','router']),
+		...mapState('env', ['grid24code','router', 'host']),
 		...mapGetters('env', ['mobile']),
 		//用户状态
 		...mapGetters('user',['isLogined', 'userinfo']),
