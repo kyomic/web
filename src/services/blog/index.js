@@ -14,7 +14,7 @@ export async function info( params, context = null ) {
 
 export async function update( option, context = null ){
 	if( context ) return cacher( update, option, context );
-	return request.post(`${config.api}/ajax/figure/update/?${stringify(option.params)}`, option );
+	return request.post(`${config.api}/ajax/blog/update/?${stringify(option.params)}`, option );
 }
 
 export default {

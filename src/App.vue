@@ -6,7 +6,7 @@
             </el-col>
             <el-col :class="mobile?'mobile-header':'mobile-header mobile-header-full'" :sm="8">
                 <div class="hidden-sm-and-up">
-                    <i class="el-icon-s-home"></i>
+                    <a href="/"><i class="el-icon-s-home"></i></a>
                 </div>
                 <div class="menu-right">
                     <HeaderSearch :router="router.go"></HeaderSearch>
@@ -16,7 +16,7 @@
                     <div class="btn-drawer hidden-sm-and-up">
                         <div v-if="isLogined">
                           <router-link :to="'/account/info?id='+userinfo.user_id" >
-                            <i class="el-icon-user-solid">{{userinfo.user_id}}</i>
+                            <i class="el-icon-user-solid">{{userinfo.ulevel==3?'Tester':''}}</i>
                           </router-link>
                         </div>
                         <div v-else>
@@ -137,22 +137,15 @@ export default {
       this.$root.$emit("reachbottom", e.data );
     })
 
+    this.$root.$on("drawer", (data)=>{
+      this.drawer = data;
+    })
 
     console.log("this",this,"container")
 
-    axios.get( config.api + '/api/user/list').then( res=>{
-      console.log("res======",res)
-    }).catch(e=>{
-      console.error('*** Error:' + e + " ***")
-    })
-    console.log("@@@@@@@@@@@@@@@@@", this)
-
+    
     this.updateRouter( {to:this.$route} );
-    let path = this.$route.fullPath;
-    if( /admin/ig.exec(path)){
-      location.href = "/admin.html#" +path
-    }
-    //this.loginstate();
+    this.loginstate();
   }
 }
 </script>

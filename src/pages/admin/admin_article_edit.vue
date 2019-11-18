@@ -3,17 +3,17 @@
 		<div class="wrapper">
 			<el-form :label-position="mobile?'top':'left'" ref="form" :model="form" label-width="80px">
 			  <el-form-item label="标题">
-				<el-input v-model="form.name"></el-input>
+				<el-input v-model="form.log_Title"></el-input>
 			  </el-form-item>
 			  <el-form-item label="分类">
-				<el-select v-model="form.region" placeholder="文章分类">
+				<el-select v-model="form.log_CateID" placeholder="文章分类">
 				  <el-option label="区域一" value="shanghai"></el-option>
 				  <el-option label="区域二" value="beijing"></el-option>
 				</el-select>
 			  </el-form-item>
 			  <el-form-item label="发布日期">
 				<el-col :span="11">
-				  <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;"></el-date-picker>
+				  <el-date-picker type="date" placeholder="选择日期" v-model="form.log_PostTime" style="width: 100%;"></el-date-picker>
 				</el-col>
 				<el-col class="line" :span="2">-</el-col>
 				<el-col :span="11">
@@ -51,21 +51,23 @@
 				<el-switch v-model="form.delivery"></el-switch>
 			  </el-form-item>
 			  <el-form-item label="是否公开">
-				<el-switch v-model="form.open"></el-switch>
-			  </el-form-item>
-			  <el-form-item>
-				<el-button type="primary" @click="onSubmit">立即创建</el-button>
-				<el-button @click="onCancel">取消</el-button>
+				<el-switch v-model="form.log_IsShow"></el-switch>
 			  </el-form-item>
 			</el-form>
+		</div>
+		<div class="form-bottom-option">
+			<div class="wrap">
+				<el-button size="small" type="primary" @click="onSubmit" :disabled="!dataReady">{{editMode?'保存修改':'立即创建'}}</el-button>
+				<el-button size="small" @click="onCancel">取消</el-button>
+			</div>
 		</div>
 	</div>
 </template>
 <script>
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import Quill from 'quill'
-import { upload } from '@/lib/api';
-import { article_modify } from '@/lib/adminapi';
+import { api } from '@/services/api'
+let {upload} = api.common;
 
 import Devices from '@/lib/core/Devices';
 
@@ -74,15 +76,19 @@ import '@/lib/extends/highlightjs/9.12.0/styles/monokai-sublime.min.css';
 //import hljs from 'highlight.js';
 import hljs from "@/lib/extends/highlightjs/9.12.0/highlight"
 
+let blog = api.blog;
+
 let admin_article_edit = {
 	name: 'admin_article_edit',
 	components:{},
 	data(){
 		return {
 			loading:true,
+			posting:false,
 			inputVisible:false,
 			inputValue: '',
 			form: {
+				log_IsShow:0,
 				name: '',
 				region: '',
 				date1: '',
@@ -105,6 +111,22 @@ let admin_article_edit = {
 		...mapGetters('env', ['mobile']),
 		//用户状态
 		...mapGetters('user',['isLogined', 'userinfo']),
+
+		editMode(){
+			if( this.$route.query && this.$route.query.id ){
+				return true;
+			}
+			return false;
+		},
+		dataReady(){
+			if( this.posting ){
+				return false;
+			}
+			if( !this.editMode ){
+				return true;
+			}
+			return this.form && typeof this.form.id !='undefined';
+		}
 	},
 	methods:{	
 		initQuill () {
@@ -168,7 +190,7 @@ let admin_article_edit = {
 					if( findInsert ){
 						let base64 = findInsert.insert.image;
 						if( base64 ){
-							this.uploadVideo({base64}).then(res=>{
+							this.uploadImage({base64}).then(res=>{
 								quill.insertEmbed(index, 'image', res.url);
 								//删除本地图片
 								quill.deleteText(index+1,1)
@@ -189,7 +211,7 @@ let admin_article_edit = {
 			Devices.getInstance().delegate(editor,'img','click', (e)=>{
 				let img = e.target;
 				if( img && /^data/ig.exec( img.src )){
-					this.uploadVideo({base64:img.src}).then(res=>{
+					this.uploadImage({base64:img.src}).then(res=>{
 						img.setAttribute('src', res.url );
 					}).catch(e=>{
 						this.$message({
@@ -201,7 +223,7 @@ let admin_article_edit = {
 				console.log(img)
 			})
 			this.quill = quill
-			let code = '<p>Hello World!</p><p>Some initial <strong>bold</strong> text</p><p><br></p><pre class="ql-syntax" spellcheck="false">var a = 1</pre><p>;</p>';
+			let code = this.form.log_Content||"";
 			let dom = this.$refs.editor.querySelector(".ql-editor");
 			dom.innerHTML = code;
 			this.quill.update();
@@ -209,12 +231,12 @@ let admin_article_edit = {
 		},	
 		onSubmit:function(){
 			let data = {
-				...this.form, ...this.formBottom, content:this.$refs.editor.querySelector(".ql-editor").innerHTML
+				...this.form, ...this.formBottom, log_Content:this.$refs.editor.querySelector(".ql-editor").innerHTML
 			}
+			//delete data["id"];
 			console.log("提交数据",data );
-
-			article_modify( data, this ).then( res =>{
-
+			blog.update( {data}, this ).then( res =>{
+				this.$store.commit('admin_article/update', res);
 			})
 		},
 		onCancel:function(){
@@ -238,7 +260,7 @@ let admin_article_edit = {
 	        this.inputVisible = false;
 	        this.inputValue = '';
 		},
-		async uploadVideo( data ){
+		async uploadImage( data ){
 			let res = await upload({
 				data:data
 			});
@@ -246,7 +268,16 @@ let admin_article_edit = {
 		}
 	},
 	mounted(){
-		this.initQuill()
+		let params = this.$route.query;
+		if( params && params.id ){
+			blog.info( params, this ).then(res=>{
+				this.form = res;
+				this.initQuill()
+			})
+		}else{
+			this.initQuill();
+		}
+		
 	}
 }
 export {admin_article_edit};

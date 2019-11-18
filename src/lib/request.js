@@ -2,6 +2,9 @@ import axios from 'axios'
 import config from './config'
 import qs from 'qs';
 
+
+axios.defaults.withCredentials=true;
+
 let request = {};
 request.get = ( url, option ) =>{
 	if( !/https?/ig.exec(url)){

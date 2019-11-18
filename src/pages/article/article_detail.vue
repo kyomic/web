@@ -12,7 +12,8 @@
 				</div>
 			</div>
             <div class="article-content">
-            	<div class="content" v-html="item.log_Intro">
+            	<div class="content" v-html="item.log_Content">
+            		{{item.log_Content}}
             	</div>
             </div>
             <div class="article-footer">

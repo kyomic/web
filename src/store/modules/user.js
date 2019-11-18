@@ -1,14 +1,10 @@
 // initial state
 // shape: [{ id, quantity }]
-import {
-  loginstate,
-  login,
-  logout,
-  register
-}
-from '@/lib/api';
+
+import { api } from "@/services/api"
 import store from '@/lib/core/store'
 
+let user = api.user;
 const state = {
   base:{},
   token:'',
@@ -56,19 +52,31 @@ const actions = {
         user_id, token
       }
     }else{
-      data = await loginstate();
+      data = await user.loginstate();
     }
     commit('updateUserInfo', data );
     return data;
   },
+
+  async session(){
+    let data = await user.session();
+    console.log("会话状态", data );
+  },
+  
   async login({ state, commit, dispatch }, payload) {
     if( !payload ){
       return;
     }
-    let data = await login(payload);
+    let data = await user.login(payload);
     commit('updateUserInfo', data );
     return data;
   }, 
+
+  async logout({state, commit}){
+    let data = await user.logout();
+    commit('updateUserInfo',null);
+    return data;
+  }
   
 }
 
@@ -79,8 +87,21 @@ const mutations = {
   },
 
   updateUserInfo( state, payload ){
-    state.token = payload.token;
-    state.user_id = payload.user_id;
+    let token = '';
+    let user_id = 0;
+    if( payload ){
+      token = payload.token;
+      user_id = payload.user_id;
+
+      store.set('user_id', user_id);
+      store.set('token', token);
+    }else{
+      store.remove('user_id');
+      store.remove('token');
+    }
+
+    state.token = token;
+    state.user_id = user_id;
   }
 }
 

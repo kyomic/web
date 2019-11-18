@@ -1,7 +1,8 @@
 <template>
-	<div class="page-admin admin_index">
-		admin
-	</div>
+	<div class="page-wrap page-wrap-scroll page-admin admin_article_edit">
+    <div class="wrapper">
+    </div>
+  </div>
 </template>
 <script>
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'

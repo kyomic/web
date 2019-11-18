@@ -102,5 +102,6 @@ router.beforeEach((to, from, next) => {
     store.commit('search/showSearch', false );
   }
   store.commit('env/updateRouter', {to, from});
+  store.dispatch("user/session");
   next();
 });

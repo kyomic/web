@@ -7,11 +7,14 @@ import article from '@/pages/article/article';
 import article_detail from '@/pages/article/article_detail';
 
 import login from '@/pages/account/login';
+import logout from '@/pages/account/logout';
+
 import {info as userinfo} from '@/pages/account/info'
 import search from '@/pages/search/search'
 
 import { 
 	admin_index, admin_article, admin_article_edit,
+	admin_settings,
 	admin_task,admin_task_edit,
 	admin_figure, admin_figure_edit
 } from '@/pages/admin';
@@ -45,6 +48,11 @@ let webRouter = [
 		path: "/account/login",
 		name:"account_login",
 		component:login
+	},
+	{
+		path: "/account/logout",
+		name:"account_login",
+		component:logout
 	},
 	{
 		path: "/account/info",
@@ -108,6 +116,11 @@ let adminRouter = [
 		path:"/admin/article_detail",
 		name:"article_detail",
 		component:article_detail,
+	},
+	{
+		path:"/admin/settings",
+		name:"article_settings",
+		component:admin_settings,
 	},
 	{
 		path:"/admin/task",

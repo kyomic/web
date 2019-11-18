@@ -4,7 +4,6 @@ import Vuex from 'vuex';
 import env from './base/env'
 import user from './modules/user'
 import search from './modules/search'
-import article from './modules/article'
 import blog from './modules/blog'
 
 import admin_article from "./modules/admin/article";
@@ -19,7 +18,6 @@ const store = new Vuex.Store({
   	env,
   	user,
   	search,
-  	article,
   	blog,
 
 

@@ -4,15 +4,24 @@
       <h4>
         <a :href="adminurl">管理</a>
       </h4>
+      <h4>
+        <a @click="onLogout">退出</a>
+      </h4>
     </div>
     <div class="sidebar-item">
       <h4>
         小伙伴们
       </h4>
+
     </div>
   </div>
 </template>
 <script>
+import qs from 'qs';
+
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+import {urls} from '@/lib/core/urls'
+
 import config from '@/lib/config';
 export default {
   name: 'Sidebar',
@@ -28,6 +37,27 @@ export default {
         return '/admin.html';
       }
       return config.host.admin;
+    }
+  },
+  methods:{
+    ...mapActions('user',['logout']),
+    onLogout(){
+      this.logout().then(res=>{
+        /*
+        let url = this.$route.fullPath;
+            let ref = urls.getQueryValue('ref', url);
+            if( ref ){
+              try{
+                ref = decodeURIComponent(ref)
+              }catch(e){}
+            }
+            console.log("url", qs.parse( url ), url,'ref', ref)
+            */
+      }).catch(e=>{
+        this.$network(e);
+      })
+
+      this.$root.$emit("drawer",false);
     }
   },
   mounted(){

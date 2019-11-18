@@ -49,11 +49,14 @@
 					</KSlider>
 					<el-button @click="onUpdateOriginData">{{updating?'更新中...':'同步数据'}}</el-button>
 				</el-form-item>
-				<el-form-item label="　">
-					<el-button type="primary" @click="onSubmit" :disabled="!dataReady">{{editMode?'保存修改':'立即创建'}}</el-button>
-					<el-button @click="onCancel">取消</el-button>
-				</el-form-item>
+				
 			</el-form>
+		</div>
+		<div class="form-bottom-option">
+			<div class="wrap">
+				<el-button size="small" type="primary" @click="onSubmit" :disabled="!dataReady">{{editMode?'保存修改':'立即创建'}}</el-button>
+				<el-button size="small" @click="onCancel">取消</el-button>
+			</div>
 		</div>
 	</div>
 </template>

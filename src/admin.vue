@@ -3,7 +3,7 @@
         <el-row type="flex" justify="space-between" class="header">
             <el-col>
                 <div class="menu-left">
-                    <a :href="home">首页1</a>
+                    <a :href="home">回首页</a>
                 </div>
             </el-col>
             <el-col>                
@@ -126,7 +126,7 @@ export default {
   color: #2c3e50;
 }
 .container{
-  padding-bottom: 0;/**override*/
+  padding-bottom: 50*@rem;/**override*/
 }
 
 .mobile-menu{

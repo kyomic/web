@@ -1,9 +1,7 @@
 // initial state
 // shape: [{ id, quantity }]
-import {
-    search
-}
-from '@/lib/api';
+import {api} from '@/services/api'
+let {search} = api.common;
 
 const state = {
   shown:true,

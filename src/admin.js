@@ -22,6 +22,7 @@ import 'element-ui/lib/theme-chalk/display.css';
 import './lib/rem.js'
 import './assets/model.less';
 import './pages/admin/admin.less';
+import './assets/common.less';
 
 //将element组件内容挂载到Vue上
 Vue.use(Row);
@@ -53,6 +54,14 @@ Vue.use(VueMeta)
 //没看懂
 Vue.prototype.$notify = Notification;
 Vue.prototype.$message = Message;
+Vue.prototype.$removeMessage = function(){
+  let m = document.querySelectorAll('.el-message');
+  Array.from(m).map(res=>{
+    try{
+      res.parentNode.removeChild( res );
+    }catch(e){}
+  })
+}
 
 Vue.prototype.$network = function(e){
   let msg = e.data ? (e.data.msg||'未知错误') : e;
@@ -85,6 +94,9 @@ Vue.prototype.$layoutTable = function(){
     this.$refs["mod-table"].$el.style.cssText = "height:"+(view.height - height - headerHeight )+"px"
   }
 }
+Vue.prototype.$updateTitle = function( str ){
+  document.title = str;
+}
 
 Vue.config.productionTip = false;
 
@@ -107,5 +119,8 @@ router.beforeEach((to, from, next) => {
     store.commit('search/showSearch', false );
   }
   store.commit('env/updateRouter', {to, from});
+  store.dispatch("user/session");
   next();
+  Vue.prototype.$removeMessage();
+  
 });

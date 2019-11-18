@@ -71,7 +71,7 @@ export default {
 			this.nextPage().then(res=>{
 				this.nextPage()
 			}).catch(e=>{
-				this.$network(e);
+				this.$network(e);				
 			});
 		}
 		this.$root.$onScroll = this.onScroll;

@@ -1,11 +1,11 @@
 <template>
 	<div class="mod-login">
 		<el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm"  label-position="top" label-width="100px" class="ruleForm">
-		  <el-form-item label="邮箱" prop="pass">
-		    <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+		  <el-form-item label="用户名/邮箱" prop="user">
+		    <el-input type="password" v-model="ruleForm.user" autocomplete="off"></el-input>
 		  </el-form-item>
-		  <el-form-item label="确认密码" prop="checkPass">
-		    <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+		  <el-form-item label="密码" prop="pass">
+		    <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
 		  </el-form-item>
 		  <el-form-item>
 		    <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
@@ -62,16 +62,16 @@ export default {
       };
       return {
         ruleForm: {
+          user: '',
           pass: '',
-          checkPass: '',
           age: ''
         },
         rules: {
-          pass: [
+          user: [
             { validator: validatePass, trigger: 'blur' }
           ],
-          checkPass: [
-            { validator: validatePass2, trigger: 'blur' }
+          pass: [
+            { validator: validatePass, trigger: 'blur' }
           ],
           age: [
             { validator: checkAge, trigger: 'blur' }
@@ -97,11 +97,10 @@ export default {
             			}catch(e){}
             		}
             		console.log("登录信息", res);
-            		store.set('user_id', res.user_id);
-            		store.set('token', res.token);
+            		
             		console.log("url", qs.parse( url ), url)
             		if( ref && /admin/ig.exec( ref )){
-            			location.href = ref;
+            			location.href = "/admin.html";
             		}else{
             			this.$router.back();
             		}
@@ -109,7 +108,9 @@ export default {
             	}else{
             		console.log("loginerrr")
             	}
-            });
+            }).catch(e=>{
+              this.$network( e );
+            })
           } else {
             console.log('error submit!!');
             return false;
