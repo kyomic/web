@@ -34,6 +34,10 @@ const webpackConfig = merge(baseWebpackConfig, {
     new webpack.DefinePlugin({
       'process.env': env
     }),
+    new webpack.DllReferencePlugin({
+      context: __dirname,
+      manifest: require('../dist/vendor/vendor.manifest.json')
+    }),
     new UglifyJsPlugin({
       uglifyOptions: {
         compress: {

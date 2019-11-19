@@ -49,9 +49,13 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       poll: config.dev.poll,
     }
   },
-  plugins: [
+  plugins: [    
     new webpack.DefinePlugin({
       'process.env': require('../config/dev.env')
+    }),    
+    new webpack.DllReferencePlugin({
+      context: __dirname,
+      manifest: require('../dist/vendor/vendor.manifest.json')
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin(), // HMR shows correct file names in console on update.
