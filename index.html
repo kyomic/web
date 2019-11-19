@@ -11,17 +11,22 @@
     <script>
     	window.vuedata = '###vuedata###';
     </script>
-    <link rel="stylesheet" href="//cdn.bootcss.com/element-ui/2.4.0/theme-chark/index.css">
-    
+    <!-- 其他标签 -->
+    <% htmlWebpackPlugin.options.cdnConfig.forEach(function(item){ if(item.css){ %>
+    <link href="<%= item.css %>" rel="stylesheet" />
+    <% }}) %>
   </head>
   <body>
     <div id="app"></div>
+    <% htmlWebpackPlugin.options.cdnConfig.forEach(function(item){ if(item.js && !htmlWebpackPlugin.options.onlyCss){ %>
+    <script type="text/javascript" src="<%= item.js %>"></script>
+    <% }}) %>
+
     <!-- built files will be auto injected -->
 
     <!--script src="//cdn.bootcss.com/vue/2.5.16/vue.min.js"></script>
     <script src="//cdn.bootcss.com/vue-router/3.0.1/vue-router.min.js"></script>
     <script src="//cdn.bootcss.com/element-ui/2.4.0/index.js"></script>
     <script src="//cdn.bootcss.com/babel-polyfill/7.0.0-alpha.15/polyfill.min.js"></script --> 
-    <script type="text/javascript" src="http://www.shareme.cn/vendor/vendor.dll.js"></script>
   </body>
 </html>

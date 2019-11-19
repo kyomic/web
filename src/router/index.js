@@ -38,7 +38,7 @@ let webRouter = [
 	{
 		path: '/',
 		name: 'home',
-		component: index,
+		component: article,
 		meta: {
 	        title: "HelloWorld",
 	        show: true

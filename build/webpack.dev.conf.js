@@ -7,8 +7,13 @@ const path = require('path')
 const baseWebpackConfig = require('./webpack.base.conf')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const portfinder = require('portfinder')
+const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin')
+// build/webpack.dev.conf.js 大概在15行
+const externalConfig = JSON.parse(JSON.stringify(utils.externalConfig));  // 读取配置
+const externalModules = utils.getExternalModules(externalConfig); // 获取到合适路径和忽略模块
 
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
@@ -16,6 +21,7 @@ const PORT = process.env.PORT && Number(process.env.PORT)
 const webpackMock = require('webpack-api-mocker');
 
 const devWebpackConfig = merge(baseWebpackConfig, {
+  externals: externalModules,
   module: {
     rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap, usePostCSS: true })
   },
@@ -52,11 +58,8 @@ const devWebpackConfig = merge(baseWebpackConfig, {
   plugins: [    
     new webpack.DefinePlugin({
       'process.env': require('../config/dev.env')
-    }),    
-    new webpack.DllReferencePlugin({
-      context: __dirname,
-      manifest: require('../dist/vendor/vendor.manifest.json')
-    }),
+    }),   
+    
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin(), // HMR shows correct file names in console on update.
     new webpack.NoEmitOnErrorsPlugin(),
@@ -65,13 +68,17 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       filename: 'index.html',
       template: 'index.html',
       chunks: ['manifest','vendor','app'],
-      inject: true
+      inject: true,
+      cdnConfig: externalConfig, // cdn配置
+      onlyCss: false, //加载css
     }),
     new HtmlWebpackPlugin({
       filename: 'admin.html',
       template: 'admin.html',
       chunks: ['manifest','vendor','admin'],
       inject: true,
+      cdnConfig: externalConfig, // cdn配置
+      onlyCss: false, //加载css
     }),
     // copy custom static assets
     new CopyWebpackPlugin([

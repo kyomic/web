@@ -11,11 +11,15 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
+const externalConfig = JSON.parse(JSON.stringify(utils.externalConfig));  // 读取配置
+const externalModules = utils.getExternalModules(externalConfig); // 获取到合适路径和忽略模块
+
 const env = process.env.NODE_ENV === 'testing'
   ? require('../config/test.env')
   : require('../config/prod.env')
 
 const webpackConfig = merge(baseWebpackConfig, {
+  externals: externalModules,
   module: {
     rules: utils.styleLoaders({
       sourceMap: config.build.productionSourceMap,
@@ -33,10 +37,6 @@ const webpackConfig = merge(baseWebpackConfig, {
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
     new webpack.DefinePlugin({
       'process.env': env
-    }),
-    new webpack.DllReferencePlugin({
-      context: __dirname,
-      manifest: require('../dist/vendor/vendor.manifest.json')
     }),
     new UglifyJsPlugin({
       uglifyOptions: {
@@ -81,7 +81,9 @@ const webpackConfig = merge(baseWebpackConfig, {
         // https://github.com/kangax/html-minifier#options-quick-reference
       },
       // necessary to consistently work with multiple chunks via CommonsChunkPlugin
-      chunksSortMode: 'dependency'
+      chunksSortMode: 'dependency',
+      cdnConfig: externalConfig, // cdn配置
+      onlyCss: false, //加载css
     }),
     new HtmlWebpackPlugin({
       filename: process.env.NODE_ENV === 'testing'
@@ -98,7 +100,9 @@ const webpackConfig = merge(baseWebpackConfig, {
         // https://github.com/kangax/html-minifier#options-quick-reference
       },
       // necessary to consistently work with multiple chunks via CommonsChunkPlugin
-      chunksSortMode: 'dependency'
+      chunksSortMode: 'dependency',
+      cdnConfig: externalConfig, // cdn配置
+      onlyCss: false, //加载css
     }),
     // keep module.id stable when vendor modules does not change
     new webpack.HashedModuleIdsPlugin(),
@@ -141,7 +145,13 @@ const webpackConfig = merge(baseWebpackConfig, {
         to: config.build.assetsSubDirectory,
         ignore: ['.*']
       }
-    ])
+    ]),
+    /*
+    new webpack.DllReferencePlugin({
+      context: __dirname,
+      manifest: require('../dist/vendor/vendor.manifest.json')
+    })
+    */
   ]
 })
 
