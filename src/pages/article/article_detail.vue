@@ -23,7 +23,7 @@
 	
 </template>
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import "./article.less"
 export default {
 	name: 'Article',

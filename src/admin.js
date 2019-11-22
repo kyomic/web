@@ -1,16 +1,21 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import Vue from 'vue';
+const Vue = require('vue');
 import App from './admin.vue';
-import VueMeta from 'vue-meta'
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
-
+/*
 import {
   Row,Col,Button,Notification,Message, Drawer, Form, FormItem,
   Progress,Pagination,Image,
   Table, TableColumn,Checkbox,CheckboxGroup,Radio,RadioGroup,Input,Select,Option,Switch,DatePicker,TimePicker,Tag
 } from 'element-ui'  //按需引用element-ui组件
+*/
+let {
+  Row,Col,Button,Notification,Message, Drawer, Form, FormItem,
+  Progress,Pagination,Image,
+  Table, TableColumn,Checkbox,CheckboxGroup,Radio,RadioGroup,Input,Select,Option,Switch,DatePicker,TimePicker,Tag
+} = require ('element-ui');
 
 import router from './router';
 import store from './store'
@@ -49,7 +54,6 @@ Vue.use(TableColumn);
 Vue.use(Image)
 
 
-Vue.use(VueMeta)
 
 //没看懂
 Vue.prototype.$notify = Notification;

@@ -1,6 +1,8 @@
-import axios from 'axios'
+//import axios from 'axios'
+let axios = require('axios');
+let qs = require('qs');
 import config from './config'
-import qs from 'qs';
+//import qs from 'qs';
 
 
 axios.defaults.withCredentials=true;

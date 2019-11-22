@@ -9,7 +9,8 @@ config.host = {
 	www:"http://www.shareme.cn",
 	admin:"http://admin.shareme.cn",
 	static:"http://www.shareme.cn",
-	api:"http://api.shareme.cn"
+	api:"http://api.shareme.cn",
+	report:"http://api.shareme.cn",
 }
 config.api = config.host.api;
 

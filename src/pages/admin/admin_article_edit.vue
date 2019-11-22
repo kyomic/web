@@ -7,8 +7,7 @@
 			  </el-form-item>
 			  <el-form-item label="分类">
 				<el-select v-model="form.log_CateID" placeholder="文章分类">
-				  <el-option label="区域一" value="shanghai"></el-option>
-				  <el-option label="区域二" value="beijing"></el-option>
+				  <el-option v-for="(value,index) in siteinfo.cate" :label="value.cate_Name" :value="value.cate_ID" v-bind:key="value.cate_ID"></el-option>
 				</el-select>
 			  </el-form-item>
 			  <el-form-item label="发布日期">
@@ -64,7 +63,7 @@
 	</div>
 </template>
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import Quill from 'quill'
 import { api } from '@/services/api'
 let {upload} = api.common;
@@ -111,6 +110,8 @@ let admin_article_edit = {
 		...mapGetters('env', ['mobile']),
 		//用户状态
 		...mapGetters('user',['isLogined', 'userinfo']),
+
+		...mapGetters('blogsite',["siteinfo"]),
 
 		editMode(){
 			if( this.$route.query && this.$route.query.id ){

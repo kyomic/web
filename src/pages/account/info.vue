@@ -4,7 +4,7 @@
 	</div>
 </template>
 <script>
-	import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+	let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 	let info = {
 		name: 'userinfo',
 		components: {},

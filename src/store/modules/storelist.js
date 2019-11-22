@@ -34,6 +34,10 @@ class StoreList{
 		            total= pagination.maxpage;
 		        }
 		        page = page + 1;
+		        if( state.currentPage == 0){
+		        	//删除时，重置当前页
+		        	page = 1;
+		        }
 		        state.currentPage = page;
 		        console.log("nextPage", page, total)
 		        if( page <= total || page == 1){
@@ -75,12 +79,23 @@ class StoreList{
 		    	state.detail = {...data}
 		    	state.loading = false;
 		    	return data;
+		    },
+
+		    async removeByIds({state,commit}, payload ){
+		    	let data = await api.remove( payload );
+		    	console.log("removeByIds", payload)
+		    	commit('remove', payload );
+
 		    }
 		}
 
 		let mutations = {
 		    updateScroll( state, payload ){
 		        state.scrollTop = payload;
+		    },
+
+		    setCurrentPage( state, payload ){
+		    	state.currentPage = payload;
 		    },
 
 		    /** 显示 */
@@ -96,28 +111,51 @@ class StoreList{
 		        if( state.cachepage[page]){
 		            return;
 		        }
-		        state.cachepage[page] = payload;		        
+		        state.cachepage[page] = payload;	
+		        let data = payload.list||[];
+		        /*
+		        data = data.map(res=>{
+		        	res.checked = false;
+		        	return res;
+		        })
+*/
 		        state.list = {
-		            data: state.list.data.concat(payload.list || []),
+		            data: state.list.data.concat(data),
 		            pagination: {...payload.pagination }
 		        }
 		    },
+		    checkall( state, payload ){
+		    	let list = state.list.data.concat();
+		    	list = list.map( res=> {res.checked = payload ;return res;} )
+		    	state.list = {
+		    		...state.list, data:list
+		    	}
+		    },
 
+		    remove( state, payload ){
+		    	console.log("remove", payload)
+		    	let ids = payload.ids+'';
+		    	let arr = ids.split(",").map(res=> parseInt(res+""));
+		    	state.list.data = state.list.data.filter(res=>{
+		    		console.log("res.id",res.id, arr)
+		    		return arr.indexOf(res.id) ==-1;
+		    	})
+		    	state.cachepage = {};
+		    	state.list = state.list;
+		    },
 		    /** 修改 **/
 		    update(state, payload){
 		        state.list.data = state.list.data.map(res=>{
 		            if( res.id == payload.id ){
-		                for(var i in res ){
-		                    if( payload[i] ){
-		                        res[i] = payload[i];
-		                    }
+		                for(var i in payload ){
+		                    res[i] = payload[i];
 		                }
 		                return res;
 		            }else{
 		                return res;
 		            }
 		        })
-		        console.log("更新", payload)
+		        console.log("更新", payload, state.list.data)
 		    }
 		}
 

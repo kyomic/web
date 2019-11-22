@@ -13,7 +13,6 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const externalConfig = JSON.parse(JSON.stringify(utils.externalConfig));  // 读取配置
 const externalModules = utils.getExternalModules(externalConfig); // 获取到合适路径和忽略模块
-
 const env = process.env.NODE_ENV === 'testing'
   ? require('../config/test.env')
   : require('../config/prod.env')

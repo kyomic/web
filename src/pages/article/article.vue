@@ -19,7 +19,7 @@
 	</div>
 </template>
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import Debug from "@/lib/debug";
 import request from "@/lib/request"
 

@@ -16,7 +16,7 @@
 						<slot></slot>            
 					</tr>
 				</thead>
-				<tr v-for="item in tableData">
+				<tr v-for="item in tableData" v-bind:key="item.id">
 					<slot v-slot:template v-bind="item"></slot>
 				</tr>
 			</table>
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import Devices from '@/lib/core/Devices';
 import KTableColumn from '@/components/KTableColumn'
 
@@ -100,6 +100,9 @@ export default {
   },
   mounted(){
   	console.log("###################", this)
+    setTimeout(_=>{
+      console.log("Table", this.tableData)
+    },10000)
   }
 };
 </script>
@@ -108,7 +111,7 @@ export default {
     position: fixed;
     background: white;
     width: 100%;
-    z-index: 1;/*td中有些元素是absolute*/
+    z-index: 5;/*td中有些元素是absolute*/
   }
 	
 </style>

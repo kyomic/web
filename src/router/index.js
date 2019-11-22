@@ -1,5 +1,8 @@
-import Vue from 'vue';
-import Router from 'vue-router';
+//import Vue from 'vue';
+//import Router from 'vue-router';
+const Vue = require('vue');
+const Router = require('vue-router');
+
 //index去控制管理或web首页
 import index from '@/pages/index';
 import test from '@/pages/test'
@@ -16,7 +19,8 @@ import {
 	admin_index, admin_article, admin_article_edit,
 	admin_settings,
 	admin_task,admin_task_edit,
-	admin_figure, admin_figure_edit
+	admin_figure, admin_figure_edit,
+	admin_log,
 } from '@/pages/admin';
 console.log("admin_article", admin_index)
 
@@ -110,8 +114,12 @@ let adminRouter = [
 		path:"/admin/article_edit",
 		name:"admin_article_edit",
 		component:admin_article_edit,
-	}
-	,
+	},
+	{
+		path: "/admin/log",
+		name: "admin_log",
+		component:admin_log
+	},
 	{
 		path:"/admin/article_detail",
 		name:"article_detail",

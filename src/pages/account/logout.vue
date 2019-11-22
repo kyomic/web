@@ -2,7 +2,7 @@
 	<div>正在退出</div>
 </template>
 <script>
-	import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+	let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 	import {urls} from '@/lib/core/urls'
 	import qs from 'qs';
 	let info = {

@@ -8,7 +8,7 @@
 </template>
 <script>
 
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import Devices from '@/lib/core/Devices';
 
 

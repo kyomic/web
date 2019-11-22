@@ -19,7 +19,7 @@
 <script>
 import qs from 'qs';
 
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import {urls} from '@/lib/core/urls'
 
 import config from '@/lib/config';

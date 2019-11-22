@@ -87,7 +87,7 @@ class StoreList{
 
 		    /** 修改 **/
 		    update(state, payload){
-		        state.list.data = state.list.data.map(res=>{
+		        state.list.data = state.list.data.map(res=>{		        	
 		            if( res.id == payload.id ){
 		                for(var i in res ){
 		                    if( payload[i] ){

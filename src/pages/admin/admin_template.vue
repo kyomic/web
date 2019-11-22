@@ -5,7 +5,7 @@
   </div>
 </template>
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 let admin_index = {
   name: 'admin_index',
   computed:{

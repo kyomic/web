@@ -5,6 +5,7 @@ let host = config.host;
 
 const state = {
   grid24code:"",
+  scrolling:false,
   router:{},
   host
 }
@@ -34,6 +35,9 @@ const actions = {
 const mutations = {
   setGrid24( state, payload ){
     state.grid24code = payload;
+  },
+  scrolling( state, payload ){
+    state.scrolling = payload;
   },
   updateRouter( state, payload ){    
     state.router = {

@@ -64,11 +64,11 @@
 import HomeMenu from "@/components/base/HomeMenu"
 import HeaderSearch from "@/components/HeaderSearch"
 import Sidebar from "@/components/Sidebar"
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 
 import Devices from '@/lib/core/Devices';
 import config from '@/lib/config';
-import axios from 'axios';
+import reporter from '@/lib/reporter'
 
 console.log("CONFIG", config)
 
@@ -103,7 +103,7 @@ export default {
   },
   methods:{
     ...mapMutations("search", ["showSearch"]),
-    ...mapMutations("env", ["setGrid24","updateRouter"]),
+    ...mapMutations("env", ["setGrid24","updateRouter","scrolling"]),
     ...mapActions('user',['loginstate']),
     showDrawer(){
         this.drawer = true
@@ -126,6 +126,7 @@ export default {
     }
   },
   mounted(){
+    console.log("app mounted:dev", config.dev)
     let devices = Devices.getInstance();
     devices.context = window;
     devices.on('resize', this.checkSize );
@@ -143,9 +144,24 @@ export default {
 
     console.log("this",this,"container")
 
-    
+    let path = this.$route.fullPath;
+    console.log("app mounted, path", path, this.$route)
+
+    if( (path == '' || path == '/') && !config.dev ){
+      //修复admin页面的主页和www的路由冲突
+      if( /admin/ig.exec( location.href )){
+        location.href = config.host.admin;
+      }
+    }
+
+    if( config.dev ){
+      
+      console.log("path", path)
+    }
     this.updateRouter( {to:this.$route} );
     this.loginstate();
+
+    reporter.log('bootstrap');
   }
 }
 </script>

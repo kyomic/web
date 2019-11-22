@@ -16,7 +16,7 @@
 </template>
 <script>
 import qs from 'qs';
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import request from "@/lib/request"
 import urls from "@/lib/core/urls"
 import store from "@/lib/core/store"

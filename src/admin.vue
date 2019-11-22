@@ -32,7 +32,7 @@
 
 <script>
 import Devices from '@/lib/core/Devices';
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import config from '@/lib/config'
 
 import admin_menu from '@/pages/admin/admin_menu'
@@ -85,15 +85,28 @@ export default {
     }
   },
   mounted(){
+
     let devices = Devices.getInstance();
     devices.context = window;
     devices.on('resize', this.checkSize );
     devices.on('load', this.checkSize );
+
+
+    let scrollInterval = 0;
     devices.on('scroll', (e)=>{
+      this.$store.commit("env/scrolling", true);
+      clearTimeout( scrollInterval );
+      scrollInterval = setTimeout(()=>{
+        this.$store.commit("env/scrolling", false);
+      }, 2000 );
       this.$root.$emit("scroll", e.data );
     })
     devices.on('reachbottom', (e)=>{
       this.$root.$emit("reachbottom", e.data );
+    })
+
+    this.$root.$on("drawer", (data)=>{
+      this.drawer = data;
     })
 
     /*
@@ -106,6 +119,17 @@ export default {
       })
     }
     */
+
+    
+    let path = this.$route.fullPath;
+    console.log("admin mounted, path", path)
+    if( path == '' || path == '/'){
+      //修复admin页面的主页和www的路由冲突
+      this.$router.replace({path: '/admin/index'})
+    }
+
+
+    this.$store.dispatch('blogsite/info');
     this.loginstate().then(res=>{
       /*
       if( false || !res || !res.level || res.level < 3 ){
@@ -128,7 +152,40 @@ export default {
 .container{
   padding-bottom: 50*@rem;/**override*/
 }
-
+.pagination-tip{
+  position: fixed;
+  
+  width:100%;
+  text-align: center;
+  z-index: 5;
+  font-size: 12*@rem;
+  
+  margin-top: 5*@rem;
+  color:#666;
+  
+  .transition(all);
+  top: 0*@rem;
+  opacity: 0;
+  .pagination-tip-wrap{
+    background: white;
+    border:1px solid #F1F1F1;
+    border-radius: 3*@rem;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.12);
+    margin: 5*@rem;
+    padding: 5*@rem;
+  }
+  .el-progress{
+    width: 120*@rem;
+    display: inline-block;
+  }
+  .pagination-tip-label{
+    display: inline-block;
+  }
+}
+.pagination-tip-show{
+  top: 70*@rem;
+  opacity: 1;
+}
 .mobile-menu{
     text-align: center;
     padding-top: 20px;

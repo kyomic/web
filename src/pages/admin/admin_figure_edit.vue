@@ -61,7 +61,7 @@
 	</div>
 </template>
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import KSlider from '@/components/KSlider'
 import Quill from 'quill'
 import Devices from '@/lib/core/Devices';

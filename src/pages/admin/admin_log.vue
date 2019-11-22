@@ -1,5 +1,5 @@
 <template>
-	<div class="page-wrap page-admin admin_article>">
+	<div class="page-wrap page-admin admin_log>">
 		<div class="wrapper" ref="wrapper">
 			<div :class="scrolling?'pagination-tip pagination-tip-show':'pagination-tip'">
 				<div class="pagination-tip-wrap">
@@ -8,20 +8,33 @@
 				</div>
 			</div>
 			<KTable :data="tableData" :loading="loading" :mobile="mobile" v-slot:default="scope" @scroll.native="onWrapperScroll">
-				<KTableColumn label="标题" prop="log_Title" :column="scope"></KTableColumn>
-				<KTableColumn label="日期" prop="log_PostTime" :column="scope"></KTableColumn>
-				<KTableColumn label="其它" prop="other" :column="scope" class="hidden-xs-only"></KTableColumn>
+				<KTableColumn label="ID" :column="scope">
+					<template v-slot:template>
+						<input type="checkbox" @change="onCheckboxChange(scope, $event)" :checked="scope.checked" />
+					</template>
+				</KTableColumn>
+				<KTableColumn label="状态" prop="coun_IP" :column="scope">
+					<template v-slot:template>
+						<div>{{scope.coun_IP}}<span style="float:right">{{scope.coun_Time}}</span></div>
+						<div style="color:#ccc">
+							{{scope.coun_OS}} {{scope.coun_Browser}}
+						</div>
+						<div class="log-detail">
+							{{scope.coun_UA}}
+						</div>
+					</template>
+				</KTableColumn>
 				<KTableColumn label="操作" prop="action" :column="scope">
 					<template v-slot:template>
-			        	<el-button size="mini" @click.native="onEditHandler(scope)">编辑</el-button>
-			        	<el-button size="mini" @click.native="onViewHandler(scope)">详情</el-button>
+			        	<el-button size="mini" @click.native="onEditHandler(scope)">删除</el-button>
 			        </template>
 				</KTableColumn>
 			</KTable>
 		</div>
 		<div class="form-bottom-option">
 			<div class="wrap">
-				<el-button size="small" type="primary" @click="onSubmit">发布文章</el-button>
+				<el-button size="small" type="primary" @click="onSelectAll" >全选</el-button>
+				<el-button size="small" type="primary" @click="onSubmit" :disabled="checkedList.length?false:true" >删除所选</el-button>
 			</div>
 		</div>
 	</div>
@@ -34,54 +47,77 @@ import KTableColumn from '@/components/KTableColumn';
 import ScrollView from '@/components/ScrollView'
 
 import { api } from '@/services/api';
-let blog = api.admin_article;
+let blog = api.admin_log;
 let {upload} = api.common;
 
-let admin_article = {
-	name: 'admin_article',
+let admin_log = {
+	name: 'admin_log',
 	components:{KTable,KTableColumn, ScrollView},
 	data(){
 		return {
 			loading:true,
+			isAllChecked:false,
 			tableColumns:[1,2,3]
 		}
 	},
 	computed:{
 	  	//环境状态
-	  	...mapState('admin_article',['list','scrollTop','currentPage']),
-	    ...mapState('env', ['grid24code','router','scrolling']),
+	  	...mapState('admin_log',['list','scrollTop','currentPage']),
+	    ...mapState('env', ['grid24code','router', 'scrolling']),
 	    ...mapGetters('env', ['mobile']),
 	    //用户状态
 	    ...mapGetters('user',['isLogined', 'userinfo']),
 
-
+	    checkedList(){
+	    	if( this.list && this.list.data ){
+	    		return this.list.data.filter(res=>{
+					return res.checked == true;
+				})
+	    	}
+	    	return []
+	    },
 	    tableData(){
 	    	return this.list.data || [];
 	    }
 	},
 	methods:{
-		...mapActions('admin_article',['nextPage']),
-		...mapMutations('admin_article',['updateScroll']),
+		...mapActions('admin_log',['nextPage','removeByIds']),
+		...mapMutations('admin_log',['updateScroll','update','checkall', 'setCurrentPage']),
 
-		onEditHandler:function( row ){
-			this.$router.push({
-				path:"/admin/article_edit", query:{'id': row.id }
-			})
-		},
-		onViewHandler:function( row ){
-			this.$router.push({
-				path:"/admin/article_detail", query:{'id': row.id }
-			})
+		onCheckboxChange(scope, checked){
+			if( typeof checked == 'object'){
+				checked = checked.target.checked;
+			}
+			let data = {...scope, checked};
+			this.update( data );
 		},
 
-		onSlotProps:function(){
-			console.log("得到子组件属性", arguments)
-			return arguments[0]
+		checkData(){
+			if( this.list && this.list.data.length <=0 ){
+				this.setCurrentPage( 0 );
+				this.nextPage();
+			}
+		},
+
+		onEditHandler(scope){
+			let ids = {ids:scope.id};
+			this.removeByIds(ids, this).then(res=>{
+				this.checkData();
+			})
+		},
+		onSelectAll(){
+			this.isAllChecked = !this.isAllChecked;
+			this.checkall( this.isAllChecked )
 		},
 		onSubmit(){
-			this.$router.push({
-				path:"/admin/article_edit", query:{}
+			let ids = this.checkedList.map(res=>{
+				return res.id;
 			})
+			ids = ids.join(",");
+			this.removeByIds({ids}, this ).then(res=>{
+				this.checkData();
+			})
+			
 		},
 		onScroll(e){},
 		onReachBottom(e){
@@ -128,16 +164,19 @@ let admin_article = {
 		//this.$layoutTable();
 	}
 }
-export {admin_article};
-export default admin_article;
+export {admin_log};
+export default admin_log;
 </script>
-<style lang="less" scoped>
+<style lang="less">
 	.action{
 		width: 100*@rem;
 	}
 	.mod-table{
+		thead td:first-child{
+			width:10*@rem;
+		};
 		thead td:last-child{
-			width:85*@rem;
+			width:45*@rem;
 		};
 	}
 </style>

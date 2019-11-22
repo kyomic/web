@@ -6,7 +6,7 @@
   </div>
 </template>
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import { api } from '@/services/api';
 let admin_settings = {
   name: 'admin_settings',

@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import KTable from '@/components/KTable';
 import KTableColumn from '@/components/KTableColumn';
 import KTableHeader from '@/components/KTableHeader'
