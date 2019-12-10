@@ -8,6 +8,7 @@ import index from '@/pages/index';
 import test from '@/pages/test'
 import article from '@/pages/article/article';
 import article_detail from '@/pages/article/article_detail';
+import figure_detail from '@/pages/figure/figure_detail';
 
 import login from '@/pages/account/login';
 import logout from '@/pages/account/logout';
@@ -72,6 +73,11 @@ let webRouter = [
 		path: "/article/detail",
 		name: "article_detail",
 		component:article_detail
+	},
+	{
+		path: "/figure/detail",
+		name: "figure_detail",
+		component:figure_detail
 	},
 	{
 		path: "/element",

@@ -3,7 +3,7 @@
         <el-row type="flex" justify="space-between" class="header">
             <el-col>
                 <div class="menu-left">
-                    <a :href="home">回首页</a>
+                    <a :href="home"><i class="el-icon-s-home"></i></a>
                 </div>
             </el-col>
             <el-col>                
@@ -15,7 +15,7 @@
             </el-col>
         </el-row>
         <el-drawer
-            title="导航1"
+            title="导航"
             :visible.sync="drawer">
             <div class="mod-drawer">
                 <admin_menu></admin_menu>
@@ -59,6 +59,8 @@ export default {
     ...mapState(  'env', ['grid24code','router']),
     ...mapGetters('env', ['mobile']),
 
+    ...mapGetters('blogsite',['siteinfo']),
+    ...mapGetters('figuresite',['siteinfo']),
     home(){
       if( config.dev ){
         return '/'
@@ -125,11 +127,14 @@ export default {
     console.log("admin mounted, path", path)
     if( path == '' || path == '/'){
       //修复admin页面的主页和www的路由冲突
-      this.$router.replace({path: '/admin/index'})
+      this.$router && this.$router.replace({path: '/admin/index'})
     }
 
-
     this.$store.dispatch('blogsite/info');
+    this.$store.dispatch('figuresite/info').then(res=>{
+      console.log("完成figure数据请求",res)
+    });
+    
     this.loginstate().then(res=>{
       /*
       if( false || !res || !res.level || res.level < 3 ){
@@ -149,6 +154,9 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
+.page-wrap-content{
+  text-align: left;
+}
 .container{
   padding-bottom: 50*@rem;/**override*/
 }
@@ -164,7 +172,7 @@ export default {
   color:#666;
   
   .transition(all);
-  top: 0*@rem;
+  bottom: -100*@rem;
   opacity: 0;
   .pagination-tip-wrap{
     background: white;
@@ -183,7 +191,7 @@ export default {
   }
 }
 .pagination-tip-show{
-  top: 70*@rem;
+  bottom: 100*@rem;
   opacity: 1;
 }
 .mobile-menu{
@@ -220,6 +228,7 @@ export default {
     margin-left: 5px;
   }
 }
+
 
 
 

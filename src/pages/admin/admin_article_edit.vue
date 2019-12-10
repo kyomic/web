@@ -66,6 +66,7 @@
 let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import Quill from 'quill'
 import { api } from '@/services/api'
+import config from "@/lib/config"
 let {upload} = api.common;
 
 import Devices from '@/lib/core/Devices';
@@ -192,7 +193,7 @@ let admin_article_edit = {
 						let base64 = findInsert.insert.image;
 						if( base64 ){
 							this.uploadImage({base64}).then(res=>{
-								quill.insertEmbed(index, 'image', res.url);
+								quill.insertEmbed(index, 'image', config.host.www + '/' + res.path);
 								//删除本地图片
 								quill.deleteText(index+1,1)
 							}).catch(e=>{
@@ -213,7 +214,7 @@ let admin_article_edit = {
 				let img = e.target;
 				if( img && /^data/ig.exec( img.src )){
 					this.uploadImage({base64:img.src}).then(res=>{
-						img.setAttribute('src', res.url );
+						img.setAttribute('src', config.host.www + '/' + res.path );
 					}).catch(e=>{
 						this.$message({
 				          message: '图片上传出错,点击图片重试上传',
@@ -238,6 +239,7 @@ let admin_article_edit = {
 			console.log("提交数据",data );
 			blog.update( {data}, this ).then( res =>{
 				this.$store.commit('admin_article/update', res);
+				this.$router.back();
 			})
 		},
 		onCancel:function(){
@@ -262,8 +264,20 @@ let admin_article_edit = {
 	        this.inputValue = '';
 		},
 		async uploadImage( data ){
+			console.log("upload", data)
+			let timestamp = new Date();
+			let str = "month_" + [
+				timestamp.getFullYear(),
+				(timestamp.getMonth()+1).toString().padStart(2,"0"),
+				(timestamp.getDate()).toString().padStart(2,"0")
+			].join('');
+
 			let res = await upload({
-				data:data
+				data:data,
+				params:{
+					path:"attachments/" + str + "/",
+					test:1
+				}
 			});
 			return res;
 		}
@@ -284,7 +298,7 @@ let admin_article_edit = {
 export {admin_article_edit};
 export default admin_article_edit;
 </script>
-<style lang="less">
+<style lang="less" scoped>
 	.action{
 		width: 100*@rem;
 	}
@@ -312,15 +326,6 @@ export default admin_article_edit;
 			display: block;
 			height: 1px;
 			overflow: hidden;
-		}
-	}
-	.mobile .el-form{
-		padding: 10*@rem;
-		.el-form-item{
-			margin-bottom: 0;
-			>label{
-				padding-bottom: 0;
-			}
 		}
 	}
 </style>

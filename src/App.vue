@@ -31,8 +31,21 @@
         <el-drawer
             title="导航"
             :visible.sync="drawer">
-            <div>
-                <Sidebar></Sidebar>
+            <div class="mod-drawer">
+                <div class="menu" v-if="isAdmin">
+                  <h2>
+                    <a :href="adminurl">管理</a>
+                  </h2>
+                  <h2>
+                    <a @click="onLogout">退出</a>
+                  </h2>
+                </div>
+                <div class="sidebar-item">
+                  <h2>
+                    小伙伴们
+                  </h2>
+
+                </div>
             </div>            
         </el-drawer>
         <!-- 内容区开始 -->
@@ -63,7 +76,6 @@
 
 import HomeMenu from "@/components/base/HomeMenu"
 import HeaderSearch from "@/components/HeaderSearch"
-import Sidebar from "@/components/Sidebar"
 let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 
 import Devices from '@/lib/core/Devices';
@@ -74,7 +86,7 @@ console.log("CONFIG", config)
 
 export default {
   name: 'App',
-  components: {HomeMenu, HeaderSearch, Sidebar },
+  components: {HomeMenu, HeaderSearch },
   metaInfo: {},
   data(){
     return {
@@ -88,13 +100,19 @@ export default {
     ]),
     ...mapState('env', ['grid24code','router']),
     ...mapGetters('env', ['mobile']),
-    ...mapGetters('user',['isLogined', 'userinfo']),
+    ...mapGetters('user',['isLogined', 'userinfo', 'isAdmin']),
     loginurl:function(){
       let ref = '';
       if( this.router && this.router.current ){
         ref = this.router.current.fullPath;
       }
       return '/account/login?ref=' + ref
+    },
+    adminurl(){
+      if( config.dev ){
+        return '/admin.html';
+      }
+      return config.host.admin;
     },
     router_str(){
       return'';
@@ -104,7 +122,7 @@ export default {
   methods:{
     ...mapMutations("search", ["showSearch"]),
     ...mapMutations("env", ["setGrid24","updateRouter","scrolling"]),
-    ...mapActions('user',['loginstate']),
+    ...mapActions('user',['loginstate','logout']),
     showDrawer(){
         this.drawer = true
     },
@@ -118,6 +136,24 @@ export default {
           html.className = 'mobile'
         }
     },
+    onLogout(){
+      this.logout().then(res=>{
+        /*
+        let url = this.$route.fullPath;
+            let ref = urls.getQueryValue('ref', url);
+            if( ref ){
+              try{
+                ref = decodeURIComponent(ref)
+              }catch(e){}
+            }
+            console.log("url", qs.parse( url ), url,'ref', ref)
+            */
+      }).catch(e=>{
+        this.$network(e);
+      })
+
+      this.$root.$emit("drawer",false);
+    },
     abc:function(){
       alert(1)
     },
@@ -127,6 +163,8 @@ export default {
   },
   mounted(){
     console.log("app mounted:dev", config.dev)
+
+    console.log("登录的用户信息", this.userinfo)
     let devices = Devices.getInstance();
     devices.context = window;
     devices.on('resize', this.checkSize );
@@ -155,13 +193,22 @@ export default {
     }
 
     if( config.dev ){
-      
       console.log("path", path)
     }
     this.updateRouter( {to:this.$route} );
+
     this.loginstate();
 
+    this.$store.dispatch("user/session");
+    this.$store.dispatch('blogsite/info');
+    this.$store.dispatch('figuresite/info').then(res=>{
+      this.$root.$emit('siteinfo');
+    })
+
     reporter.log('bootstrap');
+    reporter.log('page', {
+      url: [location.protocol, "//", location.host , this.$route.fullPath].join('')
+    });
   }
 }
 </script>
@@ -171,7 +218,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #5d5d5d;
 }
 
 .mobile-menu{

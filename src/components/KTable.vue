@@ -23,6 +23,7 @@
 			<div class="com-loading" v-if="loading">
 				<i class="el-icon-loading"></i>
 			</div>
+      <!-- <div class="empty" v-if="!loading">没有更多数据了 ~ </div> -->
 			<el-pagination
         background
         layout="prev, pager, next"
@@ -35,11 +36,7 @@
 </template>
 
 <script>
-let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
-import Devices from '@/lib/core/Devices';
 import KTableColumn from '@/components/KTableColumn'
-
-
 export default {
   name: 'KTable',
   components:{KTableColumn},
@@ -73,15 +70,15 @@ export default {
   		if( this.data ){
   			let slots = [];
   			let labels = (this.$slots.default || []).map(res=>{
-				let data = res.data;
-				if( data ){
-					slots.push( res.context.$scopedSlots);
-					return data.attrs.prop;
-				}
-				return '';
-			})
-			labels = labels.filter(res=>res!='');
-			return labels;
+  				let data = res.data;
+  				if( data ){
+  					slots.push( res.context.$scopedSlots);
+  					return data.attrs.prop;
+  				}
+  				return '';
+  			})
+  			labels = labels.filter(res=>res!='');
+  			return labels;
   		}
   	},
   	tableData:function(){
@@ -100,18 +97,23 @@ export default {
   },
   mounted(){
   	console.log("###################", this)
-    setTimeout(_=>{
-      console.log("Table", this.tableData)
-    },10000)
   }
 };
 </script>
-<style lang="less">
+<style lang="less" scoped>
+  .mod-table{
+    .transition(all);
+  }
 	.table-fixed{
     position: fixed;
     background: white;
     width: 100%;
     z-index: 5;/*td中有些元素是absolute*/
+  }
+  .empty{
+    padding:30*@rem;
+    text-align: center;
+    color: #666;
   }
 	
 </style>

@@ -1,6 +1,42 @@
 <template>
 	<div class="page-wrap-content admin_article>">
-		<KTable :mobile="mobile" :data="tableData" :pagination="list.pagination" :loading="false" v-slot:default="scope" @scroll.native="onWrapperScroll" @current-change="onPageChange" ref="mod-table">
+		<div :class="formfilterOpened?'table-filter':'table-filter table-filter-min'" ref="filter">
+			<i class="filter-extends el-icon-arrow-up" @click="onToggleFilterDisplay"></i>
+			<el-form :inline="true" :model="formInline" class="demo-form-inline" size="mini">
+			  <el-form-item label="键　">
+			    <el-input v-model="formfilter.key" prefix-icon="el-icon-search" size="mini" placeholder="关键词"></el-input>
+			  </el-form-item>
+			  <el-form-item v-if="!formfilterOpened">
+			    <el-button type="primary" @click="onFormFilter" size="mini" >查询</el-button>
+			  </el-form-item>
+			  <el-form-item label="域　">
+			    <el-select v-model="formfilter.field" size="mini" placeholder="域">
+			      <el-option label="名称" value="name"></el-option>
+			      <el-option label="系列" value="figure_series"></el-option>
+			    </el-select>
+			  </el-form-item>
+			  <el-form-item label="站点">
+			    <el-select v-model="formfilter.site" placeholder="来源站">
+			    	<el-option label="所有" value=""></el-option>
+				  <el-option v-for="(value,index) in siteinfo.site" :label="value.name" :value="value.id" v-bind:key="value.id"></el-option>
+				</el-select>
+			  </el-form-item>
+			  <el-form-item label="年份" class="range-year">
+			    <el-select v-model="formfilter.year_start" size="mini" placeholder="开始">
+			      <el-option v-for="(value,key,index) in filterparams.year" :label="value+'年'" :key="value" :value="value"></el-option>
+			    </el-select>
+			    到
+			    <el-select v-model="formfilter.year_end" size="mini" placeholder="结束">
+			      <el-option v-for="(value,key,index) in filterparams.year" :label="value+'年'" :key="value" :value="value"></el-option>
+			    </el-select>
+			  </el-form-item>
+			  <el-form-item>
+			    <el-button type="primary" @click="onFormFilter" size="mini" >查询</el-button>
+			  </el-form-item>
+			</el-form>
+		</div>
+
+		<KTable :mobile="mobile" :data="tableData" :pagination="list.pagination" :loading="false" v-slot:default="scope" @scroll.native="onWrapperScroll" @current-change="onPageChange" ref="mod-table" :style="{marginTop:formfilterHeight+'px'}">
 			<KTableColumn label="ID" prop="figure_id" :column="scope" @click.native="onClick(scope)"></KTableColumn>
 			<KTableColumn label="缩略图" :column="scope">
 				<template v-slot:template>
@@ -13,7 +49,7 @@
 				<template v-slot:template>
 					<div>
 						{{scope.figure_release_date}}
-						{{scope.figure_price.replace('日圓 +消費稅','円')}}
+						{{ scope.figure_price? scope.figure_price.replace('日圓 +消費稅','円'):''}}
 					</div>
 				</template>
 			</KTableColumn>
@@ -24,7 +60,11 @@
 			</KTableColumn>
 			
 		</KTable>
-		<i v-if="hasLoading" class="el-icon-loading loading"></i>
+		<div class="com-loading" v-if="hasLoading">
+			<i class="el-icon-loading loading"></i>
+		</div>
+		<div class="empty" v-else>没更多数据了~</div>
+
 	</div>
 </template>
 
@@ -32,17 +72,36 @@
 let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import KTable from '@/components/KTable';
 import KTableColumn from '@/components/KTableColumn';
-import KTableHeader from '@/components/KTableHeader'
-
 import { figure } from '@/services/api';
+import config from '@/lib/config'
 
 let admin_figure = {
 	name: 'admin_figure',
-	components:{KTable,KTableHeader,KTableColumn},
+	components:{KTable,KTableColumn},
 	data(){
 		return {
 			loading:true,
-			tableColumns:[1,2,3]
+			tableColumns:[1,2,3],
+
+			filterparams:{
+				year:(function(){
+					let fullyear = new Date().getFullYear();
+					let res = [];
+
+					while(fullyear>=2006){
+						res.push( fullyear );
+						fullyear-=1;
+					}
+					return res
+				})()
+			},
+			//搜索项
+			formfilter:{
+				year:2018,
+				site:2
+			},
+			formfilterOpened:false,
+			formfilterHeight:0
 		}
 	},
 	computed:{
@@ -52,6 +111,8 @@ let admin_figure = {
 	    ...mapGetters('env', ['mobile']),
 	    //用户状态
 	    ...mapGetters('user',['isLogined', 'userinfo']),
+	    //网站数据
+	    ...mapGetters('figuresite',["siteinfo"]),
 
 	    hasLoading(){
 	    	if( !this.mobile ){
@@ -75,7 +136,7 @@ let admin_figure = {
 	    }
 	},
 	methods:{
-		...mapActions('admin_figure',['nextPage','setPage', 'stopall', 'start', 'stop']),
+		...mapActions('admin_figure',['nextPage','setPage', 'stopall', 'start', 'stop','reload']),
 		...mapMutations('admin_figure',['updateScroll']),
 
 		onAddHandler(row){
@@ -98,6 +159,9 @@ let admin_figure = {
 		},
 		onClick:function( row ){
 			console.log('click', row)
+			location.href = config.host.www + '/figure/detail?id=' + row.id;
+			return;
+			this.$router.push({path: '/figure/detail', query: {'id': row.id}})
 		},
 		onScroll(e){},
 		onReachBottom(e){
@@ -111,7 +175,36 @@ let admin_figure = {
 		onSlotProps:function(){
 			console.log("得到子组件属性", arguments)
 			return arguments[0]
-		}
+		},
+
+	    checkEnd(){
+			if( this.list && this.list.pagination ){
+	    		if( this.list.pagination.maxpage <= this.list.pagination.page ){
+	    			this.loading = false;
+	    			return;
+	    		}
+	    	}
+	    	this.loading = true;
+		},
+
+	    //搜索项
+	    onToggleFilterDisplay(){
+			this.formfilterOpened = !this.formfilterOpened;
+			this.$nextTick(()=>{
+				this.updateTableMargin();
+			});			
+		},
+		
+		updateTableMargin(){
+			if( this.$refs.filter ){
+				this.formfilterHeight = this.$refs.filter.offsetHeight;
+			}
+		},		
+		onFormFilter(){
+			this.reload( this.formfilter ).then(res=>{
+				this.checkEnd();
+			});
+		},
 	},
 	beforeDestroy(){
 		if( this.onScrollHandler ){
@@ -147,12 +240,13 @@ let admin_figure = {
 
 
 		this.$layoutTable();
+		this.updateTableMargin();
 	}
 }
 export {admin_figure};
 export default admin_figure;
 </script>
-<style lang="less">
+<style lang="less" scoped>
 	.action{
 		width: 100*@rem;
 	}
@@ -163,5 +257,28 @@ export default admin_figure;
 		thead td:last-child{
 			width:45*@rem;
 		};
+		
+	}
+	table td:nth-child(2){
+		padding:5*@rem 0;
+		text-align: center;
+	};
+	table td{
+		max-height: 40*@rem;
+		overflow: hidden;
+
+	}
+	.com-loading{
+		text-align: center;
+	}
+	.empty{
+	    padding:30*@rem;
+	    text-align: center;
+	    color: #666;
+	  }
+	.range-year{
+		.el-select{
+			width: 70*@rem;
+		}
 	}
 </style>

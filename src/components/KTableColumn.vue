@@ -13,11 +13,6 @@
 	</td>
 </template>
 <script>
-
-let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
-import Devices from '@/lib/core/Devices';
-
-
 export default {
   name: 'KTableColumn',
   data() {
@@ -49,9 +44,6 @@ export default {
   methods:{
   },
   mounted(){
-    /*this.$nextTick(()=>{
-      console.log(this.$slots, this.$scopedSlots)
-    })*/
   }
 };
 </script>

@@ -2,7 +2,7 @@
 	<div class="mod-login">
 		<el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm"  label-position="top" label-width="100px" class="ruleForm">
 		  <el-form-item label="用户名/邮箱" prop="user">
-		    <el-input type="password" v-model="ruleForm.user" autocomplete="off"></el-input>
+		    <el-input v-model="ruleForm.user" autocomplete="off"></el-input>
 		  </el-form-item>
 		  <el-form-item label="密码" prop="pass">
 		    <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
@@ -84,30 +84,31 @@ export default {
     },
     methods: {
     	...mapActions("user",["login"]),
+      checkIsLogined(){
+        if( this.isLogined ){
+          let url = this.$route.fullPath;
+          let ref = urls.getQueryValue('ref', url);
+          if( ref ){
+            try{
+              ref = decodeURIComponent(ref)
+            }catch(e){}
+          }
+          console.log("url", qs.parse( url ), url)
+          if( ref && /admin/ig.exec( ref )){
+            location.href = "/admin.html";
+          }else{
+            this.$router.back();
+          }
+          
+        }else{
+          console.log("loginerrr")
+        }
+      },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.login( this.ruleForm ).then(res=>{
-            	if( this.isLogined ){
-            		let url = this.$route.fullPath;
-            		let ref = urls.getQueryValue('ref', url);
-            		if( ref ){
-            			try{
-            				ref = decodeURIComponent(ref)
-            			}catch(e){}
-            		}
-            		console.log("登录信息", res);
-            		
-            		console.log("url", qs.parse( url ), url)
-            		if( ref && /admin/ig.exec( ref )){
-            			location.href = "/admin.html";
-            		}else{
-            			this.$router.back();
-            		}
-            		
-            	}else{
-            		console.log("loginerrr")
-            	}
+            	this.checkIsLogined();
             }).catch(e=>{
               this.$network( e );
             })
@@ -120,22 +121,20 @@ export default {
       resetForm(formName) {
         this.$refs[formName].resetFields();
       }
+    },
+    mounted(){
+      this.checkIsLogined();
+      document.addEventListener('keyup', e=>{
+        if( e.keyCode == 13 ){
+          this.submitForm('ruleForm')
+        }
+      })
     }
  }
 </script>
-<style lang="less">
+<style lang="less" scoped>
 .mod-login{
 	text-align: left;
 	padding: 20px;
-	.el-form-item{
-		padding:0;
-		color: red;
-		label{
-			padding: 0;
-		}
-		.el-form-item__label{
-			padding: 0;
-		}
-	}
 }
 </style>

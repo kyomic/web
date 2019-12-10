@@ -168,7 +168,7 @@ let admin_task_edit = {
 export {admin_task_edit};
 export default admin_task_edit;
 </script>
-<style lang="less">
+<style lang="less" scoped>
 	.action{
 		width: 100*@rem;
 	}
@@ -198,13 +198,6 @@ export default admin_task_edit;
 			overflow: hidden;
 		}
 	}
-	.mobile .el-form{
-		padding: 10*@rem;
-		.el-form-item{
-			margin-bottom: 0;
-			>label{
-				padding-bottom: 0;
-			}
-		}
-	}
+	
+	
 </style>

@@ -8,6 +8,11 @@
 				<el-form-item label="中文名">
 					<el-input v-model="form.figure_name_cn"></el-input>
 				</el-form-item>
+				<el-form-item label="来源站">
+					<el-select v-model="form.figure_site" disabled placeholder="来源站">
+					  <el-option v-for="(value,index) in siteinfo.site" :label="value.name" :value="value.id" v-bind:key="value.id"></el-option>
+					</el-select>
+				</el-form-item>
 				<el-form-item label="系列">
 					<el-input v-model="form.figure_series"></el-input>
 				</el-form-item>
@@ -79,7 +84,10 @@ let admin_figure_edit = {
 			updating:false,
 			form: {
 				figure_imgs:""
-			}
+			},
+			options:[
+				{name:100,value:0},{name:200,value:1}
+			]
 		}
 	},
 	computed:{
@@ -88,6 +96,7 @@ let admin_figure_edit = {
 		...mapGetters('env', ['mobile']),
 		//用户状态
 		...mapGetters('user',['isLogined', 'userinfo']),
+		...mapGetters('figuresite',["siteinfo"]),
 
 		editMode(){
 			if( this.$route.query && this.$route.query.id ){
@@ -96,7 +105,7 @@ let admin_figure_edit = {
 			return false;
 		},
 		//视频缩略图
-		thumbs(){
+		thumbs(){			
 			if( this.form.figure_imgs ){
 				return this.form.figure_imgs.split(",")
 			}
@@ -173,10 +182,11 @@ let admin_figure_edit = {
 		let params = this.$route.query;
 		if( params && params.id ){
 			services.info( params, this ).then(res=>{
-				this.form = res;
-				
+				this.form = {...res};
+				this.form.figure_site = this.form.figure_site || 2;	
 			})
 		}
+		console.log("figure站点信息", this.siteinfo)
 		console.log(params)
 
 	}
@@ -184,7 +194,7 @@ let admin_figure_edit = {
 export {admin_figure_edit};
 export default admin_figure_edit;
 </script>
-<style lang="less">
+<style lang="less" scoped>
 	.action{
 		width: 100*@rem;
 	}
@@ -214,16 +224,6 @@ export default admin_figure_edit;
 			overflow: hidden;
 		}
 	}
-	.mobile .el-form{
-		padding: 10*@rem;
-		.el-form-item{
-			margin-bottom: 0;
-			>label{
-				padding-bottom: 0;
-			}
-		}
-	}
-
 
 	.img-thumbs{
 		width: 100*@rem;
@@ -232,7 +232,7 @@ export default admin_figure_edit;
 		}
 	}
 	.kslider .item{
-	    height: 100px;
+	    height: 300*@rem;
 	    text-align: center;
 	    img{
 	    	display: inline-block;

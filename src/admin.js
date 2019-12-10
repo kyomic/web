@@ -77,6 +77,30 @@ Vue.prototype.$network = function(e){
   })
 }
 
+Vue.prototype.$highlight = function( dom ){
+  let contents = dom.querySelectorAll(".article-content .content");
+  contents = Array.from( contents )||[];
+  contents.map( res =>{
+    let code = res.innerHTML;
+    if( code && /(\[code\])|(\[html\])/ig.exec(code)){
+      code = code.replace(/\[code\]([\s|\S]+)\[\/code\]/ig,"<pre class='hljs'><code class='javascript'>$1</code></pre>");
+      code = code.replace(/\[html\]([\s|\S]+)\[\/html\]/ig,"<pre class='hljs'><code class='html'>$1</code></pre>");
+      /*code = code.replace(/\[html\]([\s|\S]+)\[\/html\]/ig, function( match0, match1, index, source ){
+        return "<pre class='hljs'><code class='html'>" + ( match1 ) + "</code></pre>";
+      })*/
+
+      res.innerHTML = code;
+
+      let editors = res.querySelectorAll(".hljs code");
+      editors = Array.from( editors ).map( hlsdom  =>{
+        //hljs.configure({useBR: true});
+        hljs.highlightBlock( hlsdom );
+        //res.innerHTML = text;
+      });
+    }
+  })
+}
+
 Vue.prototype.$layoutTable = function(){
   let header = this.$root.$el.querySelector('.header');
   let headerHeight = 0;

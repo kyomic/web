@@ -129,11 +129,37 @@ class Devices{
 		return {x:0,y:0};
 	}
 
+	
+	// 阻止双击放大
+	preventZoomPage(){
+		let doc = this._context.document;		
+	    var lastTouchEnd = 0;
+	    doc.addEventListener('touchstart', function(event) {
+	        if (event.touches.length > 1) {
+	            event.preventDefault();
+	        }
+	    });
+	    doc.addEventListener('touchend', function(event) {
+	        var now = (new Date()).getTime();
+	        if (now - lastTouchEnd <= 300) {
+	            event.preventDefault();
+	        }
+	        lastTouchEnd = now;
+	    }, false);
+		
+	    // 阻止双指放大
+	    doc.addEventListener('gesturestart', function(event) {
+	        event.preventDefault();
+	    });
+	}
+
 	onResize(){
 		this.emit('resize', {type:'resize', data: this.viewSize });
 	}
 	onLoad(){
 		this.emit('load', {type:'load', data: this.viewSize });
+		//阻止双击放大
+		this.preventZoomPage()
 	}
 	onScroll(){
 		let data = {
@@ -176,6 +202,10 @@ class Devices{
 		if( this._context ){
 
 		}
+		var ua = navigator.userAgent.toLowerCase();
+        if (ua.match(/MicroMessenger/i) == "micromessenger") {
+            return DevicesType.WX;
+        }
 		return DevicesType.BROWSER;
 	}
 	/**

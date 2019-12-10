@@ -1,4 +1,4 @@
-import StoreList from '../storelist';
+import StoreList from './storelist';
 import { api } from '@/services/api';
 
 let store = StoreList.create( api.figure );

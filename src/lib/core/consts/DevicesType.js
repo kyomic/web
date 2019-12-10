@@ -1,6 +1,7 @@
 const DevicesType = {
 	BROWSER:"browser",
-	LAPP:"lapp"
+	LAPP:"lapp",
+	WX:"weixin"
 }
 
 export {DevicesType};

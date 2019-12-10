@@ -14,6 +14,10 @@ config.host = {
 }
 config.api = config.host.api;
 
+if( (/localhost|\d+\.\d+\.\d+\.\d+/i).exec(location.host)){
+	config.host.www = [location.protocol,"//",location.host].join('');
+}
+
 switch( env ){
 	case 'development':
 		config.routerMode = 'hash'

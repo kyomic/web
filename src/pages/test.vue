@@ -1,9 +1,18 @@
 <template>
-  <div class="hello">
-    hello world
-    <KSlider class="kslider" >
-      <div  v-for="(item,index) in data" :class="'item '+ item"><span>{{item}}</span></div>
-    </KSlider>
+  <div class="page-wrap">
+    <div class="article-item">
+      <p><span class="label">[vx]: </span>kyomic</p>
+      <p><span class="label">[mail]: </span>kyomic[@]163.com</p>
+      <p><span class="label">[twitter]: </span><a href="https://twitter.com/bytearray/" target="_blank">https://twitter.com/bytearray/</a></p>
+      <div class="social-link">
+        <a href="#" class="github"></a>
+        <a href="#" class="weixin"></a>
+        <a href="#" class="twitter"></a>
+        <a href="#" class="mail"></a>
+        <a href="#" class="rss"></a>
+      </div>
+    </div>
+    
   </div>
 
 
@@ -30,13 +39,21 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="less" scoped>
   .kslider .item{
     height: 100px;
+  }
+  .label{
+    display: inline-block;
+    width:80*@rem;
+    text-align: right;
+    margin-right: 5*@rem;
   }
   .kslider span{
     display: block;
     height: 100%;
     border: 1px solid red;
   }
+
+  
 </style>

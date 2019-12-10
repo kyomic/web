@@ -124,6 +124,8 @@ let admin_article = {
 		this.$root.$on('scroll',this.onScrollHandler )
 		this.$root.$on('reachbottom',this.onReachBottomHandler )
 
+		
+		//this.$root.$renderHTMLEditor(this);
 
 		//this.$layoutTable();
 	}
@@ -135,7 +137,10 @@ export default admin_article;
 	.action{
 		width: 100*@rem;
 	}
-	.mod-table{
+	.admin_article .mod-table{
+		thead td:first-child{
+			width:auto;
+		};
 		thead td:last-child{
 			width:85*@rem;
 		};

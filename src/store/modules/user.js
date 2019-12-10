@@ -29,6 +29,9 @@ const getters = {
   isLogined( state ){
     return state.user_id !=0 && state.token 
   },
+  isAdmin( state ){
+    return state.user_id !=0 && state.token && state.level == 9;
+  },
   userinfo( state ){
     return {
       ...state, ...state.base
@@ -58,9 +61,11 @@ const actions = {
     return data;
   },
 
-  async session(){
+  async session({commit}){
     let data = await user.session();
+
     console.log("会话状态", data );
+    commit('updateUserInfo', data);
   },
   
   async login({ state, commit, dispatch }, payload) {
@@ -89,9 +94,11 @@ const mutations = {
   updateUserInfo( state, payload ){
     let token = '';
     let user_id = 0;
+    let level = 0;
     if( payload ){
       token = payload.token;
-      user_id = payload.user_id;
+      user_id = payload.user_id || payload.uid;
+      level = payload.level || payload.ulevel;
 
       store.set('user_id', user_id);
       store.set('token', token);
@@ -102,6 +109,8 @@ const mutations = {
 
     state.token = token;
     state.user_id = user_id;
+    state.level = level;
+    console.log("更新用户信息", state)
   }
 }
 

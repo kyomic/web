@@ -59,10 +59,7 @@ request.upload = ( url, option ) =>{
 	}
 	option = option || {};
 	return new Promise((resolve,reject)=>{
-		axios.post(url,option.params,{
-			headers: { 'content-type': 'application/x-www-form-urlencoded' },
-			data:option.data
-		}).then(res=>{
+		axios.post( `${url}?${qs.stringify(option.params)}`, null, {data:option.data} ).then(res=>{
 			setTimeout(()=>{
 				if( res && res.data && res.data.status == 200 ){
 					resolve( res.data.data );

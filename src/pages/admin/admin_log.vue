@@ -7,7 +7,27 @@
 					<span class="pagination-tip-label">{{Math.min(list.pagination.page*list.pagination.pagesize,list.pagination.total)}}/{{list.pagination.total}}</span>
 				</div>
 			</div>
-			<KTable :data="tableData" :loading="loading" :mobile="mobile" v-slot:default="scope" @scroll.native="onWrapperScroll">
+			<div :class="formfilterOpened?'table-filter':'table-filter table-filter-min'" ref="filter">
+				<i class="filter-extends el-icon-arrow-up" @click="onToggleFilterDisplay"></i>
+				<el-form :inline="true" :model="formInline" class="demo-form-inline" size="mini">
+				  <el-form-item label="键">
+				    <el-input v-model="formfilter.key" prefix-icon="el-icon-search" size="mini" placeholder="关键词"></el-input>
+				  </el-form-item>
+				  <el-form-item v-if="!formfilterOpened">
+				    <el-button type="primary" @click="onFormFilter" size="mini" >查询</el-button>
+				  </el-form-item>
+				  <el-form-item label="域">
+				    <el-select v-model="formfilter.field" size="mini" placeholder="域">
+				      <el-option label="IP" value="coun_IP"></el-option>
+				      <el-option label="URL" value="coun_URL"></el-option>
+				    </el-select>
+				  </el-form-item>
+				  <el-form-item>
+				    <el-button type="primary" @click="onFormFilter" size="mini" >查询</el-button>
+				  </el-form-item>
+				</el-form>
+			</div>
+			<KTable :data="tableData" :loading="loading" :mobile="mobile" v-slot:default="scope" @scroll.native="onWrapperScroll" :style="{marginTop:formfilterHeight+'px'}">
 				<KTableColumn label="ID" :column="scope">
 					<template v-slot:template>
 						<input type="checkbox" @change="onCheckboxChange(scope, $event)" :checked="scope.checked" />
@@ -15,11 +35,12 @@
 				</KTableColumn>
 				<KTableColumn label="状态" prop="coun_IP" :column="scope">
 					<template v-slot:template>
-						<div>{{scope.coun_IP}}<span style="float:right">{{scope.coun_Time}}</span></div>
-						<div style="color:#ccc">
+						<div>{{scope.coun_IP}}(<span style="color:#00cc00">{{(scope.coun_Type||'bootstrap').substring(0,4)}}</span>)<span style="float:right">{{scope.coun_Time}}</span></div>
+						<div><span>{{scope.coun_URL}}</span></div>
+						<div style="color:#ccc" @click="onShowMore($event)">
 							{{scope.coun_OS}} {{scope.coun_Browser}}
 						</div>
-						<div class="log-detail">
+						<div class="log-detail" @click="onShowMore($event)">
 							{{scope.coun_UA}}
 						</div>
 					</template>
@@ -46,6 +67,8 @@ import KTable from '@/components/KTable';
 import KTableColumn from '@/components/KTableColumn';
 import ScrollView from '@/components/ScrollView'
 
+import dom from '@/lib/core/dom';
+
 import { api } from '@/services/api';
 let blog = api.admin_log;
 let {upload} = api.common;
@@ -57,7 +80,10 @@ let admin_log = {
 		return {
 			loading:true,
 			isAllChecked:false,
-			tableColumns:[1,2,3]
+			tableColumns:[1,2,3],
+			formfilter:{},
+			formfilterOpened:false,
+			formfilterHeight:0
 		}
 	},
 	computed:{
@@ -81,9 +107,30 @@ let admin_log = {
 	    }
 	},
 	methods:{
-		...mapActions('admin_log',['nextPage','removeByIds']),
+		...mapActions('admin_log',['nextPage','removeByIds','reload']),
 		...mapMutations('admin_log',['updateScroll','update','checkall', 'setCurrentPage']),
 
+		onToggleFilterDisplay(){
+			this.formfilterOpened = !this.formfilterOpened;
+			this.$nextTick(()=>{
+				this.updateTableMargin();
+			});
+			
+		},
+		checkEnd(){
+			if( this.list && this.list.pagination ){
+	    		if( this.list.pagination.maxpage <= this.list.pagination.page ){
+	    			this.loading = false;
+	    			return;
+	    		}
+	    	}
+	    	this.loading = true;
+		},
+		updateTableMargin(){
+			if( this.$refs.filter ){
+				this.formfilterHeight = this.$refs.filter.offsetHeight;
+			}
+		},
 		onCheckboxChange(scope, checked){
 			if( typeof checked == 'object'){
 				checked = checked.target.checked;
@@ -92,10 +139,17 @@ let admin_log = {
 			this.update( data );
 		},
 
+		onShowMore(e){
+			let target = e.target;
+			let find = dom.closet( target, 'tr');
+			let detail = dom.query(".log-detail", find);
+			dom.toggleDisplay( detail );
+		},
+
 		checkData(){
 			if( this.list && this.list.data.length <=0 ){
 				this.setCurrentPage( 0 );
-				this.nextPage();
+				this.nextPage( this.formfilter );
 			}
 		},
 
@@ -108,6 +162,11 @@ let admin_log = {
 		onSelectAll(){
 			this.isAllChecked = !this.isAllChecked;
 			this.checkall( this.isAllChecked )
+		},
+		onFormFilter(){
+			this.reload( this.formfilter ).then(res=>{
+				this.checkEnd();
+			});
 		},
 		onSubmit(){
 			let ids = this.checkedList.map(res=>{
@@ -122,7 +181,7 @@ let admin_log = {
 		onScroll(e){},
 		onReachBottom(e){
 			this.loading = true;
-			this.nextPage();
+			this.nextPage( this.formfilter ).then(res=> this.checkEnd() );
 		},
 	},
 	beforeDestroy(){
@@ -138,12 +197,8 @@ let admin_log = {
 	mounted(){
 		console.log("tableData", this.list)
 		if( !this.tableData || !this.tableData.length ){
-			this.nextPage().then(res=>{
-				if( this.list && this.list.pagination ){
-		    		if( this.list.pagination.maxpage <= this.list.pagination.page ){
-		    			this.loading = false;
-		    		}
-		    	}
+			this.nextPage( this.formfilter ).then(res=>{
+				this.checkEnd();
 			}).catch(e=>{
 				this.$network(e);
 				setTimeout(_=>{
@@ -160,14 +215,14 @@ let admin_log = {
 		this.$root.$on('scroll',this.onScrollHandler )
 		this.$root.$on('reachbottom',this.onReachBottomHandler )
 
-
+		this.updateTableMargin();
 		//this.$layoutTable();
 	}
 }
 export {admin_log};
 export default admin_log;
 </script>
-<style lang="less">
+<style lang="less" scoped>
 	.action{
 		width: 100*@rem;
 	}
@@ -179,4 +234,8 @@ export default admin_log;
 			width:45*@rem;
 		};
 	}
+	.log-detail{
+		display: none;
+	}
+	
 </style>

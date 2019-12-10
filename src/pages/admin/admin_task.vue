@@ -9,7 +9,7 @@
 				<KTableColumn label="类型" prop="type" :column="scope"></KTableColumn>
 				<KTableColumn label="进度"  :column="scope">
 					<template v-slot:template>
-						<el-progress :text-inside="true" :stroke-width="20" :percentage="scope.total?Math.floor((scope.loadindex+1)/scope.total*1000)/10:0"></el-progress>
+						<el-progress :text-inside="true" :stroke-width="20" :percentage="scope.total?((Number(scope.loadindex)+1)/Number(scope.total)*100).toFixed(2):0"></el-progress>
 					</template>
 				</KTableColumn>
 				<KTableColumn label="操作" prop="action" :column="scope">
@@ -17,6 +17,9 @@
 			        	<el-button size="mini" @click.native="onEditHandler(scope)">修改</el-button>
 			        	<el-button size="mini" @click.native="onExecHandler(scope)" :type="scope.status==4?'danger':''">
 			        	{{ scope.status==2?'暂停':'执行'}}
+			        	</el-button>
+			        	<el-button size="mini" @click.native="onExecHandler(scope,'reset')" :type="scope.status==4?'danger':''">
+			        	{{ scope.status==2?'暂停':'重置'}}
 			        	</el-button>
 			        </template>
 				</KTableColumn>
@@ -32,13 +35,12 @@
 let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import KTable from '@/components/KTable';
 import KTableColumn from '@/components/KTableColumn';
-import KTableHeader from '@/components/KTableHeader'
 
 import { task } from '@/services/api';
 
 let admin_task = {
 	name: 'admin_task',
-	components:{KTable,KTableHeader,KTableColumn},
+	components:{KTable,KTableColumn},
 	data(){
 		return {
 			loading:true,
@@ -88,11 +90,12 @@ let admin_task = {
 				path:"/admin/task_edit", query:{'id': row.id }
 			})
 		},
-		onExecHandler:function( row ){
+		onExecHandler:function( row, type ){
+			let reset = type =='reset' ? 1:0
 			if( row.status == 2 ){
 				this.stop({id:row.id});
 			}else{
-				this.start({id:row.id});
+				this.start({id:row.id,reset});
 			}
 			
 		},
@@ -148,7 +151,7 @@ export default admin_task;
 	}
 	.mod-table{
 		thead td:last-child{
-			width:85*@rem;
+			width:125*@rem;
 		};
 	}
 </style>

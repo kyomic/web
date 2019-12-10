@@ -2,6 +2,7 @@
 const path = require('path')
 const config = require('../config')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const fs = require('fs');
 const packageConfig = require('../package.json')
 
 exports.assetsPath = function (_path) {
@@ -126,14 +127,39 @@ exports.externalConfig = [
   { name: 'element-ui', scope: 'ELEMENT', js: 'index.js', css: 'theme-chalk/index.css' },
 ];
 
+//是否通过命令行打包 sh release.sh
+exports.getIsPackModel = ()=>{
+  let cmd = process.argv[1];
+  if( cmd && cmd.indexOf('release')!=-1){
+    return true;
+  }
+  return false;
+}
+
+exports.getDevDependencies = ()=>{
+  let devDependencies = packageConfig.devDependencies || {};
+  let dependencies = packageConfig.dependencies || {};
+  for(var i in devDependencies ){
+    dependencies[i] = devDependencies[i];
+  }
+  return dependencies;
+}
 // build/utils.js 获取模块版本号
 exports.getModulesVersion = () => {
+  this.getDevDependencies();
   let mvs = {};
   let regexp = /^npm_package_.{0,3}dependencies_/gi;
-  for (let m in process.env) { // 从node内置参数中读取，也可直接import 项目文件进来
-    if (regexp.test(m)) { // 匹配模块
-       // 获取到模块版本号
-      mvs[m.replace(regexp, '').replace(/_/g, '-')] = process.env[m].replace(/(~|\^)/g, '');
+  if( this.getIsPackModel()){
+    let dep = this.getDevDependencies();
+    for (let m in dep) { // 从node内置参数中读取，也可直接import 项目文件进来
+      mvs[m] =  dep[m].replace(/(~|\^)/g, '');
+    }
+  }else{
+    for (let m in process.env) { // 从node内置参数中读取，也可直接import 项目文件进来
+      if (regexp.test(m)) { // 匹配模块
+         // 获取到模块版本号
+        mvs[m.replace(regexp, '').replace(/_/g, '-')] = process.env[m].replace(/(~|\^)/g, '');
+      }
     }
   }
   return mvs;
@@ -153,7 +179,9 @@ exports.getExternalModules = config => {
       item.js = item.js && [this.cdnBaseHttp, item.name, version, item.js].join('/');
       externals[item.name] = item.scope; // 为打包时准备
     } else {
-      throw new Error('相关依赖未安装，请先执行npm install ' + item.name);
+      if( !this.getIsPackModel() ){
+        throw new Error('相关依赖未安装，请先执行npm install ' + item.name);
+      }
     }
   });
   return externals;

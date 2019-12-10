@@ -1,5 +1,5 @@
 <template>
-	<div class="mod-slider" ref="mod-slider">
+	<div class="mod-slidersimple" ref="mod-slider">
     <div class="content"
       @touchstart="onDragStart($event)"
       @touchmove ="onDrag($event)"
@@ -14,18 +14,16 @@
         <i></i>
       </div>
     </div>
-    <i v-if="pager" class="prev el-icon-caret-left" @click="prevPage"></i>
-    <i v-if="pager" class="next el-icon-caret-right" @click="nextPage"></i>    
+    <i class="prev el-icon-caret-left" @click="prevPage"></i>
+    <i class="next el-icon-caret-right" @click="nextPage"></i>    
 	</div>
 </template>
 
 <script>
 let animationDuration = 500;
 let slotsLength = 0;
-let currentCls = 'slider-current';
-import dom from '@/lib/core/dom'
 export default {
-  name: 'KSlider',
+  name: 'KSliderSimple',
   components:{},
   data() {
     return {
@@ -40,9 +38,6 @@ export default {
     };
   },
   props:{
-    pager:{
-      type:Boolean,default:true, required:false
-    },
   },
   computed:{
     offset(){
@@ -65,7 +60,6 @@ export default {
       this.dragStartX = e.changedTouches[0].clientX;
     },
     onDrag(e){
-      e.preventDefault();
       if( this.isTouchStart ){
         this.isDrag = true;
       }
@@ -78,13 +72,6 @@ export default {
 
       let offset = this.dragOffset;
       let middle = this.width /2;
-      /** 1/4拖动效果*/
-      if( offset <0 ){
-        middle = this.width / 4;
-      }else{
-        middle = this.width * 3/4
-      }
-      /** 1/4拖动效果*/
       this.pageIndex -= Math.floor((offset + middle)/this.width);
       this.dragOffset = 0;
       this.update();
@@ -100,7 +87,8 @@ export default {
       this.update();
     },
     update(){
-      if( this.pageIndex >= this.childs.length ){
+      
+      if( this.pageIndex > this.childs.length ){
         setTimeout(()=>{
           this.isDrag = true;
           this.pageIndex = 0;
@@ -114,38 +102,12 @@ export default {
         //this.index = this.childs.length - 1;
       }     
     },
-    afterUpdate(){
-      let idx = this.pageIndex;
-      let root = this.$refs["mod-slider"];
-      let content = root.querySelector(".content");
-      Array.from(content.childNodes).filter(res=>res.nodeType==1).map((res,i)=>{
-        let id = i % slotsLength;
-        if( id == idx ){
-          dom.addClass(res,currentCls)
-        }else{
-          dom.removeClass(res,currentCls)
-        }        
-      })
-    },
 
     onUpdated( force = false){
-      let length = 0;
-      if( this.$slots && this.$slots.default ){
-        length = this.$slots.default.length;
-      }
-
-      let root = this.$refs["mod-slider"];
-      let content = root.querySelector(".content");
-
-
-      if( length <= 0 ){
-        content.innerHTML ="";
-        slotsLength = 0;
-      }
-      console.log("UPDATE:", length)
-      if( length && (slotsLength != length || force) ){
-        slotsLength = length;
-        
+      if( slotsLength != this.$slots.default.length || force ){
+        slotsLength = this.$slots.default.length;
+        let root = this.$refs["mod-slider"];
+        let content = root.querySelector(".content");
         let childs = (this.$slots.default || []).filter(res=>{
           return res && res.elm && res.elm.nodeType ==1 ;
         })
@@ -154,7 +116,7 @@ export default {
 
         let height = root.offsetHeight;
         let width  = root.offsetWidth;
-        console.log("width====", width, 'height====', height)
+        console.log("width====", width)
         if( !height && childs && childs.length ){
           height = childs[0].offsetHeight;
         }
@@ -174,13 +136,12 @@ export default {
         content.style.width = this.width * this.childs.length *3 + 'px';
         this.redraw();
       }
-      this.afterUpdate();
       
     },
     redraw(){
       let root = this.$refs["mod-slider"].querySelector(".content");
       if( root ){
-        Array.from(root.childNodes).map((res,i)=>{
+        Array.from(root.childNodes).map(res=>{
           res.style.width = this.width + "px"
         })
       }  
@@ -198,12 +159,12 @@ export default {
   }
 };
 </script>
-<style lang="less" scoped>
+<style lang="less">
 	.mod-slider{
     position: relative;
     width: 100%;
     height: 100%;
-    /*background: white;*/
+    background: #ccc;
     overflow: hidden;
     .content{
       transition-timing-function: cubic-bezier(0.1, 0.57, 0.1, 1);
@@ -227,29 +188,23 @@ export default {
     .content{
       *zoom:1;
     }
-    .content .item{
-      .transition(all);
-    }
-    .slider-current{
-      /*background-color: white;*/
-    }
   
     .btn{
       padding: 5*@rem;
       position: absolute;
       top: 50%;
       font-size: 16*@rem;
-      margin-top: -(5+24)/2*@rem;
+      margin-top: -(5+16)/2*@rem;
       border: 1px solid #ccc;
       border-radius: 10*@rem;
     }
     .prev{
       .btn();
-      left: 5*@rem;
+      left: 0;
     }
     .next{
       .btn();
-      right: 5*@rem;
+      right: 0;
     }
     .dot-pager{
       position: absolute;

@@ -39,15 +39,13 @@ a{
 	}
 }
 html.mobile{
-  
-  .el-drawer__header{
-  	padding: 10*$rem;
-  }
-
   .el-message{
     min-width: auto;
     width: 90%;
   }
+}
+.page-wrap{
+  overflow: hidden;
 }
 .page-wrap-content{
   text-align: center;

@@ -22,10 +22,16 @@ class StoreList{
 		let getters = {}
 
 		let actions = {
+			async reload({state,dispatch}, payload ){
+				state.currentPage = 0;
+				state.cachepage = {};
+				state.list = {data:[],pagination:{}};
+				return dispatch('nextPage', payload );
+			},
 			/**
 			 * 下一页
 			 */
-			async nextPage({state,dispatch}) {
+			async nextPage({state,dispatch}, payload ) {
 		        let page = 0;
 		        let total = 0;
 		        if( state.list && state.list.pagination && state.list.pagination.page ){
@@ -41,7 +47,7 @@ class StoreList{
 		        state.currentPage = page;
 		        console.log("nextPage", page, total)
 		        if( page <= total || page == 1){
-		        	return dispatch('appendPage', {page})
+		        	return dispatch('appendPage', {page, ...payload })
 		        }   
 		        
 		    },
@@ -63,6 +69,7 @@ class StoreList{
 
 		    async appendPage({state,commit}, payload ){
 		    	state.loading = true;
+		    	console.log("添加页",payload)
 		    	let data = await api.list(payload);
 		    	state.loading = false;		    			    	
         		commit('append', data)
@@ -83,7 +90,7 @@ class StoreList{
 
 		    async removeByIds({state,commit}, payload ){
 		    	let data = await api.remove( payload );
-		    	console.log("removeByIds", payload)
+		    	console.log("remove", payload)
 		    	commit('remove', payload );
 
 		    }
@@ -133,12 +140,10 @@ class StoreList{
 		    },
 
 		    remove( state, payload ){
-		    	console.log("remove", payload)
 		    	let ids = payload.ids+'';
 		    	let arr = ids.split(",").map(res=> parseInt(res+""));
 		    	state.list.data = state.list.data.filter(res=>{
-		    		console.log("res.id",res.id, arr)
-		    		return arr.indexOf(res.id) ==-1;
+		    		return arr.indexOf( parseInt(res.id+"")) ==-1;
 		    	})
 		    	state.cachepage = {};
 		    	state.list = state.list;
@@ -156,6 +161,13 @@ class StoreList{
 		            }
 		        })
 		        console.log("更新", payload, state.list.data)
+		    },
+		    updateInfo( state, payload ){
+		    	let data = state.cacheinfo[ payload.id ];
+		    	for(var i in payload ){
+		    		data[i] = payload[i];
+		    	}
+		    	state.detail = {...data}
 		    }
 		}
 

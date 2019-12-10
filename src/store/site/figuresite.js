@@ -1,11 +1,11 @@
 // initial state
 // shape: [{ id, quantity }]
 import {api} from "@/services/api";
-let { blogsite }  = api;
+let { figuresiteinfo }  = api;
 
 const state = {
   data:{
-    cate:[],tags:[]
+    site:[]
   }
 }
 
@@ -36,10 +36,10 @@ const actions = {
     state,访问局部state
    */
   async info({ state,rootState,commit,dispatch, getters,rootGetters }, payload ){
-    if( state.data && state.data.cate.length ){
+    if( state.data && state.data.site.length ){
       return state.data
     }
-    let data = await blogsite.info(payload);
+    let data = await figuresiteinfo(payload);
     commit('update', data );
     return data;
   }
@@ -50,7 +50,7 @@ const actions = {
 const mutations = {
   /** 修改 **/
   update(state, payload){
-    console.log("udpate", payload)
+    console.log("update figuresite", payload)
     state.data = Object.assign( state.data, payload || {} );
   }
 }

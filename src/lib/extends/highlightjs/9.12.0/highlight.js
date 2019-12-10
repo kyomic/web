@@ -497,10 +497,10 @@ https://highlightjs.org/
   - value (an HTML string with highlighting markup)
 
   */
-  function highlight(name, value, ignore_illegals, continuation) {
+  function highlight(a, b, ignore_illegals, continuation) {
     /* quill.js 改造*/
-    value = name;
-    name = 'javascript';
+    var value = a;
+    var name = b || 'javascript';
     /* quill.js 改造 end*/
     function escapeRe(value) {
       return new RegExp(value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'm');
@@ -1048,5 +1048,5 @@ https://highlightjs.org/
 //}));
 
 hljs.registerLanguage('javascript', require('./languages/javascript.js'));
-
+hljs.registerLanguage('xml', require('./languages/xml.js'));
 export default hljs;

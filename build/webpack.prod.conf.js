@@ -10,7 +10,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-
 const externalConfig = JSON.parse(JSON.stringify(utils.externalConfig));  // 读取配置
 const externalModules = utils.getExternalModules(externalConfig); // 获取到合适路径和忽略模块
 const env = process.env.NODE_ENV === 'testing'

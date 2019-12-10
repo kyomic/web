@@ -11,30 +11,40 @@
 				</div>
 			</div>
 	        <div class="article-content">
-	        	<div class="content" v-html="item.log_Intro">
+	        	<div class="content" v-html="item.log_Intro" @click="onClickBlog(item, $event)">
+
 	        	</div>
+	        	<router-link :to="'/article/detail/?id=' + item.id" v-if="item.log_More" class="article-more">查看更多</router-link>
 	        </div>
 	    </div>
 	    <i v-if="loading" class="el-icon-loading loading"></i>
+
+	    <KViewer :images="previewImgs" :show="showviewer" :data-show="showviewer" @hide="onHideViewer">
+	    </KViewer>
 	</div>
 </template>
 <script>
 let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import Debug from "@/lib/debug";
 import request from "@/lib/request"
+import config from '@/lib/config'
 
 import ScrollView from "@/components/ScrollView";
+import KViewer from "@/components/KViewer"
 import "./article.less"
 
 export default {
 	name: 'Article',
-	components: {},
+	components: {KViewer},
 	data() {
 		return {
 			maxpage:3,
 			page:1,
-		  msg: 'Welcome to Your Vue.js App',
-		  arr:[1,2,3]
+			msg: 'Welcome to Your Vue.js App',
+			arr:[1,2,3],
+
+			showviewer:false,
+			previewImgs:[]
 		};
 	},
 	computed:{
@@ -44,7 +54,19 @@ export default {
 	methods:{
 		...mapActions("blog", ["nextPage"]),
 		...mapMutations('blog',['updateScroll']),
-
+		
+		onHideViewer(){
+			this.previewImgs = [];
+			this.showviewer = false;
+		},
+		onClickBlog(data, e){
+			let target = e.target;
+			if( target && target.nodeName.toLowerCase() == 'img'){
+				let imgs = data.log_Content || data.log_Intro;
+				this.$preview( imgs );
+			}
+			console.log(arguments)
+		},
 		onReachBottom:function(){
 			this.nextPage();
 		},
@@ -69,7 +91,8 @@ export default {
 		let data = this.list.data;
 		if( !data || data.length <=0 ){
 			this.nextPage().then(res=>{
-				this.nextPage()
+				//this.nextPage()
+				this.$highlight( this.$el );
 			}).catch(e=>{
 				this.$network(e);				
 			});
@@ -81,6 +104,7 @@ export default {
 		this.$root.$on('scroll',this.onScrollHandler )
 		this.$root.$on('reachbottom',this.onReachBottomHandler )
 		//this.nextPage();
+
 	}
 };
 </script>

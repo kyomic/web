@@ -25,6 +25,12 @@ export async function update_figure( params, context = null ){
 	if( context ) return cacher( info, params, context );
 	return request.get(`${config.api}/ajax/figure/update_figure/?${stringify(params)}`);
 }
+
+export async function figuresiteinfo( params, context = null ){
+	if( context ) return cacher( info, params, context );
+	return request.get(`${config.api}/task/index/allsite/?${stringify(params)}`);
+}
+
 export default {
-	list,info,update, make_thumbs, update_figure
+	list,info,update, make_thumbs, update_figure, figuresiteinfo
 }
