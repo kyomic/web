@@ -28,6 +28,8 @@ let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import Debug from "@/lib/debug";
 import request from "@/lib/request"
 import config from '@/lib/config'
+import dom from '@/lib/core/dom'
+import Devices from '@/lib/core/Devices'
 
 import ScrollView from "@/components/ScrollView";
 import KViewer from "@/components/KViewer"
@@ -71,10 +73,25 @@ export default {
 			this.nextPage();
 		},
 		onScroll(e){
-			console.log("scroll.............")
 			let target = e;
 			this.updateScroll( target.scrollTop );
+			this.animate();
 		},
+
+		animate(){
+			let tr = document.querySelectorAll(".article-item");
+		    tr = Array.from(tr);
+		    let scrollTop = Devices.getInstance().scrollPosition.y;
+		    let viewHeight = Devices.getInstance().viewSize.height;
+		    tr.map((res,i)=>{
+		      if( !dom.hasClass(res,'article-item-show')){
+		        let pos = dom.offset( res );
+		        if(  pos.top  < scrollTop + viewHeight ){
+		        	dom.addClass(res,'article-item-show')		        	
+		        }		        
+		      }
+		    })
+		}
 	},
 
 	beforeDestroy(){
@@ -87,6 +104,12 @@ export default {
 		}
 		
 	},
+	updated(){
+		this.animate();
+	},
+	beforeUpdate(){
+		this.animate();
+	},
 	mounted(){
 		let data = this.list.data;
 		if( !data || data.length <=0 ){
@@ -96,6 +119,8 @@ export default {
 			}).catch(e=>{
 				this.$network(e);				
 			});
+		}else{
+			this.animate();
 		}
 		this.$root.$onScroll = this.onScroll;
 		this.$root.$onScrollBottom = this.onReachBottom;

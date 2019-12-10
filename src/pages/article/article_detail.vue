@@ -175,6 +175,7 @@ export default {
 	},
 	mounted(){
 		this.onMounted();
+		this.$animate();
 	}
 };
 </script>
@@ -182,5 +183,5 @@ export default {
 	.i-edit{
 		color:#409EFF;
 	}
-	
+
 </style>

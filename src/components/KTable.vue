@@ -4,13 +4,13 @@
       <div class="table-fixed">
         <table cellspacing="0" cellpadding="0" border="0">
             <thead>
-              <tr>
+              <tr class="show">
                 <slot></slot>            
               </tr>
             </thead>
         </table>
       </div>
-			<table cellspacing="0" cellpadding="0" border="0">
+			<table cellspacing="0" cellpadding="0" border="0" ref="table">
 				<thead>
 					<tr>
 						<slot></slot>            
@@ -37,6 +37,7 @@
 
 <script>
 import KTableColumn from '@/components/KTableColumn'
+import dom from '@/lib/core/dom';
 export default {
   name: 'KTable',
   components:{KTableColumn},
@@ -94,6 +95,18 @@ export default {
     onPageChange( page ){
       this.$emit('current-change', page);
     }
+  },
+
+  updated(){
+    let tr = this.$refs.table.querySelectorAll("tr");
+    tr = Array.from(tr);
+    tr.map((res,i)=>{
+      if( !dom.hasClass(res,'show')){
+        setTimeout(_=>{
+          dom.addClass(res,'show');
+        },100*(i % 10))
+      }
+    })
   },
   mounted(){
   	console.log("###################", this)

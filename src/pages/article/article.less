@@ -99,3 +99,22 @@
 		padding-bottom: 10*@rem;
 	}
 }
+
+
+/** 动画　**/
+/** 表格动画 **/
+.article-item{
+	opacity: 0;
+    transform: perspective( 100px ) rotateX(0) scale(1);
+    transition: all 0.8s;
+    -webkit-transition: all .4s;
+    /* box-shadow: 0 1px 2px rgba(43,59,93,0.29); */
+    -webkit-transform-origin: 50% 100%;
+    transform-origin: 50% 100%;
+    -webkit-transform: perspective( 100px ) rotateX(1deg) scale(.9);
+    transform: perspective( 50px ) rotateX(1deg) scale(.9);
+}
+.article-item-show{
+	opacity: 1;
+	transform: perspective( 100px ) rotateX(0) 
+}

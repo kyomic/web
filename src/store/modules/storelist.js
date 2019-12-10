@@ -14,6 +14,8 @@ class StoreList{
 		    detail:{}, //详情
 		    loading:false,
 		    currentPage:0,
+		    pagestate:{}, //当前页处理状态
+
 		    cachepage:{}, //cache
 		    cacheinfo:{}, //详情
 		    scrollTop:0,
@@ -68,9 +70,17 @@ class StoreList{
 		    },
 
 		    async appendPage({state,commit}, payload ){
+		    	let s = state.pagestate[ payload.page ];
+		    	if( typeof s != 'undefined'){
+		    		return;
+		    	}
+		    	state.pagestate[payload.page] = 2;
+
 		    	state.loading = true;
 		    	console.log("添加页",payload)
 		    	let data = await api.list(payload);
+
+		    	state.pagestate[payload.page] = 1;
 		    	state.loading = false;		    			    	
         		commit('append', data)
 		    },

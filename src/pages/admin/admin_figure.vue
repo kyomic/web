@@ -9,10 +9,13 @@
 			  <el-form-item v-if="!formfilterOpened">
 			    <el-button type="primary" @click="onFormFilter" size="mini" >查询</el-button>
 			  </el-form-item>
-			  <el-form-item label="域　">
-			    <el-select v-model="formfilter.field" size="mini" placeholder="域">
+			  <el-form-item label="" class="formfilter-field">
+			    <el-select v-model="formfilter.field" size="mini" placeholder="名称">
+			    	<el-option label="ID" value="figure_id"></el-option>
 			      <el-option label="名称" value="name"></el-option>
 			      <el-option label="系列" value="figure_series"></el-option>
+			      <el-option label="原型" value="figure_sculptor"></el-option>
+			      <el-option label="原画" value="figure_painter"></el-option>
 			    </el-select>
 			  </el-form-item>
 			  <el-form-item label="站点">
@@ -23,10 +26,12 @@
 			  </el-form-item>
 			  <el-form-item label="年份" class="range-year">
 			    <el-select v-model="formfilter.year_start" size="mini" placeholder="开始">
+			      <el-option label="所有" value=""></el-option>
 			      <el-option v-for="(value,key,index) in filterparams.year" :label="value+'年'" :key="value" :value="value"></el-option>
 			    </el-select>
 			    到
 			    <el-select v-model="formfilter.year_end" size="mini" placeholder="结束">
+			       <el-option label="所有" value=""></el-option>
 			      <el-option v-for="(value,key,index) in filterparams.year" :label="value+'年'" :key="value" :value="value"></el-option>
 			    </el-select>
 			  </el-form-item>
@@ -85,7 +90,7 @@ let admin_figure = {
 
 			filterparams:{
 				year:(function(){
-					let fullyear = new Date().getFullYear();
+					let fullyear = new Date().getFullYear() + 5;
 					let res = [];
 
 					while(fullyear>=2006){
@@ -98,7 +103,7 @@ let admin_figure = {
 			//搜索项
 			formfilter:{
 				year:2018,
-				site:2
+				site:""
 			},
 			formfilterOpened:false,
 			formfilterHeight:0
@@ -280,5 +285,8 @@ export default admin_figure;
 		.el-select{
 			width: 70*@rem;
 		}
+	}
+	.formfilter-field{
+		width: 70*@rem;
 	}
 </style>

@@ -149,6 +149,7 @@ export default {
 			}))
 		}
 		this.onMounted();
+		this.animate();
 	}
 };
 </script>

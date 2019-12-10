@@ -68,13 +68,13 @@ var syncFiles = function(){
 	});
 	
 }
-/*
+
 let wp = require(buildPath)
 wp.callback(function(){
 	console.log("发布完毕,正在同步文件")
 	syncFiles();
 })
-*/
-syncFiles();
+
+//syncFiles();
 //copy( path.resolve('./dist'), staticDir );
 //
