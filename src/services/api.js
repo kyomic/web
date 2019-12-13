@@ -12,7 +12,7 @@ import user from './user'
 import common from './common'
 import blog_comment from './blog/comment';
 
-console.log("figuresite@@@@@@@@@", figuresiteinfo)
+
 let api = {
 	article,task,figure,blog,blogsite,log, user,common, 
 

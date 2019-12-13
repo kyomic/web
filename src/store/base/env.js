@@ -26,7 +26,7 @@ const actions = {
     state,访问局部state
    */
   actionCall({ state,rootState,commit,dispatch, getters,rootGetters }, data ){
-    console.log("app.actions.actionCall", data);
+    
   }
   
 }
@@ -44,7 +44,7 @@ const mutations = {
       ...payload,
       current:payload.to
     }
-    console.log("更新路由:", state.router )
+    debug && console.log("更新路由:", state.router )
   }
 }
 

@@ -54,7 +54,13 @@
                 <router-view/>
             </el-col>     
             <el-col class="slider" :xs="0" :sm="4">
-                <Sidebar></Sidebar>
+              <div class="silder-item">分章分类</div>
+              <ul>
+                <li><router-link to="/" >全部</router-link></li>
+                <li><router-link :to="'/?cate=1'" >分章1</router-link></li>
+              </ul>
+              <div class="silder-item">日历导航</div>
+              <KDateNav></KDateNav>
             </el-col>
         </el-row>      
         <!-- 内容区结束 -->  
@@ -76,17 +82,18 @@
 
 import HomeMenu from "@/components/base/HomeMenu"
 import HeaderSearch from "@/components/HeaderSearch"
+import KDateNav from '@/components/KDateNav';
 let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 
 import Devices from '@/lib/core/Devices';
 import config from '@/lib/config';
 import reporter from '@/lib/reporter'
 
-console.log("CONFIG", config)
+window.debug && console.log("CONFIG", config)
 
 export default {
   name: 'App',
-  components: {HomeMenu, HeaderSearch },
+  components: {HomeMenu, HeaderSearch, KDateNav},
   metaInfo: {},
   data(){
     return {
@@ -162,9 +169,7 @@ export default {
     }
   },
   mounted(){
-    console.log("app mounted:dev", config.dev)
-
-    console.log("登录的用户信息", this.userinfo)
+    debug && console.log("登录的用户信息", this.userinfo)
     let devices = Devices.getInstance();
     devices.context = window;
     devices.on('resize', this.checkSize );
@@ -180,10 +185,8 @@ export default {
       this.drawer = data;
     })
 
-    console.log("this",this,"container")
-
     let path = this.$route.fullPath;
-    console.log("app mounted, path", path, this.$route)
+    debug && console.log("app mounted, path", path, this.$route)
 
     if( (path == '' || path == '/') && !config.dev ){
       //修复admin页面的主页和www的路由冲突
@@ -192,11 +195,7 @@ export default {
       }
     }
 
-    if( config.dev ){
-      console.log("path", path)
-    }
     this.updateRouter( {to:this.$route} );
-
     this.loginstate();
 
     this.$store.dispatch("user/session");

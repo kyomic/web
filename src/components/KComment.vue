@@ -125,7 +125,7 @@ export default {
         //this.fixscroll = false;
         dom.removeClass( comment, 'mod-comment-fixed')
       }
-      console.log("fixscroll", this.fixscroll, offset, (scrolldata.scrollTop ), headerHeight)
+      debug && console.log("fixscroll", this.fixscroll, offset, (scrolldata.scrollTop ), headerHeight)
     },
     onReachBottom(){
 
@@ -145,7 +145,6 @@ export default {
       this.charlen = 100 - len;
     },
     onAtUser(data){
-      console.log("data",data)
       this.comment += '@' + data.comm_Author;
     },
     onPost(e){

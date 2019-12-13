@@ -85,7 +85,7 @@ const actions = {
             params:params, data:params
         } )
         res = {...res, ...payload };
-        console.log("开始", res)
+        debug && console.log("开始", res)
         commit('update', res );
         dispatch('update_status', res );
         
@@ -104,14 +104,14 @@ const actions = {
 
     async stopall({ state, dispatch }){
         let list = state.list.data || [];
-        console.log("停止全部", state)
+        debug && console.log("停止全部", state)
         list.map(res=>{
             if( res.status == 2){
                 console.log("停止", res)
                 dispatch('stop', res)
             }
         })
-        console.log("停止全部", state)
+        debug && console.log("停止全部", state)
     },
 
     async list({ state, commit, dispatch }, payload) {
@@ -168,10 +168,10 @@ const mutations = {
                 return res;
             }
         })
-        console.log("更新", payload)
+        debug && console.log("更新", payload)
     },
     mutationsCall(state, payload) {
-        console.log("app.mutations.mutationsCall:");
+        debug && console.log("app.mutations.mutationsCall:");
     },
 
     showSearch(state, bol) {

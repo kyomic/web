@@ -1,74 +1,82 @@
 <template>
 	<div class="page-wrap-content admin_article>">
-		<div :class="formfilterOpened?'table-filter':'table-filter table-filter-min'" ref="filter">
-			<i class="filter-extends el-icon-arrow-up" @click="onToggleFilterDisplay"></i>
-			<el-form :inline="true" :model="formInline" class="demo-form-inline" size="mini">
-			  <el-form-item label="键　">
-			    <el-input v-model="formfilter.key" prefix-icon="el-icon-search" size="mini" placeholder="关键词"></el-input>
-			  </el-form-item>
-			  <el-form-item v-if="!formfilterOpened">
-			    <el-button type="primary" @click="onFormFilter" size="mini" >查询</el-button>
-			  </el-form-item>
-			  <el-form-item label="" class="formfilter-field">
-			    <el-select v-model="formfilter.field" size="mini" placeholder="名称">
-			    	<el-option label="ID" value="figure_id"></el-option>
-			      <el-option label="名称" value="name"></el-option>
-			      <el-option label="系列" value="figure_series"></el-option>
-			      <el-option label="原型" value="figure_sculptor"></el-option>
-			      <el-option label="原画" value="figure_painter"></el-option>
-			    </el-select>
-			  </el-form-item>
-			  <el-form-item label="站点">
-			    <el-select v-model="formfilter.site" placeholder="来源站">
-			    	<el-option label="所有" value=""></el-option>
-				  <el-option v-for="(value,index) in siteinfo.site" :label="value.name" :value="value.id" v-bind:key="value.id"></el-option>
-				</el-select>
-			  </el-form-item>
-			  <el-form-item label="年份" class="range-year">
-			    <el-select v-model="formfilter.year_start" size="mini" placeholder="开始">
-			      <el-option label="所有" value=""></el-option>
-			      <el-option v-for="(value,key,index) in filterparams.year" :label="value+'年'" :key="value" :value="value"></el-option>
-			    </el-select>
-			    到
-			    <el-select v-model="formfilter.year_end" size="mini" placeholder="结束">
-			       <el-option label="所有" value=""></el-option>
-			      <el-option v-for="(value,key,index) in filterparams.year" :label="value+'年'" :key="value" :value="value"></el-option>
-			    </el-select>
-			  </el-form-item>
-			  <el-form-item>
-			    <el-button type="primary" @click="onFormFilter" size="mini" >查询</el-button>
-			  </el-form-item>
-			</el-form>
-		</div>
+		<div class="wrapper" ref="wrapper">
+			<div :class="scrolling?'pagination-tip pagination-tip-show':'pagination-tip'">
+				<div class="pagination-tip-wrap">
+					{{Math.min(list.pagination.page*list.pagination.pagesize,list.pagination.total)}}/{{list.pagination.total}}
+				</div>
+			</div>
+			<div :class="formfilterOpened?'table-filter':'table-filter table-filter-min'" ref="filter">
+				<i class="filter-extends el-icon-arrow-up" @click="onToggleFilterDisplay"></i>
+				<el-form :inline="true" :model="formInline" class="demo-form-inline" size="mini">
+				  <el-form-item label="键　">
+				    <el-input v-model="formfilter.key" prefix-icon="el-icon-search" size="mini" placeholder="关键词"></el-input>
+				  </el-form-item>
+				  <el-form-item v-if="!formfilterOpened">
+				    <el-button type="primary" @click="onFormFilter" size="mini" >查询</el-button>
+				  </el-form-item>
+				  <el-form-item label="" class="formfilter-field">
+				    <el-select v-model="formfilter.field" size="mini" placeholder="名称">
+				    	<el-option label="ID" value="figure_id"></el-option>
+				      <el-option label="名称" value="name"></el-option>
+				      <el-option label="系列" value="figure_series"></el-option>
+				      <el-option label="原型" value="figure_sculptor"></el-option>
+				      <el-option label="原画" value="figure_painter"></el-option>
+				    </el-select>
+				  </el-form-item>
+				  <el-form-item label="站点">
+				    <el-select v-model="formfilter.site" placeholder="来源站">
+				    	<el-option label="所有" value=""></el-option>
+					  <el-option v-for="(value,index) in siteinfo.site" :label="value.name" :value="value.id" v-bind:key="value.id"></el-option>
+					</el-select>
+				  </el-form-item>
+				  <el-form-item label="年份" class="range-year">
+				    <el-select v-model="formfilter.year_start" size="mini" placeholder="开始">
+				      <el-option label="所有" value=""></el-option>
+				      <el-option v-for="(value,key,index) in filterparams.year" :label="value+'年'" :key="value" :value="value"></el-option>
+				    </el-select>
+				    到
+				    <el-select v-model="formfilter.year_end" size="mini" placeholder="结束">
+				       <el-option label="所有" value=""></el-option>
+				      <el-option v-for="(value,key,index) in filterparams.year" :label="value+'年'" :key="value" :value="value"></el-option>
+				    </el-select>
+				  </el-form-item>
+				  <el-form-item>
+				    <el-button type="primary" @click="onFormFilter" size="mini" >查询</el-button>
+				  </el-form-item>
+				</el-form>
+			</div>
 
-		<KTable :mobile="mobile" :data="tableData" :pagination="list.pagination" :loading="false" v-slot:default="scope" @scroll.native="onWrapperScroll" @current-change="onPageChange" ref="mod-table" :style="{marginTop:formfilterHeight+'px'}">
-			<KTableColumn label="ID" prop="figure_id" :column="scope" @click.native="onClick(scope)"></KTableColumn>
-			<KTableColumn label="缩略图" :column="scope">
-				<template v-slot:template>
-					<img :src=" host.www + '/'+scope.figure_thumbs" v-if="scope.figure_thumbs" />
-					<div v-else>empty</div>
-				</template>
-			</KTableColumn>
-			<KTableColumn label="名称" prop="figure_name" :column="scope" @click.native="onClick(scope)"></KTableColumn>
-			<KTableColumn label="状态"  :column="scope">
-				<template v-slot:template>
-					<div>
-						{{scope.figure_release_date}}
-						{{ scope.figure_price? scope.figure_price.replace('日圓 +消費稅','円'):''}}
-					</div>
-				</template>
-			</KTableColumn>
-			<KTableColumn label="操作" prop="action" :column="scope">
-				<template v-slot:template>
-		        	<el-button size="mini" @click.native="onEditHandler(scope)">修改</el-button>
-		        </template>
-			</KTableColumn>
-			
-		</KTable>
-		<div class="com-loading" v-if="hasLoading">
-			<i class="el-icon-loading loading"></i>
+			<KTable :mobile="mobile" :data="tableData" :pagination="list.pagination" :loading="loading" v-slot:default="scope" @scroll.native="onWrapperScroll" @current-change="onPageChange" ref="mod-table" :style="{marginTop:formfilterHeight+'px'}">
+				<KTableColumn label="ID" prop="figure_id" :column="scope" @click.native="onClick(scope)"></KTableColumn>
+				<KTableColumn label="缩略图" :column="scope">
+					<template v-slot:template>
+						<img :src=" host.www + '/'+scope.figure_thumbs" v-if="scope.figure_thumbs" />
+						<div v-else>empty</div>
+					</template>
+				</KTableColumn>
+				<KTableColumn label="名称" prop="figure_name" :column="scope" @click.native="onClick(scope)"></KTableColumn>
+				<KTableColumn label="状态"  :column="scope">
+					<template v-slot:template>
+						<div>
+							{{scope.figure_release_date}}
+							{{ scope.figure_price? scope.figure_price.replace('日圓 +消費稅','円'):''}}
+						</div>
+					</template>
+				</KTableColumn>
+				<KTableColumn label="操作" prop="action" :column="scope">
+					<template v-slot:template>
+			        	<el-button size="mini" @click.native="onEditHandler(scope)">修改</el-button>
+			        </template>
+				</KTableColumn>
+				
+			</KTable>
 		</div>
-		<div class="empty" v-else>没更多数据了~</div>
+		
+		<div class="form-bottom-option">
+			<div class="wrap">
+			</div>
+		</div>
 
 	</div>
 </template>
@@ -112,7 +120,7 @@ let admin_figure = {
 	computed:{
 	  	//环境状态
 	  	...mapState('admin_figure',['list','scrollTop','currentPage']),
-	    ...mapState('env', ['grid24code','router','host']),
+	    ...mapState('env', ['grid24code','router','host','scrolling']),
 	    ...mapGetters('env', ['mobile']),
 	    //用户状态
 	    ...mapGetters('user',['isLogined', 'userinfo']),
@@ -163,7 +171,6 @@ let admin_figure = {
 			
 		},
 		onClick:function( row ){
-			console.log('click', row)
 			location.href = config.host.www + '/figure/detail?id=' + row.id;
 			return;
 			this.$router.push({path: '/figure/detail', query: {'id': row.id}})
@@ -178,7 +185,6 @@ let admin_figure = {
 			this.setPage({page})
 		},
 		onSlotProps:function(){
-			console.log("得到子组件属性", arguments)
 			return arguments[0]
 		},
 
@@ -222,7 +228,6 @@ let admin_figure = {
 		
 	},
 	mounted(){
-		console.log("tableData", this.list)
 		if( !this.tableData || !this.tableData.length ){
 			this.nextPage().then(res=>{
 				if( this.list && this.list.pagination ){
@@ -235,6 +240,7 @@ let admin_figure = {
 			});
 		}else{
 			//this.$el.querySelector(".mod-table").scrollTop = this.scrollTop;
+			this.$animate();
 		}
 		this.$root.$onScroll = this.onScroll;
 		this.$root.$onScrollBottom = this.onReachBottom;

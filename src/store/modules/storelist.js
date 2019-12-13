@@ -9,7 +9,7 @@ class StoreList{
 		let state = {
 			list: {
 		        data: [],
-		        pagination: {}
+		        pagination: {pagesize:0,total:0}
 		    },
 		    detail:{}, //详情
 		    loading:false,
@@ -27,6 +27,7 @@ class StoreList{
 			async reload({state,dispatch}, payload ){
 				state.currentPage = 0;
 				state.cachepage = {};
+				state.pagestate = {};
 				state.list = {data:[],pagination:{}};
 				return dispatch('nextPage', payload );
 			},
@@ -47,7 +48,7 @@ class StoreList{
 		        	page = 1;
 		        }
 		        state.currentPage = page;
-		        console.log("nextPage", page, total)
+		        debug && console.log("nextPage", page, total)
 		        if( page <= total || page == 1){
 		        	return dispatch('appendPage', {page, ...payload })
 		        }   
@@ -77,7 +78,7 @@ class StoreList{
 		    	state.pagestate[payload.page] = 2;
 
 		    	state.loading = true;
-		    	console.log("添加页",payload)
+		    	debug && console.log("添加页",payload)
 		    	let data = await api.list(payload);
 
 		    	state.pagestate[payload.page] = 1;
@@ -100,7 +101,7 @@ class StoreList{
 
 		    async removeByIds({state,commit}, payload ){
 		    	let data = await api.remove( payload );
-		    	console.log("remove", payload)
+		    	debug && console.log("remove", payload)
 		    	commit('remove', payload );
 
 		    }
@@ -170,7 +171,7 @@ class StoreList{
 		                return res;
 		            }
 		        })
-		        console.log("更新", payload, state.list.data)
+		        debug && console.log("更新", payload, state.list.data)
 		    },
 		    updateInfo( state, payload ){
 		    	let data = state.cacheinfo[ payload.id ];

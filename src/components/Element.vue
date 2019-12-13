@@ -15,7 +15,6 @@ export default {
     };
   },
   mounted(){
-    console.log("element is mounted111")
   }
 };
 </script>

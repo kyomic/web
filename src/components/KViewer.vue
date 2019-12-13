@@ -56,7 +56,6 @@ export default {
     }
   },
   mounted(){
-  	console.log("###################", this)
     let device = Devices.getInstance();
     device.on('load', (e)=>{
       this.viewWidth = device.viewSize.width;

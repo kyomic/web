@@ -67,7 +67,6 @@ export default {
 				let imgs = data.log_Content || data.log_Intro;
 				this.$preview( imgs );
 			}
-			console.log(arguments)
 		},
 		onReachBottom:function(){
 			this.nextPage();

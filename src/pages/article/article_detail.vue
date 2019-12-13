@@ -69,8 +69,6 @@ import '@/lib/extends/quill/1.3.6/quill.snow.css';
 import '@/lib/extends/highlightjs/9.12.0/styles/monokai-sublime.min.css';
 //import hljs from "@/lib/extends/highlightjs/9.12.0/highlight"
 let hljs = require("highlight.js");
-console.log("hljs",hljs)
-
 import "./article.less"
 export default {
 	name: 'Article',
@@ -92,7 +90,7 @@ export default {
 		...mapGetters('user', ['isLogined','isAdmin']),
 
 		tags(){
-			console.log("站点信息", this.siteinfo)
+			debug && console.log("站点信息", this.siteinfo)
 			let site_tags = this.siteinfo ? (this.siteinfo.tags||{}) : null;
 			let tag = this.detail.log_tag || '';
 			let match_tags = [];
@@ -126,7 +124,7 @@ export default {
 
 		onClickBlog(data, e){
 			let target = e.target;
-			console.log(target, data)
+			debug && console.log(target, data)
 			if( target && target.nodeName.toLowerCase() == 'img'){
 				let imgs = data.log_Content;
 				this.$preview( imgs );

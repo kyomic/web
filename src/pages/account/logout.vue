@@ -21,7 +21,7 @@
 			...mapActions('user',['logout'])
 		},
 		mounted(){
-			console.log(this.$router);
+			debug && console.log(this.$router);
 			this.logout().then(res=>{
 				let url = this.$route.fullPath;
         		let ref = urls.getQueryValue('ref', url);
@@ -30,7 +30,7 @@
         				ref = decodeURIComponent(ref)
         			}catch(e){}
         		}
-        		console.log("url", qs.parse( url ), url,'ref', ref)
+        		debug && console.log("url", qs.parse( url ), url,'ref', ref)
 			}).catch(e=>{
 				this.$network(e);
 			})

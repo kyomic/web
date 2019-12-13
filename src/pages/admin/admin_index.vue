@@ -15,7 +15,6 @@ let admin_index = {
     ...mapGetters('user',['isLogined', 'userinfo']),
   },
   mounted(){
-  	console.log("admin_index is loaded")
   }
 }
 export {admin_index};

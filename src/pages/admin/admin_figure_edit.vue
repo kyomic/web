@@ -186,8 +186,8 @@ let admin_figure_edit = {
 				this.form.figure_site = this.form.figure_site || 2;	
 			})
 		}
-		console.log("figure站点信息", this.siteinfo)
-		console.log(params)
+		debug && console.log("figure站点信息", this.siteinfo)
+		debug && console.log(params)
 
 	}
 }

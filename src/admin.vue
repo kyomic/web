@@ -34,9 +34,7 @@
 import Devices from '@/lib/core/Devices';
 let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import config from '@/lib/config'
-
 import admin_menu from '@/pages/admin/admin_menu'
-console.log("CONFIG( ADMIN)", admin_menu)
 
 export default {
   name: 'admin',
@@ -79,7 +77,6 @@ export default {
         //更新env.mobile类型
         let code = Devices.getInstance().grid24code;
         this.setGrid24( code );
-        console.log("checkSize", code)
         let html = Devices.getInstance().query("html");
         if( html && this.mobile ){
           html.className = 'mobile'
@@ -111,20 +108,10 @@ export default {
       this.drawer = data;
     })
 
-    /*
-    console.log(".this.$refs.container", this)
-    let scroller = this.$refs.container.querySelector("[data-scrollview]");
-    if( scroller ){
-      scroller.addEventListener('scroll', (e)=>{
-        console.log('emit','reachbottom', this)
-        this.$emit("reachbottom");
-      })
-    }
-    */
-
+    
     
     let path = this.$route.fullPath;
-    console.log("admin mounted, path", path)
+    debug && console.log("admin mounted, path", path)
     if( path == '' || path == '/'){
       //修复admin页面的主页和www的路由冲突
       this.$router && this.$router.replace({path: '/admin/index'})
@@ -132,13 +119,12 @@ export default {
 
     this.$store.dispatch('blogsite/info');
     this.$store.dispatch('figuresite/info').then(res=>{
-      console.log("完成figure数据请求",res)
     });
     
     this.loginstate().then(res=>{
       /*
       if( false || !res || !res.level || res.level < 3 ){
-        console.log("router",this.$route)
+        debug && console.log("router",this.$route)
         this.$router.push({path: '/account/login', query: {'ref': this.$route.fullPath}})
       }
       */
@@ -161,25 +147,23 @@ export default {
   padding-bottom: 50*@rem;/**override*/
 }
 .pagination-tip{
+  -webkit-text-size-adjust:none;
+  text-size-adjust:none;
+  min-font-size:9px;
   position: fixed;
-  
-  width:100%;
   text-align: center;
   z-index: 5;
-  font-size: 12*@rem;
-  
+  font-size: 9px;
   margin-top: 5*@rem;
   color:#666;
-  
   .transition(all);
-  bottom: -100*@rem;
+  bottom: 0*@rem;
   opacity: 0;
   .pagination-tip-wrap{
     background: white;
     border:1px solid #F1F1F1;
     border-radius: 3*@rem;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.12);
-    margin: 5*@rem;
+    margin: 3*@rem;
     padding: 5*@rem;
   }
   .el-progress{
@@ -191,7 +175,7 @@ export default {
   }
 }
 .pagination-tip-show{
-  bottom: 100*@rem;
+  bottom: 50*@rem;
   opacity: 1;
 }
 .mobile-menu{

@@ -1,6 +1,7 @@
 import EventEmitter from 'event-emitter'
 import DevicesType from './consts/DevicesType'
 import utils from './utils'
+import Debug from '../debug'
 
 
 class Devices{
@@ -57,7 +58,6 @@ class Devices{
 	    }
 	    target.__evtMap[ id ] = (e)=>{
 	        let tar = e.target;
-	        console.log(e)
 	        if( this.containDom(target, tar)){
 	            if( handler.call(tar, e) === false ){
 	                e.stopPropagation();
@@ -67,7 +67,6 @@ class Devices{
 	            }
 	        }
 	    }
-	    console.log(target, selector)
 	    target.addEventListener(evt, target.__evtMap[ id ]);
 	}
 
@@ -168,7 +167,10 @@ class Devices{
 			scrollHeight: this.scrollSize.height
 		}
 		this.emit('scroll',{type:'scroll', data })
-		if( data.scrollTop + data.clientHeight >= data.scrollHeight ){
+		//Debug.console("scrollTop:"+ data.scrollTop+",clH="+ data.clientHeight+",scrollH="+data.scrollHeight)
+		let offset = 50;
+
+		if( data.scrollTop + data.clientHeight >= data.scrollHeight - offset ){
 			this.emit('reachbottom', {type:'reachbottom', data })
 		}
 	}
@@ -214,7 +216,6 @@ class Devices{
 	 */
 	get grid24code(){
 		let width = this.viewSize.width;
-		console.log("size", this.viewSize)
 		if( width ){
 			if( width < 768 ){
 				return 'xs';

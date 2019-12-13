@@ -15,7 +15,7 @@ export default {
     };
   },
   mounted(){
-    console.log("默认控制器", this.$route)
+    debug && console.log("默认控制器", this.$route)
     let loc = location.href;
     /*
     if( /admin/ig.exec( loc )){

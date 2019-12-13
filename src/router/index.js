@@ -23,7 +23,6 @@ import {
 	admin_figure, admin_figure_edit,
 	admin_log,
 } from '@/pages/admin';
-console.log("admin_article", admin_index)
 
 import NotFound from '@/components/NotFound';
 import Element from '@/components/Element';
@@ -32,8 +31,7 @@ import config from '@/lib/config';
 
 Vue.use(Router);
 
-console.log("Article", article)
-console.log("Element", Element)
+
 let routerOptions = {
 	mode:config.routerMode, 
 	routes:[]

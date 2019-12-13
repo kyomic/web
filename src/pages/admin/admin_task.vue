@@ -1,10 +1,12 @@
 <template>
 	<div class="page-wrap page-admin admin_article>">
 		<div class="wrapper" ref="wrapper">
-			<div class="mod-table-header" ref="mod-table-header">
-				<el-button @click.native="onAddHandler">添加</el-button>
+			<div :class="scrolling?'pagination-tip pagination-tip-show':'pagination-tip'">
+				<div class="pagination-tip-wrap">
+					{{Math.min(list.pagination.page*list.pagination.pagesize,list.pagination.total)}}/{{list.pagination.total}}
+				</div>
 			</div>
-			<KTable :mobile="mobile" :data="tableData" :pagination="list.pagination" :loading="hasLoading" v-slot:default="scope" @scroll.native="onWrapperScroll" @current-change="onPageChange" ref="mod-table">
+			<KTable :mobile="mobile" :data="tableData" :pagination="list.pagination" :loading="loading" v-slot:default="scope" @scroll.native="onWrapperScroll" @current-change="onPageChange" ref="mod-table">
 				<KTableColumn label="名称" prop="name" :column="scope"></KTableColumn>
 				<KTableColumn label="类型" prop="type" :column="scope"></KTableColumn>
 				<KTableColumn label="进度"  :column="scope">
@@ -27,7 +29,11 @@
 				
 			</KTable>
 		</div>
-		
+		<div class="form-bottom-option">
+			<div class="wrap">
+				<el-button size="small" type="primary" @click.native="onAddHandler" >添加</el-button>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -100,6 +106,16 @@ let admin_task = {
 			
 		},
 
+		checkEnd(){
+			if( this.list && this.list.pagination ){
+	    		if( this.list.pagination.maxpage <= this.list.pagination.page ){
+	    			this.loading = false;
+	    			return;
+	    		}
+	    	}
+	    	this.loading = true;
+		},
+
 		onWrapperScroll(e){
 			let target = e.currentTarget;
 			let height = target.offsetHeight;
@@ -116,12 +132,15 @@ let admin_task = {
 			this.setPage({page})
 		},
 		onSlotProps:function(){
-			console.log("得到子组件属性", arguments)
 			return arguments[0]
-		}
+		},
+		onScroll(e){},
+		onReachBottom(e){
+			this.loading = true;
+			this.nextPage( this.formfilter ).then(res=> this.checkEnd() );
+		},
 	},
 	mounted(){
-		console.log("tableData", this.list)
 		if( !this.tableData || !this.tableData.length ){
 			this.nextPage().then(res=>{
 				if( this.list && this.list.pagination ){
@@ -129,17 +148,25 @@ let admin_task = {
 		    			this.loading = false;
 		    		}
 		    	}
+		    	this.checkEnd();
 			}).catch(e=>{
 				this.$network(e);
 			});
 		}else{
 			this.$el.querySelector(".mod-table").scrollTop = this.scrollTop;
+			this.$animate();
 		}
 
+		this.$root.$onScroll = this.onScroll;
+		this.$root.$onScrollBottom = this.onReachBottom;
+		this.onScrollHandler = this.onScroll.bind(this);
+		this.onReachBottomHandler = this.onReachBottom.bind(this);
+		this.$root.$on('scroll',this.onScrollHandler )
+		this.$root.$on('reachbottom',this.onReachBottomHandler )
+		
 		this.$layoutTable();
 	},
 	beforeDestroy(){
-		console.log("将要销毁")
 	}
 }
 export {admin_task};

@@ -99,7 +99,7 @@ class StoreList{
 		                return res;
 		            }
 		        })
-		        console.log("更新", payload)
+		        debug && console.log("更新", payload)
 		    }
 		}
 

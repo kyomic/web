@@ -102,14 +102,13 @@ export default {
       if( this.inSearchPage ){
         this.showSearch(true);
       }
-  		console.log("closeabled", this.closeabled, this.shown, 'code=', code)
+  		debug && console.log("closeabled", this.closeabled, this.shown, 'code=', code)
   	}
   },
   mounted(){
   	Devices.getInstance().on('resize', this.checkSize );
   	Devices.getInstance().on('load', this.checkSize );
   	this.checkSize();
-    console.log("HeaderSearch is mounted")
   }
 };
 </script>

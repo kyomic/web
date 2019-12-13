@@ -12,7 +12,7 @@ export default {
     };
   },
   mounted(){
-    console.log("debugger is loaded.")
+    debug && console.log("debugger is loaded.")
   }
 };
 </script>

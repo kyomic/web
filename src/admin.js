@@ -1,5 +1,6 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+window.debug = true;
 const Vue = require('vue');
 import App from './admin.vue';
 import upperFirst from 'lodash/upperFirst'
@@ -20,6 +21,7 @@ let {
 import router from './router';
 import store from './store'
 import Devices from '@/lib/core/Devices'
+import dom from '@/lib/core/dom';
 
 import './assets/style.scss'
 import './assets/normalize.css'
@@ -125,6 +127,22 @@ Vue.prototype.$layoutTable = function(){
 Vue.prototype.$updateTitle = function( str ){
   document.title = str;
 }
+Vue.prototype.$animate = function(){
+  let tr = document.querySelectorAll(".article-item");
+  tr = Array.from(tr);
+  tr.map((res,i)=>{
+    if( !dom.hasClass(res,'article-item-show')){
+      dom.addClass(res,'article-item-show')         
+    }
+  })
+  tr = document.querySelectorAll(".com-table-wrapper table tr");
+  tr = Array.from(tr);
+  tr.map((res,i)=>{
+    if( !dom.hasClass(res,'show')){
+      dom.addClass(res,'show')         
+    }
+  })  
+}
 
 Vue.config.productionTip = false;
 
@@ -141,8 +159,8 @@ new Vue({
 /** 去更新store.env中的state */
 router.beforeEach((to, from, next) => {
   //console.log(to.matched)
-  console.log("路由钩子:", store);
-  console.log( to, from ,next)
+  debug && console.log("路由钩子:", store);
+  debug && console.log( to, from ,next)
   if( to && to.name !='search'){
     store.commit('search/showSearch', false );
   }

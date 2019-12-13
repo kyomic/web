@@ -29,7 +29,7 @@ export default {
   computed:{},
   methods:{
   	onClick:function(){
-  		console.log(this)
+  		debug && console.log(this)
   	},
   	onScrollHandler:function(e){
   		let dom = e.target;
@@ -37,16 +37,14 @@ export default {
   		let scrollHeight = dom.scrollHeight;
   		let viewHeight = dom.offsetHeight;
       this.onScroll && this.onScroll(e);
-      console.log("scroll.........", scrollTop, scrollHeight, scrollHeight - viewHeight)
+      debug && console.log("scroll.........", scrollTop, scrollHeight, scrollHeight - viewHeight)
       this.$emit('scroll', e);
   		if( scrollTop >= scrollHeight - viewHeight ){
-        console.log("reachbottom")
   			this.$emit('reachbottom', e);
   		}
   	}
   },
   mounted(){
-  	console.log("###################", this.$refs)
     this.$refs.scroll.scrollTop = this.scrollTop;
   }
 };

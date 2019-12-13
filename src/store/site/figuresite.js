@@ -50,7 +50,7 @@ const actions = {
 const mutations = {
   /** 修改 **/
   update(state, payload){
-    console.log("update figuresite", payload)
+    debug && console.log("update figuresite", payload)
     state.data = Object.assign( state.data, payload || {} );
   }
 }

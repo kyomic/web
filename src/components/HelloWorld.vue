@@ -15,7 +15,6 @@ export default {
     };
   },
   mounted(){
-    console.log("HelloWorld is mounted")
   }
 };
 </script>

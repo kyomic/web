@@ -64,7 +64,7 @@ const actions = {
   async session({commit}){
     let data = await user.session();
 
-    console.log("会话状态", data );
+    debug && console.log("会话状态", data );
     commit('updateUserInfo', data);
   },
   
@@ -88,7 +88,7 @@ const actions = {
 // mutations
 const mutations = {
   mutationsCall( state, payload ){
-    console.log("app.mutations.mutationsCall:", data);
+    
   },
 
   updateUserInfo( state, payload ){
@@ -110,7 +110,7 @@ const mutations = {
     state.token = token;
     state.user_id = user_id;
     state.level = level;
-    console.log("更新用户信息", state)
+    debug && console.log("更新用户信息", state)
   }
 }
 

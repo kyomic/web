@@ -33,7 +33,6 @@ export default {
 
     setTimeout(()=>{
       this.data=['a','b','c','d','e']
-      console.log("newdata",this.data)
     },5000)
   }
 };

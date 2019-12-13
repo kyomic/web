@@ -222,21 +222,19 @@ let admin_article_edit = {
 				        });
 					})				
 				}
-				console.log(img)
 			})
 			this.quill = quill
 			let code = this.form.log_Content||"";
 			let dom = this.$refs.editor.querySelector(".ql-editor");
 			dom.innerHTML = code;
 			this.quill.update();
-			//console.log(this.$refs.editor.querySelector(".ql-editor").innerHTML)
 		},	
 		onSubmit:function(){
 			let data = {
 				...this.form, ...this.formBottom, log_Content:this.$refs.editor.querySelector(".ql-editor").innerHTML
 			}
 			//delete data["id"];
-			console.log("提交数据",data );
+			debug && console.log("提交数据",data );
 			blog.update( {data}, this ).then( res =>{
 				this.$store.commit('admin_article/update', res);
 				this.$router.back();
@@ -264,7 +262,7 @@ let admin_article_edit = {
 	        this.inputValue = '';
 		},
 		async uploadImage( data ){
-			console.log("upload", data)
+			debug && console.log("upload", data)
 			let timestamp = new Date();
 			let str = "month_" + [
 				timestamp.getFullYear(),

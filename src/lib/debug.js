@@ -10,7 +10,8 @@ Debug.getRoot = ()=>{
 			dom.className = 'debugger';
 			dom.innerHTML = "<div class='content'></div>"
 			root.appendChild( dom );
-		}		
+			root = document.querySelector(".debugger");
+		}
 	}
 	if( !wrapper ){
 		wrapper = root.querySelector('.content');
@@ -22,7 +23,7 @@ Debug.print = function( ...args ){
 	if( root ){
 		let arr = Array.from( args );
 		root.innerHTML += arr.reduce((current,value)=>{
-			return (current ?'<br />':'') + value;
+			return current +'<br />' + value;
 		},'')
 	}
 }

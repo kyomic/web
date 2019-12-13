@@ -3,7 +3,7 @@ import utils from "./core/utils";
 import urls from "./core/urls";
 var UAParser = require('ua-parser-js');
 let parser = new UAParser();
-console.log("parser", parser.getResult(),parser)
+window.debug && console.log("{UAParser}", parser.getResult(),parser)
 let reporter = {};
 let base = {
 	refer: encodeURIComponent( document.referrer),

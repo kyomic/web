@@ -3,8 +3,7 @@
 		<div class="wrapper" ref="wrapper">
 			<div :class="scrolling?'pagination-tip pagination-tip-show':'pagination-tip'">
 				<div class="pagination-tip-wrap">
-					<el-progress :text-inside="true" :stroke-width="14" :percentage="Math.floor(list.pagination.page/list.pagination.maxpage*100)" color='#A7A7A7'></el-progress>
-					<span class="pagination-tip-label">{{Math.min(list.pagination.page*list.pagination.pagesize,list.pagination.total)}}/{{list.pagination.total}}</span>
+					{{Math.min(list.pagination.page*list.pagination.pagesize,list.pagination.total)}}/{{list.pagination.total}}
 				</div>
 			</div>
 			<KTable :data="tableData" :loading="loading" :mobile="mobile" v-slot:default="scope" @scroll.native="onWrapperScroll">
@@ -75,7 +74,6 @@ let admin_article = {
 		},
 
 		onSlotProps:function(){
-			console.log("得到子组件属性", arguments)
 			return arguments[0]
 		},
 		onSubmit(){
@@ -100,7 +98,6 @@ let admin_article = {
 		
 	},
 	mounted(){
-		console.log("tableData", this.list)
 		if( !this.tableData || !this.tableData.length ){
 			this.nextPage().then(res=>{
 				if( this.list && this.list.pagination ){
@@ -116,6 +113,7 @@ let admin_article = {
 			});
 		}else{
 			//this.$el.querySelector(".mod-table").scrollTop = this.scrollTop;
+			this.$animate();
 		}
 		this.$root.$onScroll = this.onScroll;
 		this.$root.$onScrollBottom = this.onReachBottom;

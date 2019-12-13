@@ -93,7 +93,7 @@ export default {
               ref = decodeURIComponent(ref)
             }catch(e){}
           }
-          console.log("url", qs.parse( url ), url)
+          debug && console.log("url", qs.parse( url ), url)
           if( ref && /admin/ig.exec( ref )){
             location.href = "/admin.html";
           }else{
@@ -101,7 +101,7 @@ export default {
           }
           
         }else{
-          console.log("loginerrr")
+          debug && console.log("loginerrr")
         }
       },
       submitForm(formName) {
@@ -113,7 +113,7 @@ export default {
               this.$network( e );
             })
           } else {
-            console.log('error submit!!');
+            debug && console.log('error submit!!');
             return false;
           }
         });

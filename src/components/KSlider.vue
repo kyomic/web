@@ -142,7 +142,7 @@ export default {
         content.innerHTML ="";
         slotsLength = 0;
       }
-      console.log("UPDATE:", length)
+      debug && console.log("UPDATE:", length)
       if( length && (slotsLength != length || force) ){
         slotsLength = length;
         
@@ -154,7 +154,6 @@ export default {
 
         let height = root.offsetHeight;
         let width  = root.offsetWidth;
-        console.log("width====", width, 'height====', height)
         if( !height && childs && childs.length ){
           height = childs[0].offsetHeight;
         }
@@ -165,7 +164,7 @@ export default {
         this.height = height;
         this.width = width;
 
-        console.log("新的子节点", childs, "单条宽度:", this.width)
+        debug && console.log("新的子节点", childs, "单条宽度:", this.width)
         this.childs = childs;        
         let code = childs.reduce((current,value,index,arr)=>{
           return current + value.outerHTML
@@ -193,7 +192,6 @@ export default {
     this.onUpdated();
   },
   mounted(){
-    console.log("KSlider mounted .childs", this.$slots)
     this.onUpdated( true );
   }
 };

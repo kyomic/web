@@ -6,12 +6,40 @@
     <meta content="yes" name="apple-mobile-web-app-capable">
     <meta http-equiv="P3P" content='CP="CAO PSA OUR"' />
     <meta name="renderer" content="webkit">
-    <meta name="title" content="###title###">
-    <meta name="keywords" content="###keywords###">
-    <meta name="description" content="###description###">
-    <title>web</title>
+    <meta name="title" content="{$page.title}">
+    <meta name="keywords" content="{$page.keywords}">
+    <meta name="description" content="{$page.description}">
+
+    <title>{$page.title}</title>
+    <style type="text/css" lang="less">        
+        .seo{display: none;} 
+        .preload{position:absolute;top:10px;width: 100%;text-align: center;} 
+        .preload i:nth-child(1){animation:ani 1s linear 0s infinite ;-webkit-animation:ani 1s linear 0s infinite ;}
+        .preload i:nth-child(2){animation:ani 1s linear 0.25s infinite ;-webkit-animation:ani 1s linear 0.25s infinite ;}
+        .preload i:nth-child(3){animation:ani 1s linear 0.5s infinite ;-webkit-animation:ani 1s linear 0.5s infinite ;}
+        .preload i,.preload i:after, .preload i:before{
+            background-color: #666;
+            margin-right: 10px;
+            height: 8px;
+            width: 8px;
+            border-radius: 20px;
+            opacity: 0.2;
+            display: inline-block;
+        }
+        @keyframes ani {
+            0%{
+                opacity: 1;
+            }
+            25%{
+                opacity: 0.2;
+            }
+            75%{
+                opacity: 0.2;
+            }
+        }
+    </style>
     <script>
-    	window.vuedata = '###vuedata###';
+    	window.vuedata = '{$page.json}';
     </script>
     <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
     <!-- 其他标签 -->
@@ -20,6 +48,34 @@
     <% }}) %>
   </head>
   <body>
+    <div class="preload"><i></i><i></i><i></i></div>
+    <!-- seo start -->
+    <div class='seo'>
+        {switch name="$page.name"}
+            {case value="blog_index"}
+                {foreach name='page.data' item='vo' key='kkk'}
+                <div class="section">
+                    <h2><a href="{$page.domain}/article/detail/?id={$vo.log_ID}" target="_blank">{$vo.log_Title}</a></h2>
+                    <p class="time">{$vo.log_PostTime}</p>
+                    <p class="desc">{$vo.log_Intro}</p>
+                </div>
+                {/foreach}
+            {/case}
+            {case value="blog_detail"}
+            <div class="section">
+                <h2><a href="{$page.domain}/article/detail/?id={$page.data.log_ID}" target="_blank">{$page.data.log_Title}</a></h2>
+                <p class="time">{$page.data.log_PostTime}</p>
+                <p class="desc">{$page.data.log_Content}</p>
+            </div>
+            {/case}
+            {case value="2"}已发货{/case}
+            {case value="3"}已收货{/case}
+            {case value="4"}完成{/case}
+            {case value="5"}关闭{/case}
+            {default /} 其他
+        {/switch}
+    </div>
+    <!-- seo end   -->
     <div id="app"></div>
     <% htmlWebpackPlugin.options.cdnConfig.forEach(function(item){ if(item.js && !htmlWebpackPlugin.options.onlyCss){ %>
     <script type="text/javascript" src="<%= item.js %>"></script>

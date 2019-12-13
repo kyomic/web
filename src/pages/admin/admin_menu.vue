@@ -24,16 +24,7 @@ let admin_menu = {
 		...mapActions('user',['logout']),
 		onClick(){
 			this.logout().then(res=>{
-				/*
-				let url = this.$route.fullPath;
-        		let ref = urls.getQueryValue('ref', url);
-        		if( ref ){
-        			try{
-        				ref = decodeURIComponent(ref)
-        			}catch(e){}
-        		}
-        		console.log("url", qs.parse( url ), url,'ref', ref)
-        		*/
+				
 			}).catch(e=>{
 				this.$network(e);
 			})

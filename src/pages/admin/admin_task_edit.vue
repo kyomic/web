@@ -156,13 +156,11 @@ let admin_task_edit = {
 				this.$nextTick(_ => {
 					let t0 = new Date().valueOf()
 					this.initQuill()
-					console.log("编辑渲染用时:",(new Date().valueOf()-t0))
+					debug && console.log("编辑渲染用时:",(new Date().valueOf()-t0))
 				});
 				
 			})
 		}
-		console.log(params)
-
 	}
 }
 export {admin_task_edit};

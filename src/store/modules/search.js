@@ -37,11 +37,11 @@ const actions = {
     state,访问局部state
    */
   actionCall({ state,rootState,commit,dispatch, getters,rootGetters }, data ){
-    console.log("app.actions.actionCall", data);
+    debug && console.log("app.actions.actionCall", data);
   },
 
   async query({ state, commit, dispatch }, payload) {
-    console.log("搜索：", payload)
+    debug && console.log("搜索：", payload)
     if( !payload ){
       return;
     }
@@ -58,7 +58,7 @@ const actions = {
 // mutations
 const mutations = {
   mutationsCall( state, payload ){
-    console.log("app.mutations.mutationsCall:", data);
+    debug && console.log("app.mutations.mutationsCall:", data);
   },
 
   showSearch( state, bol ){
@@ -72,12 +72,11 @@ const mutations = {
     }
   },
   appendArticle( state, payload ){
-    console.log("添加文章 ", payload)
+    debug && console.log("添加文章 ", payload)
     state.list = {
       data: state.list.data.concat(payload.list || []),
       pagination: {...payload.pagination}
     }
-    console.log("state", state)
   }
 }
 

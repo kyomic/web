@@ -17,7 +17,6 @@ export default {
     };
   },
   mounted(){
-    console.log("artilce is mounted111")
   }
 };
 </script>

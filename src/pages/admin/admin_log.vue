@@ -3,8 +3,7 @@
 		<div class="wrapper" ref="wrapper">
 			<div :class="scrolling?'pagination-tip pagination-tip-show':'pagination-tip'">
 				<div class="pagination-tip-wrap">
-					<el-progress :text-inside="true" :stroke-width="14" :percentage="Math.floor(list.pagination.page/list.pagination.maxpage*100)" color='#A7A7A7'></el-progress>
-					<span class="pagination-tip-label">{{Math.min(list.pagination.page*list.pagination.pagesize,list.pagination.total)}}/{{list.pagination.total}}</span>
+					{{Math.min(list.pagination.page*list.pagination.pagesize,list.pagination.total)}}/{{list.pagination.total}}
 				</div>
 			</div>
 			<div :class="formfilterOpened?'table-filter':'table-filter table-filter-min'" ref="filter">
@@ -195,7 +194,6 @@ let admin_log = {
 		
 	},
 	mounted(){
-		console.log("tableData", this.list)
 		if( !this.tableData || !this.tableData.length ){
 			this.nextPage( this.formfilter ).then(res=>{
 				this.checkEnd();
@@ -207,6 +205,7 @@ let admin_log = {
 			});
 		}else{
 			//this.$el.querySelector(".mod-table").scrollTop = this.scrollTop;
+			this.$animate();
 		}
 		this.$root.$onScroll = this.onScroll;
 		this.$root.$onScrollBottom = this.onReachBottom;

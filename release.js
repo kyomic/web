@@ -1,11 +1,15 @@
 const path = require('path');
 const fs = require('fs');
 const webpack = require('webpack');
+const iconv = require('iconv-lite');
 let child_process = require('child_process');
 let target = "D:\\centos_share\\myphp\\think\\public\\";
+let devFile = "D:\\centos_share\\myphp\\think\\application\\config\\config.php";
 
 let staticDir = path.resolve( target,"static");
-console.log("发布至:" , staticDir );
+let args = process.argv.splice(2);
+let dev = args && args[0] == 'dev' ? true: false;
+console.log("环境:dev="+ dev + ", 发布至:" , staticDir );
 
 function DeleteDirectory(dir) {
 	if (fs.existsSync(dir) == true) {
@@ -53,8 +57,39 @@ var checkDirectory=function(src,dst,callback){
       });
 };
 let buildPath = path.resolve('build/build.js')
+let versionPath = path.resolve('src/lib/config.js');
 
+var getDateTime = function(){
+    var nowtime = new Date();
+    var buildtime = [
+        nowtime.getFullYear(),
+        (nowtime.getMonth()+1).toString().padStart(2,"0"),
+        nowtime.getDate().toString().padStart(2,"0"),
+        nowtime.getHours().toString().padStart(2,"0"),
+        nowtime.getMinutes().toString().padStart(2,"0")
+    ].join("");
+    return buildtime;
+}
+var updateVersion = function(){
+    let code = [
+        '//inject start\n',
+        '$dev='+dev+';\n',
+        '//inject end\n'
+    ].join("");
+    
+    let content = fs.readFileSync(devFile);
+    content = iconv.decode(content, 'utf8');
+    content = content.replace(/\/\/inject start.*[\s\S]*\/\/inject end\n?/ig, code );
+    fs.writeFileSync(devFile, content);
+    console.log("更新Javascript版本");
+    content = fs.readFileSync(versionPath);
+    content = iconv.decode(content, 'utf8');
+
+    content = content.replace(/config\.buildtime\s*\=\s*"[^\"]*";/ig,"config.buildtime = \""+ getDateTime() +"\";" );
+    fs.writeFileSync(versionPath, content);
+}
 var syncFiles = function(){
+    updateVersion();
     DeleteDirectory( staticDir );
 	copy( path.resolve('./dist'), target ,function(){
         setTimeout(_=>{
@@ -74,6 +109,10 @@ wp.callback(function(){
 	console.log("发布完毕,正在同步文件")
 	syncFiles();
 })
+
+
+//updateVersion();
+
 
 //syncFiles();
 //copy( path.resolve('./dist'), staticDir );

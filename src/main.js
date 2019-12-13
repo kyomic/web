@@ -1,5 +1,6 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+window.debug = true;
 const Vue = require('vue');
 import App from './App';
 import upperFirst from 'lodash/upperFirst'
@@ -53,9 +54,9 @@ Vue.prototype.$animate = function(){
     if( !dom.hasClass(res,'article-item-show')){
       dom.addClass(res,'article-item-show')         
     }
-  })
-  
+  })  
 }
+
 Vue.prototype.$network = function(e){
   let msg = e.data ? (e.data.msg||'未知错误') : e;
   this.$message({
@@ -110,7 +111,6 @@ Vue.prototype.$preview = function( text ){
   }
 
   img_regx = /<img[^s+]src\=['"]([^"']+)['"]>/ig;
-  console.log(text)
   while( true ){
     var res = img_regx.exec( text );
     if( res && res.length ){
@@ -119,7 +119,7 @@ Vue.prototype.$preview = function( text ){
       break;
     }
   }
-  console.log("imgs", urls)
+  debug && console.log("imgs", urls)
   /*
   $host = "http://api.shareme.cn/blog_attachment/?id=";
   $host_home = "http://www.shareme.cn/";
@@ -198,8 +198,8 @@ new Vue({
 /** 去更新store.env中的state */
 router.beforeEach((to, from, next) => {
   //console.log(to.matched)
-  console.log("路由钩子:", store);
-  console.log( to, from ,next)
+  debug && console.log("路由钩子:", store);
+  debug && console.log( to, from ,next)
   if( to && to.name !='search'){
     store.commit('search/showSearch', false );
   }

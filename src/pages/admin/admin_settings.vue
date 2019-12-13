@@ -37,7 +37,6 @@ let admin_settings = {
     }
   },
   mounted(){
-    console.log("admin_settings is loaded")
   }
 }
 export {admin_settings};
