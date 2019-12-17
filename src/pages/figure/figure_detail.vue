@@ -1,6 +1,7 @@
 <template>
 	<div class="page-wrap-content">
-		<i v-if="loading" class="el-icon-loading loading"></i>
+		<div class="com-loading"><i v-if="loading" class="el-icon-loading loading"></i></div>
+		
 		<div class="article-image">
 			<KSlider class="kslider" v-if="figure_imgs && figure_imgs.length">
 				<div class="item" v-for="(item,index) in figure_imgs">

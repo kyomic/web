@@ -16,7 +16,7 @@
 				</el-col>
 				<el-col class="line" :span="2">-</el-col>
 				<el-col :span="11">
-				  <el-time-picker placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
+				  <el-time-picker placeholder="选择时间" v-model="form.log_PostTime" style="width: 100%;"></el-time-picker>
 				</el-col>
 			  </el-form-item>
 			  <el-form-item label="标签">
@@ -46,9 +46,6 @@
 				</div>
 			</div>
 			<el-form :label-position="mobile?'top':'left'" :model="formBottom" label-width="80px">
-			  <el-form-item label="是否发布">
-				<el-switch v-model="form.delivery"></el-switch>
-			  </el-form-item>
 			  <el-form-item label="是否公开">
 				<el-switch v-model="form.log_IsShow"></el-switch>
 			  </el-form-item>
@@ -196,12 +193,7 @@ let admin_article_edit = {
 								quill.insertEmbed(index, 'image', config.host.www + '/' + res.path);
 								//删除本地图片
 								quill.deleteText(index+1,1)
-							}).catch(e=>{
-								this.$message({
-						          message: '图片上传出错,点击图片重试上传',
-						          type: 'warning'
-						        });
-							})	
+							})
 							
 						}
 					}
@@ -216,10 +208,8 @@ let admin_article_edit = {
 					this.uploadImage({base64:img.src}).then(res=>{
 						img.setAttribute('src', config.host.www + '/' + res.path );
 					}).catch(e=>{
-						this.$message({
-				          message: '图片上传出错,点击图片重试上传',
-				          type: 'warning'
-				        });
+						console.log("error",e)
+						
 					})				
 				}
 			})
@@ -235,8 +225,17 @@ let admin_article_edit = {
 			}
 			//delete data["id"];
 			debug && console.log("提交数据",data );
+			if( !data.log_Title ){
+				this.$error("标题必填")
+				return;
+			}
 			blog.update( {data}, this ).then( res =>{
-				this.$store.commit('admin_article/update', res);
+				let id = this.$route.query.id;
+				if( id ){
+					this.$store.commit('admin_article/update', res);
+				}else{
+					this.$store.commit('admin_article/add', res);
+				}
 				this.$router.back();
 			})
 		},
@@ -276,7 +275,18 @@ let admin_article_edit = {
 					path:"attachments/" + str + "/",
 					test:1
 				}
-			});
+			}).catch(e=>{
+				let msg = "";
+				if( e.data && e.data.msg ){
+					msg = "图片上传出错：" + e.data.msg;
+				}else{
+					msg = '图片上传出错,点击图片重试上传'
+				}
+				this.$message({
+		          message: msg ,
+		          type: 'warning'
+		        });
+			})
 			return res;
 		}
 	},
@@ -285,6 +295,12 @@ let admin_article_edit = {
 		if( params && params.id ){
 			blog.info( params, this ).then(res=>{
 				this.form = res;
+				console.log("form", this.form)
+				this.form.log_IsShow = Boolean( this.form.log_IsShow );
+				if( !this.form.log_PostTime ){
+					this.form.log_PostTime = (new Date()).Format("yyyy-M-d h:m:s.S")
+				}
+
 				this.initQuill()
 			})
 		}else{

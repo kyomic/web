@@ -1,6 +1,6 @@
 <template>
 	<div class="page-wrap-content">
-		<i v-if="loading" class="el-icon-loading loading"></i>
+		<div class="com-loading"><i v-if="loading" class="el-icon-loading loading"></i></div>
 		<div class="article-item" v-show="!loading">
 			<div class="article-header">
 				<h2 class="title">
@@ -159,8 +159,11 @@ export default {
 			  //['clean']       
 			]
 			this.info({id:id}).then(res=>{
+				if( !res){
+					this.$router.replace({path: '/404', query: {'type':'article'}})
+					return;
+				}
 				this.$updateTitle( res.log_Title );
-
 				this.$highlight( this.$el );
 			})
 		}

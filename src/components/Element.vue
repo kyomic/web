@@ -1,9 +1,7 @@
 <template>
-	<div>
-		<el-row>
-		
-		</el-row>
-	</div>
+	<div class="page-wrap-content">
+   content is herer 
+  </div>
 </template>
 
 <script>

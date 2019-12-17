@@ -1,6 +1,6 @@
 <template>
     <div class="root" id="admin">
-        <el-row type="flex" justify="space-between" class="header">
+        <el-row type="flex" justify="space-between" :class="mobile?'header mobile-header':'header'">
             <el-col>
                 <div class="menu-left">
                     <a :href="home"><i class="el-icon-s-home"></i></a>
@@ -117,6 +117,7 @@ export default {
       this.$router && this.$router.replace({path: '/admin/index'})
     }
 
+    this.$store.dispatch("user/session");
     this.$store.dispatch('blogsite/info');
     this.$store.dispatch('figuresite/info').then(res=>{
     });

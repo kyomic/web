@@ -12,8 +12,9 @@ class StoreList{
 		        pagination: {pagesize:0,total:0}
 		    },
 		    detail:{}, //详情
-		    loading:false,
+		    loading:true,
 		    currentPage:0,
+		    query:{},     //查询参数
 		    pagestate:{}, //当前页处理状态
 
 		    cachepage:{}, //cache
@@ -21,7 +22,23 @@ class StoreList{
 		    scrollTop:0,
 		}
 
-		let getters = {}
+		let getters = {
+			isEmpty( state ){
+				if( !state.loading && (!state.list.data ||!state.list.data.length )){
+					return true;
+				}
+				return false;
+			},
+			/** 是否全载入 **/
+			isLoaded( state ){
+				if( !state.loading  ){
+					if( state.list.pagination.page >= state.list.pagination.maxpage ){
+						return true;
+					}
+				}
+				return false;
+			}
+		}
 
 		let actions = {
 			async reload({state,dispatch}, payload ){
@@ -31,10 +48,17 @@ class StoreList{
 				state.list = {data:[],pagination:{}};
 				return dispatch('nextPage', payload );
 			},
+			async query({state, dispatch}, payload ){
+				state.query = payload;
+				dispatch('reload');
+			},
 			/**
 			 * 下一页
 			 */
 			async nextPage({state,dispatch}, payload ) {
+				if( payload ){
+					state.query = payload;
+				}
 		        let page = 0;
 		        let total = 0;
 		        if( state.list && state.list.pagination && state.list.pagination.page ){
@@ -48,7 +72,7 @@ class StoreList{
 		        	page = 1;
 		        }
 		        state.currentPage = page;
-		        debug && console.log("nextPage", page, total)
+		        debug && console.log("nextPage", page, total, payload)
 		        if( page <= total || page == 1){
 		        	return dispatch('appendPage', {page, ...payload })
 		        }   
@@ -79,11 +103,14 @@ class StoreList{
 
 		    	state.loading = true;
 		    	debug && console.log("添加页",payload)
-		    	let data = await api.list(payload);
 
+		    	payload = {...payload, ...state.query };
+
+		    	let data = await api.list(payload);
 		    	state.pagestate[payload.page] = 1;
 		    	state.loading = false;		    			    	
-        		commit('append', data)
+        		commit('append', data);
+        		return data;
 		    },
 
 		    async info({state, commit}, payload ){
@@ -141,6 +168,7 @@ class StoreList{
 		            data: state.list.data.concat(data),
 		            pagination: {...payload.pagination }
 		        }
+		        return state.list;
 		    },
 		    checkall( state, payload ){
 		    	let list = state.list.data.concat();
@@ -149,7 +177,11 @@ class StoreList{
 		    		...state.list, data:list
 		    	}
 		    },
-
+		    add( state, payload ){
+		    	if( payload.id ){
+		    		state.list.data.unshift( payload );
+		    	}
+		    },
 		    remove( state, payload ){
 		    	let ids = payload.ids+'';
 		    	let arr = ids.split(",").map(res=> parseInt(res+""));

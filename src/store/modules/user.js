@@ -30,6 +30,7 @@ const getters = {
     return state.user_id !=0 && state.token 
   },
   isAdmin( state ){
+    console.log("isAdmin,state", state.level)
     return state.user_id !=0 && state.token && state.level == 9;
   },
   userinfo( state ){

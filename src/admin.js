@@ -79,6 +79,11 @@ Vue.prototype.$network = function(e){
   })
 }
 
+Vue.prototype.$error = ( str )=>{
+  Message({message:str,type:'error'})
+}
+
+
 Vue.prototype.$highlight = function( dom ){
   let contents = dom.querySelectorAll(".article-content .content");
   contents = Array.from( contents )||[];

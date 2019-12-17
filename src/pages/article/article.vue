@@ -1,6 +1,7 @@
 <template>
 	<div class="page-wrap-content">
-		<div class="mod-article article-item" v-for="(item) in list.data">
+		
+		<div class="mod-article article-item" v-for="(item) in list.data" v-if="!isEmpty">
 			<div class="article-header">
 				<h2 class="title">
 					<router-link :to="'/article/detail/?id=' + item.id">{{item.log_Title}}</router-link>
@@ -11,6 +12,7 @@
 				</div>
 			</div>
 	        <div class="article-content">
+	        	<div v-if="item.log_IsShow">[隐藏日志]</div>
 	        	<div class="content" v-html="item.log_Intro" @click="onClickBlog(item, $event)">
 
 	        	</div>
@@ -18,9 +20,12 @@
 	        </div>
 	    </div>
 	    <i v-if="loading" class="el-icon-loading loading"></i>
-
 	    <KViewer :images="previewImgs" :show="showviewer" :data-show="showviewer" @hide="onHideViewer">
 	    </KViewer>
+
+	    <div class="mod-article article-empty" v-if="isEmpty || isLoaded">
+			<span class="empty">无更多数据~~</span>
+		</div>
 	</div>
 </template>
 <script>
@@ -51,10 +56,11 @@ export default {
 	},
 	computed:{
 		...mapState('blog',['loading', 'list', 'scrollTop']),
-		...mapGetters('env', ['mobile'])
+		...mapGetters('env', ['mobile']),
+		...mapGetters('blog', ['isEmpty','isLoaded'])
 	},
 	methods:{
-		...mapActions("blog", ["nextPage"]),
+		...mapActions("blog", ["nextPage","query"]),
 		...mapMutations('blog',['updateScroll']),
 		
 		onHideViewer(){
@@ -103,6 +109,12 @@ export default {
 		}
 		
 	},
+	watch:{
+	    '$route':function( val ){
+	      console.log("router ---------", val);
+	      this.query( val.query );
+	    }
+	},
 	updated(){
 		this.animate();
 	},
@@ -112,7 +124,7 @@ export default {
 	mounted(){
 		let data = this.list.data;
 		if( !data || data.length <=0 ){
-			this.nextPage().then(res=>{
+			this.nextPage( this.$route.query ).then(res=>{
 				//this.nextPage()
 				this.$highlight( this.$el );
 			}).catch(e=>{

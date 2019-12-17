@@ -51,16 +51,27 @@
         <!-- 内容区开始 -->
         <el-row class="container" ref="abc" @scroll.native="onScroll">
             <el-col class="page-wrap page-wrap-scroll" :xs="24" :sm="18">
+                <div class="mod-article article-empty"></div>
                 <router-view/>
             </el-col>     
-            <el-col class="slider" :xs="0" :sm="4">
-              <div class="silder-item">分章分类</div>
-              <ul>
-                <li><router-link to="/" >全部</router-link></li>
-                <li><router-link :to="'/?cate=1'" >分章1</router-link></li>
-              </ul>
-              <div class="silder-item">日历导航</div>
-              <KDateNav></KDateNav>
+            <el-col :xs="0" :sm="6">
+              <div :class="sideFixed?'sider sider-fixed':'sider'" :style="{'top':sideFixedTop+'px'}">
+                <div class="sider-item">
+                  <h3>分章分类</h3>
+                  <ul>
+                    <li><router-link to="/" >全部</router-link></li>
+                    <li v-for="(value,key,index) in category" :key="index">
+                      <a :href="value.cate_URL" v-if="value.cate_URL" :style="{display:'none'}">{{value.cate_Name}}</a>
+                      <router-link :to="'/?cate='+value.cate_ID" v-else>{{value.cate_Name}}</router-link>
+                    </li>
+                  </ul>
+                </div>              
+                <div class="sider-item">
+                  <h3>存档</h3>
+                  <KDateNav :data="archive"></KDateNav>
+                </div>    
+              </div>     
+                                
             </el-col>
         </el-row>      
         <!-- 内容区结束 -->  
@@ -91,6 +102,8 @@ import reporter from '@/lib/reporter'
 
 window.debug && console.log("CONFIG", config)
 
+let isSiteInfoInited = false;
+
 export default {
   name: 'App',
   components: {HomeMenu, HeaderSearch, KDateNav},
@@ -98,7 +111,11 @@ export default {
   data(){
     return {
         search_kw:"",
-        drawer:false
+        drawer:false,
+        archive:[],
+        category:[],
+        sideFixed:false,
+        sideFixedTop:40,
     }
   },
   computed:{
@@ -108,6 +125,8 @@ export default {
     ...mapState('env', ['grid24code','router']),
     ...mapGetters('env', ['mobile']),
     ...mapGetters('user',['isLogined', 'userinfo', 'isAdmin']),
+    ...mapGetters('blogsite',['siteinfo']),
+
     loginurl:function(){
       let ref = '';
       if( this.router && this.router.current ){
@@ -161,6 +180,39 @@ export default {
 
       this.$root.$emit("drawer",false);
     },
+
+    updateSiteInfo( info ){
+      //watch deep会引起死循环
+      if( isSiteInfoInited ) return;
+      console.log(info.cate);
+      let category = info.cate.concat();
+      category = category.sort( (a, b )=>{
+        if( a.cate_Order < b.cate_Order ){
+          return -1;
+        }
+        return 1;
+      })
+      this.category = category;
+      /*
+      if( info && info.cate && info.cate.length ){
+        isSiteInfoInited = true;
+      }
+      this.category = info.cate.sort(function(a,b){
+        if( a.cate_Order <0 ){
+          if( a.cate_Order > b.cate_Order  ){
+            return -1;
+          }
+          return 1;
+        }else{
+          if( a.cate_Order < b.cate_Order ){
+            return -1;
+          }
+          return 1;
+        }
+      })
+*/
+      this.archive = info.archive;
+    },
     abc:function(){
       alert(1)
     },
@@ -168,13 +220,33 @@ export default {
       Devices.getInstance().emit('scroll');
     }
   },
+  watch:{    
+    siteinfo:{
+      handler:function(val, old ){
+        this.updateSiteInfo( val );        
+      },deep:true
+    }
+  },
   mounted(){
     debug && console.log("登录的用户信息", this.userinfo)
+
+    console.log("站点信息", this.siteinfo)
     let devices = Devices.getInstance();
     devices.context = window;
     devices.on('resize', this.checkSize );
     devices.on('load', this.checkSize );
     devices.on('scroll', (e)=>{
+
+      if( e.data.scrollTop > 60 ){
+        this.sideFixed = true;
+        this.sideFixedTop = e.data.scrollTop + 40;
+        console.log('fixed')
+      }else{
+        this.sideFixed = false;
+        this.sideFixedTop = 40;
+        console.log('no fixed')
+      }
+
       this.$root.$emit("scroll", e.data );
     })
     devices.on('reachbottom', (e)=>{
@@ -193,6 +265,10 @@ export default {
       if( /admin/ig.exec( location.href )){
         location.href = config.host.admin;
       }
+    }
+
+    if( this.siteinfo ){
+      this.updateSiteInfo( this.siteinfo );
     }
 
     this.updateRouter( {to:this.$route} );

@@ -1,0 +1,118 @@
+/**
+ * css reset
+ * @author: zhaoning
+ * @Date  : 14-12-27
+ */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+    margin         : 0;
+    padding        : 0;
+    border         : 0;
+    font-size      : 100%;
+    font-weight    : 100;
+    vertical-align : baseline;
+    font-style     : normal;
+}
+/*将高亮反馈设置为半透明*/
+/*see:http://tmt.io/mobile-page-click-color-block-solution */
+html {
+    -webkit-tap-highlight-color : transparent;
+}
+ol, ul {
+    list-style : none
+}
+table {
+    border-collapse : collapse;
+    border-spacing  : 0
+}
+caption, th, td {
+    text-align     : left;
+    font-weight    : 400;
+    vertical-align : middle
+}
+q, blockquote {
+    quotes : none
+}
+q:before,
+q:after,
+blockquote:before,
+blockquote:after {
+    content : "";
+    content : none
+}
+a img {
+    border : 0
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section,
+summary {
+    display : block
+}
+audio,
+canvas,
+progress,
+video,
+i {
+    display        : inline-block;
+    vertical-align : baseline;
+}
+html {
+    margin : 0 auto;
+}
+body {
+    min-width                  : 300*@rem;
+    line-height                : 1;
+    background                 : #FFFFFF;
+    -webkit-overflow-scrolling : touch;
+    -webkit-font-smoothing     : antialiased;
+    -ms-text-size-adjust       : 100%;
+    -webkit-text-size-adjust   : 100%;
+    font-size                  : 16*@rem;
+}
+a {
+    text-decoration       : none;
+    -moz-user-select      : none;
+    -webkit-user-select   : none; //禁用选择
+    -webkit-touch-callout : none; //禁用长按弹层
+}
+.clear, .clear-all {
+    clear       : both;
+    font-size   : 0;
+    height      : 0;
+    line-height : 0;
+    overflow    : hidden;
+}
+/* 清除浮动 */
+.fix:after, .clearfix:after {
+    clear      : both;
+    content    : " ";
+    display    : block;
+    font-size  : 0;
+    height     : 0;
+    visibility : hidden;
+}
+.fix, .clearfix {
+    *zoom : 1;
+}
+.hidden {
+    display : none;
+}
+//隐藏搜索框的默认x按钮
+input[type="search"]::-webkit-search-cancel-button { display : none }
+input {
+    outline : none;
+    border  : none;
+    margin  : 0;
+    padding : 0;
+}
+input:-webkit-autofill {
+    -webkit-box-shadow : 0 0 0 1000px white inset;
+}

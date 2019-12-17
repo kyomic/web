@@ -10,6 +10,9 @@
 		<h2><router-link @click.native="onRouteClick" to="/admin/task">站点任务</router-link></h2>
 		<h2><router-link @click.native="onRouteClick" to="/admin/figure">模型站</router-link></h2>
 		<div class="divider"></div>
+		<div v-if="isAdmin">
+			{{userinfo.user_id}}管理员
+		</div>
 		<h2><a @click="onClick">退出</a></h2>
 	</div>
 </template>
@@ -19,7 +22,10 @@ import {urls} from '@/lib/core/urls'
 import qs from 'qs';
 let admin_menu = {
 	name:'admin_menu',
-
+	computed:{
+	    //用户状态
+	    ...mapGetters('user',['isAdmin', 'userinfo']),
+	},
 	methods:{
 		...mapActions('user',['logout']),
 		onClick(){
@@ -38,6 +44,16 @@ let admin_menu = {
 			},300)
 			
 		}
+	},
+	watch:{
+		isAdmin:{
+			handler: function (val, oldVal) {
+			},
+      		deep: true
+		}
+	},
+	mounted(){
+		console.log("admin_menu mounted", this)
 	}
 }
 export default admin_menu;
