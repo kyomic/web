@@ -12,7 +12,7 @@
 				</div>
 			</div>
 	        <div class="article-content">
-	        	<div v-if="item.log_IsShow">[隐藏日志]</div>
+	        	<div v-if="!item.log_IsShow">[隐藏日志]</div>
 	        	<div class="content" v-html="item.log_Intro" @click="onClickBlog(item, $event)">
 
 	        	</div>

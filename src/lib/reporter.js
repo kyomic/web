@@ -10,6 +10,9 @@ let base = {
 	url:encodeURIComponent( location.href )
 }
 reporter.log = ( type, options )=>{
+	if( !/shareme\.cn/i.exec(location.href)){
+		return;
+	}
 	options = Object.assign(Object.assign({},base), options);
 	options.platform = [parser.getOS().name , parser.getOS().version].join(" ");
 

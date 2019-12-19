@@ -23,6 +23,7 @@ class StoreList{
 		}
 
 		let getters = {
+			/** 是否无结果 **/
 			isEmpty( state ){
 				if( !state.loading && (!state.list.data ||!state.list.data.length )){
 					return true;
@@ -41,10 +42,12 @@ class StoreList{
 		}
 
 		let actions = {
+			/** 重新加载数据 **/
 			async reload({state,dispatch}, payload ){
 				state.currentPage = 0;
 				state.cachepage = {};
 				state.pagestate = {};
+				state.loading = true;
 				state.list = {data:[],pagination:{}};
 				return dispatch('nextPage', payload );
 			},
