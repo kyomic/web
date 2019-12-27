@@ -1,8 +1,5 @@
 let EventEmitter = require('event-emitter')
-
 require('./langFix');
-
-console.log("EventEmitter",EventEmitter)
 
 let idPrefix = '__FILE_',
 	rExt = /\.([^.]+)$/;

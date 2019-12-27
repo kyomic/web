@@ -24,6 +24,10 @@ import {
 	admin_log,
 } from '@/pages/admin';
 
+import {
+	labs_index
+} from '@/pages/labs';
+
 import NotFound from '@/components/NotFound';
 import Element from '@/components/Element';
 import config from '@/lib/config';
@@ -155,6 +159,23 @@ let adminRouter = [
 		component:admin_figure_edit,
 	}
 ];
+
+let labsRouter = [
+	{
+		path:"/labs/index",
+		name:"labs_index",
+		component:labs_index
+	}
+];
+let labs = require('@/pages/labs');
+for(var i in labs.pages){
+	labsRouter.push({
+		path:"/labs/" + i, 
+		name:"labs_" + i, 
+		component: labs.pages[i].default
+	})
+}
 routerOptions.routes = routerOptions.routes.concat( webRouter );
 routerOptions.routes = routerOptions.routes.concat( adminRouter );
+routerOptions.routes = routerOptions.routes.concat( labsRouter );
 export default new Router( routerOptions );

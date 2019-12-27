@@ -181,4 +181,9 @@ export default admin_task;
 			width:125*@rem;
 		};
 	}
+	.el-progress{
+		.el-progress-bar__innerText{
+			color: #1d1d1d;
+		}
+	}
 </style>

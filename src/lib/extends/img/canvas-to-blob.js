@@ -144,6 +144,66 @@
     }
   }
 
+  var arrayBufferToBlob = function( buffer, mimetype ){
+    if ( BlobBuilder ) {
+      var bb = new BlobBuilder();
+      bb.append( buffer );
+      return bb.getBlob( mimetype );
+    }
+    return new Blob([ buffer ], mimetype ? { type: mimetype } : {} );
+  }
+
+  var dataURLtoArrayBuffer = function( dataURI ){
+    var byteStr, intArray, ab, i, mimetype, parts;
+    parts = dataURI.split(',');
+    if ( ~parts[ 0 ].indexOf('base64') ) {
+        byteStr = atob( parts[ 1 ] );
+    } else {
+        byteStr = decodeURIComponent( parts[ 1 ] );
+    }
+    ab = new ArrayBuffer( byteStr.length );
+    intArray = new Uint8Array( ab );
+    for ( i = 0; i < byteStr.length; i++ ) {
+      intArray[ i ] = byteStr.charCodeAt( i );
+    }
+    mimetype = parts[ 0 ].split(':')[ 1 ].split(';')[ 0 ];
+    return arrayBufferToBlob( ab, mimetype );
+  }
+
+  /** 
+   * 将blob转为字符
+   * @example
+   * var blob = new Blob(['中文字符串'], { type: 'text/plain' });
+   * var buffer = blobtoArrayBuffer(blob);
+   */
+  var blobtoArrayBuffer = function( blob ){
+    return new Promise((resolve,reject)=>{
+      var reader = new FileReader();
+      //byte为blob对象 
+      reader.onload= function(e){
+        console.log('result', reader.result)
+        var buf = new Uint8Array(reader.result);
+        resolve( buf );
+      }
+      reader.onerror = function(e){
+        reject(e);
+      }
+      reader.readAsArrayBuffer( blob );      
+    })
+  }
+
+  var blobtoText = function( blob, encoding='utf-8'){
+    return new Promise((resolve,reject)=>{
+      var reader = new FileReader();
+      reader.onload= function(e){
+        resolve( reader.result );
+      }
+      reader.onerror = function(e){
+        reject(e);
+      }
+      reader.readAsText( blob, encoding );      
+    })
+  }
   /*
 
   if (typeof define === 'function' && define.amd) {
@@ -161,5 +221,9 @@
 //es6
 export default dataURLtoBlob;
 export {
-  dataURLtoBlob
+  dataURLtoBlob,
+  arrayBufferToBlob,
+  dataURLtoArrayBuffer,
+  blobtoArrayBuffer,
+  blobtoText
 }

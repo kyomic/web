@@ -81,6 +81,14 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       cdnConfig: externalConfig, // cdn配置
       onlyCss: false, //加载css
     }),
+    new HtmlWebpackPlugin({
+      filename: 'labs.html',
+      template: 'labs.html',
+      chunks: ['manifest','vendor','labs'],
+      inject: true,
+      cdnConfig: externalConfig, // cdn配置
+      onlyCss: false, //加载css
+    }),
     // copy custom static assets
     new CopyWebpackPlugin([
       {

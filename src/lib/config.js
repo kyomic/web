@@ -1,7 +1,7 @@
 let config = {};
 config.ver = {major:0,minor:1,revision:1};
 //inject start
-config.buildtime = "201912180954";
+config.buildtime = "201912262003";
 //inject end
 config.version = ['version:' + [config.ver.major,config.ver.minor,config.ver.revision].join(".") +' build:',config.buildtime ].join("");
 console.log("%c"+config.version+"\n%cmail:kyomic@163.com","color:#666;font-size:9px", "color:#f86400");
@@ -17,6 +17,7 @@ config.host = {
 	static:"http://www.shareme.cn",
 	api:"http://api.shareme.cn",
 	report:"http://api.shareme.cn",
+	labs:"http://labs.shareme.cn"
 }
 config.api = config.host.api;
 

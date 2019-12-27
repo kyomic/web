@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta http-equiv="P3P" content='CP="CAO PSA OUR"' />
+    <meta name="renderer" content="webkit">
+    <meta name="title" content="kyomic's labs">
+    <meta name="keywords" content="js,canvas,video,滤镜,高斯模糊,BitmapDataFilter,BitmapFilter,ColorFilter,putImageData">
+    <meta name="description" content="Kyomic的图形图像视频实验站">
+
+    <title>kyomic's labs</title>
+    <script>
+    	window.vuedata = '';
+    </script>
+    <!-- 其他标签 -->
+    <% htmlWebpackPlugin.options.cdnConfig.forEach(function(item){ if(item.css){ %>
+    <link href="<%= item.css %>" rel="stylesheet" />
+    <% }}) %>
+  </head>
+  <body>
+    <div id="admin"></div>
+    <% htmlWebpackPlugin.options.cdnConfig.forEach(function(item){ if(item.js && !htmlWebpackPlugin.options.onlyCss){ %>
+    <script type="text/javascript" src="<%= item.js %>"></script>
+    <% }}) %>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

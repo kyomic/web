@@ -24,6 +24,7 @@ module.exports = {
   entry: {
     app: './src/main.js',
     admin:'./src/admin.js',
+    labs:'./src/labs.js'
   },
   output: {
     path: config.build.assetsRoot,

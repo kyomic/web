@@ -2,7 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 window.debug = true;
 const Vue = require('vue');
-import App from './admin.vue';
+import App from './labs.vue';
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
 /*

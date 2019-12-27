@@ -1,10 +1,12 @@
 import KFile from './KFile';
 import {dataURLtoBlob} from './canvas-to-blob';
-console.log("KFile",KFile)
 
 class KImage extends KFile{
 	constructor( source = null ){
 		super( source );
+		this._originBitmap = null; 	//原始的位图
+		this._bitmapData = null; 		//显示的位图
+		this._bitmap = null;
 		this.source = document.createElement("img");
 		this.source.setAttribute("crossOrigin",'anonymous')
 		this.options = Object.assign( Object.assign( {}, KImage.OPTIONS ) );		
@@ -17,26 +19,28 @@ class KImage extends KFile{
 
 	}
 	/** 重绘**/
-	draw(){
-		if( this.source && this.source.nodeType ===1 ){
+	draw(){		
+		if( this.source && this.source.nodeType ===1 && this.source.width ){
 			let cvs = this.canvas;
 			let ctx = cvs.getContext('2d');
-			console.log("ctx",cvs, this.source)
 			let img = this.source;
-			cvs.width = img.width;
-			cvs.height = img.height;
-	        ctx.drawImage(img, 0, 0, img.width, img.height);
+			let w = img.width,
+				h = img.height;
+			cvs.width = w;
+			cvs.height = h;
+	        ctx.drawImage(img, 0, 0, w, h);
 	        //console.log("ext",ext)
 	        this._dataUrl = cvs.toDataURL();
+	        this._bitmap = ctx.getImageData(0, 0, w, h);      
+	        ctx.putImageData( this._bitmap ,0,0);
 	        this.blob = dataURLtoBlob( this._dataUrl );
 		}
-		     
 	}
 	/** override **/
 	update(){
 		this.draw();
 		if( this._dataUrl ){
-			let match = (this._dataUrl).match(/(?<=\:)[^;]+/i);
+			let match = (this._dataUrl).match(new RegExp("(?<=\:)[^;]+","i"));
 			this.type = match ? match[0] : 'image/jpg';
 			this.ext = this.type.split("/")[1];
 		}
@@ -71,7 +75,6 @@ class KImage extends KFile{
 				this.source.onerror = (e=>{
 					reject(e);
 				})
-				console.log(this.source,"load src", url)
 				this.source.src = url;
 			}),
 			this._timeout( this.options.urlTimeout )
@@ -101,6 +104,46 @@ class KImage extends KFile{
 	}
 	get height(){
 		return this.source.height;
+	}
+
+	get bitmap(){
+		if( this._bitmap ){
+			return this._bitmap;
+		}
+		return null
+	}
+
+	/** 
+	 * 应用滤镜
+	 * @param {BitmapFilter} - filter BitmapFilter实例
+	 */
+	applyFilter( filter ){
+		let ctx = this.canvas.getContext('2d');
+		if( !this._originBitmap ){
+			this._originBitmap = ctx.createImageData( this._bitmap );
+	        //复制备份originBitmap
+	        this._bitmap.data.map((val,i)=>{
+	        	this._originBitmap.data[i] = val;
+	        }) 
+		}	       
+		let bitmap = this.bitmap;
+		console.log("applyFilter:", filter, bitmap)
+		if( bitmap && bitmap.width ){
+			let data = filter.render( bitmap );
+			ctx.putImageData(data,0,0);
+		}
+		return this;
+	}
+
+	clearFilter(){
+		
+		if( this._originBitmap ){
+			this.canvas.getContext('2d').putImageData( this._originBitmap ,0,0);
+		}
+		let ctx = this.canvas.getContext('2d');
+		this._bitmap = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);      
+	    ctx.putImageData( this._bitmap ,0,0);
+		return this;		
 	}
 
 	destroy(){

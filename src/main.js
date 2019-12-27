@@ -90,7 +90,7 @@ Vue.prototype.$highlight = function( dom ){
       let editors = res.querySelectorAll(".hljs code");
       editors = Array.from( editors ).map( hlsdom  =>{
         //hljs.configure({useBR: true});
-        hljs.highlightBlock( hlsdom );
+        hljs && hljs.highlightBlock( hlsdom );
         //res.innerHTML = text;
       });
     }
