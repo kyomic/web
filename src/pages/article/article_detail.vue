@@ -64,7 +64,7 @@ import utils from '@/lib/core/utils'
 import KViewer from '@/components/KViewer'
 import KComment from '@/components/KComment'
 
-import Quill from 'quill'
+let Quill = require('quill')
 import '@/lib/extends/quill/1.3.6/quill.snow.css';
 import '@/lib/extends/highlightjs/9.12.0/styles/monokai-sublime.min.css';
 //import hljs from "@/lib/extends/highlightjs/9.12.0/highlight"

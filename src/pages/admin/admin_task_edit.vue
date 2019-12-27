@@ -39,7 +39,7 @@
 </template>
 <script>
 let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
-import Quill from 'quill'
+let Quill = require('quill')
 import Devices from '@/lib/core/Devices';
 
 import '@/lib/extends/quill/1.3.6/quill.snow.css';

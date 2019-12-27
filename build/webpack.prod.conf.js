@@ -16,7 +16,7 @@ const env = process.env.NODE_ENV === 'testing'
   ? require('../config/test.env')
   : require('../config/prod.env')
 
-externalModules["vuex"] = 'Vuex';
+console.log("------------externalModules--------------");
 console.log(externalModules);
 
 const webpackConfig = merge(baseWebpackConfig, {

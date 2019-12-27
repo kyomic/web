@@ -68,7 +68,7 @@
 <script>
 let { mapState, mapGetters, mapActions, mapMutations } = require('Vuex')
 import KSlider from '@/components/KSlider'
-import Quill from 'quill'
+let Quill = require('quill')
 import Devices from '@/lib/core/Devices';
 
 import { api } from '@/services/api';
