@@ -110,6 +110,13 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+
+}
+.tip{
+  line-height: 25*@rem;
+}
+.tip em{
+  color: #ccc;
 }
 .menu-left em{
   font-size: 16*@rem;

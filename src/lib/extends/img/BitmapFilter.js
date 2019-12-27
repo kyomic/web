@@ -29,7 +29,7 @@ class BitmapFilter{
 	}
 
 	static test(){
-		return new BitmapFilter( BitmapDataFilter.reliefProcess );
+		return new BitmapFilter( BitmapDataFilter.mosaic,null );
 	}
 	constructor( filter, option = null, config = null, description = ""){
 		this.filter = filter;

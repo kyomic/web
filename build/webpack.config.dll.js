@@ -8,7 +8,7 @@ const config = require('../config')
 module.exports = {
     //mode: 'production',
     entry: {
-        vendor: ['vue/dist/vue.esm.js','vuex', 'axios', 'vue-router', 'element-ui']
+        vendor: ['vue/dist/vue.esm.js','Vuex/dist/vuex.esm.js','vuex', 'axios', 'vue-router', 'element-ui']
     },
     resolve: {
     },

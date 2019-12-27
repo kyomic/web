@@ -1,7 +1,10 @@
 <template>
   <div class="wrapper">
     <div class="imglayer" ref="imglayer"></div>
-
+    <div class="tip">参考代码：<em>（注：以下code不是源码，仅为Function.toString()的结果）</em></div>
+    <div class="code">
+      
+    </div>
     <div class="controls">
       <el-collapse v-model="activeName" accordion>
         <el-collapse-item :title="value.name" :name="value.name" v-for="(value,key,index) in filters" :key="index">
@@ -29,6 +32,8 @@
 </template>
 
 <script>
+
+let prettyJs = require('pretty-js');
 import {
   dataURLtoBlob,
   arrayBufferToBlob,
@@ -40,7 +45,7 @@ import bufferUtils from '@/lib/extends/img/bufferUtils';
 import KImage from '@/lib/extends/img/KImage';
 import Color from '@/lib/extends/img/Color';
 import { BitmapFilter, BitmapFilterDescription } from '@/lib/extends/img/BitmapFilter';
-
+import utils from '@/lib/core/utils'
 
 
 export default {
@@ -48,6 +53,7 @@ export default {
   components:{},
   data() {
     return {
+      code:"",
       data:[1,2,3],
       filters: BitmapFilterDescription,
       a:0.1,
@@ -73,8 +79,16 @@ export default {
         args.map(res=>{
           option[ res.name ] = res.value;
         })
-        console.log("fitler.fitler", filter.filter, option)
+        //console.log("fitler.fitler", filter.filter().filter.toString(), option)
         this.image.applyFilter( filter.filter( option ) );
+        let code = filter.filter().filter.toString();
+        code = prettyJs( code ,{
+          indent: "\t",  // Switch to tabs for indentation
+          newline: "\r\n"  // Windows-style newlines
+        });
+        code = utils.encodeHTML( code );
+        this.$el.querySelector(".code").innerHTML = "<pre class='hljs'><code class='javascript'>"+ code +"</code></pre>";
+        this.$highlight( this.$el, ".code" );
       }
     },
     clearFilter(){
@@ -124,5 +138,11 @@ export default {
     display: block;
     height: 100%;
     border: 1px solid red;
+  }
+  .code{
+    margin-right: 450*@rem;
+  }
+  .mobile .code{
+    margin-right: 0;
   }
 </style>

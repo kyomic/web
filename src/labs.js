@@ -22,6 +22,7 @@ import router from './router';
 import store from './store'
 import Devices from '@/lib/core/Devices'
 import dom from '@/lib/core/dom';
+import utils from '@/lib/core/utils'
 
 import './assets/style.scss'
 import './assets/normalize.css'
@@ -30,6 +31,15 @@ import './lib/rem.js'
 import './assets/model.less';
 import './pages/admin/admin.less';
 import './assets/common.less';
+
+
+
+import Quill from 'quill'
+import '@/lib/extends/quill/1.3.6/quill.snow.css';
+import '@/lib/extends/highlightjs/9.12.0/styles/monokai-sublime.min.css';
+//import hljs from "@/lib/extends/highlightjs/9.12.0/highlight"
+let hljs = require("highlight.js");
+
 
 //将element组件内容挂载到Vue上
 Vue.use(Row);
@@ -84,8 +94,8 @@ Vue.prototype.$error = ( str )=>{
 }
 
 
-Vue.prototype.$highlight = function( dom ){
-  let contents = dom.querySelectorAll(".article-content .content");
+Vue.prototype.$highlight = function( dom, query = "" ){
+  let contents = dom.querySelectorAll( query || ".article-content .content");
   contents = Array.from( contents )||[];
   contents.map( res =>{
     let code = res.innerHTML;
@@ -95,9 +105,10 @@ Vue.prototype.$highlight = function( dom ){
       /*code = code.replace(/\[html\]([\s|\S]+)\[\/html\]/ig, function( match0, match1, index, source ){
         return "<pre class='hljs'><code class='html'>" + ( match1 ) + "</code></pre>";
       })*/
-
-      res.innerHTML = code;
-
+      
+    }
+    if( code && code.indexOf("pre")!=-1 ){
+      res.innerHTML = code;     
       let editors = res.querySelectorAll(".hljs code");
       editors = Array.from( editors ).map( hlsdom  =>{
         //hljs.configure({useBR: true});

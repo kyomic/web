@@ -24,6 +24,22 @@ BitmapDataFilter.gray = ( bitmapData, {level} = {level:3} ) =>{
 	}
 	return bitmapData;
 }
+BitmapDataFilter.gray.toString = ()=>{
+	return [
+		'BitmapDataFilter.gray = ( bitmapData, {level} = {level:3} ) =>{',
+		'	var d = bitmapData.data, avg;',
+		'	level = level || 0.5;',
+		'	var step = level * 255 / ( 128/ 3 );',
+		'	for (var i = 0; i<d.length; i+=4) {',
+		'		avg = Math.floor((d[i] + d[i+1] + d[i+2]) / step );',
+		'		d[i] = avg;',
+		'		d[i+1] = avg;',
+		'		d[i+2] = avg; ',
+		'	}',
+		'	return bitmapData;',
+		'}'
+	].join('\r\n');
+}
 
 
 //去色滤镜 原理：将当前像素的RGB值得最大值和最小值求平均值并作为新的RGB值。

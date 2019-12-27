@@ -84,8 +84,8 @@ Vue.prototype.$error = ( str )=>{
 }
 
 
-Vue.prototype.$highlight = function( dom ){
-  let contents = dom.querySelectorAll(".article-content .content");
+Vue.prototype.$highlight = function( dom, query = "" ){
+  let contents = dom.querySelectorAll( query || ".article-content .content");
   contents = Array.from( contents )||[];
   contents.map( res =>{
     let code = res.innerHTML;
