@@ -13,6 +13,10 @@
 		<div v-if="isAdmin">
 			{{userinfo.user_id}}管理员
 		</div>
+		<div v-else>
+			<router-link to="/account/login">登录</router-link>
+			
+		</div>
 		<h2><a @click="onClick">退出</a></h2>
 	</div>
 </template>

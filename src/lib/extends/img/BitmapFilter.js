@@ -12,6 +12,11 @@ class BitmapFilter{
 			name:"radius", type:"number",min:0.5,max:250,value:0.5,default:0.5
 		}], "高斯模糊滤镜");
 	}
+	static gaussStackBlur( option ){
+		return new BitmapFilter( BitmapDataFilter.stackBlur, option, [{
+			name:"radius", type:"number",min:0,max:180,value:0.5,default:0
+		}], "快速高斯模糊滤镜");
+	}
 	static sepia(){
 		return new BitmapFilter( BitmapDataFilter.sepia,null,[],"一种复古效果" );
 	}

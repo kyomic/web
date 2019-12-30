@@ -1,4 +1,6 @@
 import BitmapFilterFunction from './BitmapFilterFunction';
+import BitmapDataFilterStackBlur from './BitmapDataFilterStackBlur';
+
 let BitmapDataFilter = {
 
 }
@@ -259,6 +261,8 @@ BitmapDataFilter.mosaic = (bitmapData,  option = {size:3} ) => {
     return bitmapData;
 }
 
+
+BitmapDataFilter.stackBlur = BitmapDataFilterStackBlur;
 /**
  * 高斯模糊的原理就是根据正态分布使得每个像素点周围的像素点的权重不一致，将各个权重（各个权重值和为1）与对应的色值相乘，所得结果求和为中心像素点新的色值。我们需要了解的高斯模糊的公式
  * 
@@ -567,4 +571,68 @@ BitmapDataFilter.noor = (bitmapData)=>{
 	}
 	return bitmapData;
 }
+
+
+BitmapDataFilter.applyMethod = ( bitmapData, { method} = option ) => {
+	let d = bitmapData.data; 
+	let emptyMethod = ( {r,g,b} = rgb)=>{
+		return {r,g,b}
+	}
+	method = method || emptyMethod;
+	let len = d.length;
+	for (var i = 0; i < d.length; i += 4) {
+		let {r, g, b } = method( { r:d[i],g:d[i+1],b:d[i+2] } );
+		d[i] = r; 
+		d[i+1] = g;
+		d[i+2] = b;
+	}
+	return bitmapData;
+}
+
+/**
+ * 应用颜色矩阵
+ * @param {Matrix} matrix 颜色矩阵ColorMatrix
+ */
+BitmapDataFilter.applyColorMatrix = ( bitmapData , {matrix}= option ) =>{
+	var d = bitmapData.data;
+	var len = d.length;
+	let m = matrix;
+	for (var i = 0; i < len; i += 4) {
+		var r = d[i];
+		var g = d[i + 1];
+		var b = d[i + 2]; 
+		var a = d[i + 3];
+		d[i]   = r * m[0] + g * m[1] + b * m[2] + a * m[3] + m[4];
+		d[i+1] = r * m[5] + g * m[6] + b * m[7] + a * m[8] + m[9];
+		d[i+2] = r * m[10]+ g * m[11]+ b * m[12]+ a * m[13]+ m[14];
+		d[i+3] = r * m[15]+ g * m[16]+ b * m[17]+ a * m[18]+ m[19]; 
+	}
+	return bitmapData;
+}
+/**
+ * 颜色混合
+ * @param {Function} method 混合方法
+ * @param {Color} color - rgb颜色，如{r:255,g:0,b:0}
+ */
+BitmapDataFilter.blender = (bitmapData, {method, bitmap }= option )=>{
+	let d = bitmapData.data; 
+	let target = bitmap.data;
+	let len = d.length;
+	let emptyMethod = ( {r,g,b} = rgb)=>{
+		return {r,g,b}
+	}
+	method = method || emptyMethod;
+	for (var i = 0; i < d.length; i += 4) {
+		let {r, g, b } = method(
+			{ r:d[i],g:d[i+1],b:d[i+2] }, { r:target[i],g:target[i+1],b:target[i+2] }
+		);
+		d[i] = r; 
+		d[i+1] = g;
+		d[i+2] = b;
+	}
+	return bitmapData;
+}
 export default BitmapDataFilter;
+export {
+	BitmapDataFilter
+}

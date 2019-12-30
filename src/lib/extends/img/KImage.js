@@ -135,8 +135,22 @@ class KImage extends KFile{
 		return this;
 	}
 
-	clearFilter(){
-		
+	
+
+	putImageData( data ){
+		let ctx = this.canvas.getContext('2d');
+		if( !this.source.width ){
+			this.source.width =data.width;
+			this.source.height=data.height;
+			this.update();
+		}
+		let bitmap = this.bitmap;
+		if( bitmap && bitmap.width ){
+			ctx.putImageData(data,0,0);
+		}
+	}
+
+	clearFilter(){		
 		if( this._originBitmap ){
 			this.canvas.getContext('2d').putImageData( this._originBitmap ,0,0);
 		}

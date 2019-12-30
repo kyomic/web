@@ -31,6 +31,7 @@ class Color{
 	 * @param   Number  b       蓝色色值
 	 * @return  Array           HSL各值数组
 	 */
+	 
 	static RGB2HSL( {r, g, b} = rgb )  {
 	    r /= 255, g /= 255, b /= 255;
 	    var max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -51,6 +52,7 @@ class Color{
 	    h = Math.round(h * 360);
 	    return { h, s, l };
 	}
+	
 	//see:https://cloud.tencent.com/developer/ask/50767
 	/**
 	 * RGB 颜色值转换为 HSV(色相，饱和度，明度(value))
@@ -360,3 +362,4 @@ class Color{
 }
 
 export default Color;
+export {Color}

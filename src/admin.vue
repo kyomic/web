@@ -114,6 +114,7 @@ export default {
     debug && console.log("admin mounted, path", path)
     if( path == '' || path == '/'){
       //修复admin页面的主页和www的路由冲突
+      console.log("自动跳至admin/index")
       this.$router && this.$router.replace({path: '/admin/index'})
     }
 
