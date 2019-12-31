@@ -91,8 +91,8 @@ export default {
       }
     }
   },
-  mounted(){    
-    console.log("filter....loaded")
+  mounted(){
+    console.log("filter....loaded!")
     let img = new KImage();
     let url = "http://www.shareme.cn/assets/labs/Hydrangeas.jpg";
     if( !window.__image ){
@@ -139,4 +139,5 @@ export default {
   .mobile .code{
     margin-right: 0;
   }
+  
 </style>

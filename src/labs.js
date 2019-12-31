@@ -93,7 +93,6 @@ Vue.prototype.$error = ( str )=>{
   Message({message:str,type:'error'})
 }
 
-
 Vue.prototype.$highlight = function( dom, query = "" ){
   let contents = dom.querySelectorAll( query || ".article-content .content");
   contents = Array.from( contents )||[];

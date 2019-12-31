@@ -4,6 +4,7 @@ import Color from './Color';
  * 参考：http://www.16xx8.com/photoshop/jiaocheng/2016/142761.html
  * https://www.cnblogs.com/lanye/p/3425271.html
  https://blog.csdn.net/zylxadz/article/details/47803479
+ https://blog.csdn.net/chy555chy/article/details/54016317
  * @author wangxk
 
  //　以下
@@ -84,6 +85,12 @@ class ColorBlender{
 	//深色混合模式比较好理解。她是通过计算混合色与基色的所有通道的数值，然后选择数值较小的作为结果色。因此结果色只跟混合色或基色相同，不过产生出另外的颜色。白色与基色混合色得到基色，黑色与基色混合得到黑色。深色模式中，混合色与基色的数值是固定的，我们颠倒位置后，混合色出来的结果色是没有变化的。
 	//当前图层与下方图层相比，颜色深（RGB总和较小）的显现出来，颜色浅的就被隐藏。
 	static DARKER_COLOR( color, {r, g, b} = rgb ){
+		let eq = color.r + color.g + color.b - r - g - b;
+		return {
+			r: eq <= 0?color.r:r,
+			g: eq <= 0?color.g:g,
+			b: eq <= 0?color.b:b
+		}
 	}
 	//-----------------《3》提亮型----------------------
 	//变亮（Lighten）
@@ -129,6 +136,12 @@ class ColorBlender{
 	//通过计算混合色与基色所有通道的数值总和，哪个数值大就选为结果色。因此结果色只能在混合色与基色中选择，不会产生第三种颜色。与深色模式刚好相反。
 	//当前图层与下方图层相比，颜色浅（RGB总和较小）的显现出来，颜色深的就被隐藏。
 	static LIGHTER_COLOR( color, {r, g, b} = rgb  ){
+		let eq = color.r + color.g + color.b - r - g - b;
+		return {
+			r: eq >= 0?color.r:r,
+			g: eq >= 0?color.g:g,
+			b: eq >= 0?color.b:b
+		}
 	}
 	//----------------------《4》融合型---------------------------
 	/**
@@ -139,10 +152,6 @@ class ColorBlender{
 	 //C[i]={(B[i] < 128) ? (2 * A[i] * B[i] / 255) : (255 - 2 * (255 - A[i]) * (255 - B[i]) / 255)};
 	static OVERLAY( color, {r, g, b} = rgb  ){
 		let r0 = color.r,g0 = color.g,　b0 = color.b;
-
-		//r = r0 > 128 ? ( 255 - 2 * (255 - r) * (255 - r0) / 255 ) : (r0 * r * 2) / 255;
-		//g = g0 > 128 ? ( 255 - 2 * (255 - g) * (255 - g0) / 255 ) : (g0 * r * 2) / 255;
-		//b = b0 > 128 ? ( 255 - 2 * (255 - b) * (255 - b0) / 255 ) : (b0 * r * 2) / 255;
 		r = r0 < 128 ? (2 * r0 * r / 255) : (255 - 2 * (255 - r0) * (255 -r) / 255);
 		g = g0 < 128 ? (2 * g0 * g / 255) : (255 - 2 * (255 - g0) * (255 -g) / 255);
 		b = b0 < 128 ? (2 * b0 * b / 255) : (255 - 2 * (255 - b0) * (255 -b) / 255);
@@ -158,18 +167,10 @@ class ColorBlender{
 
 	//混合色 <=128：结果色 = 基色 + (2 * 混合色 - 255) * (基色 - 基色 * 基色 / 255) / 255；
 	//混合色 >128： 结果色 = 基色 + (2 * 混合色 - 255) * (Sqrt(基色/255)*255 - 基色)/255。
-	static SOFT_LIGHT_(  color, {r, g, b} = rgb  ){
-		let r0 = color.r,g0 = color.g,　b0 = color.b;
-		//r = r0 > 128 ? ( 255 - ((255 - r0) * (255 - (r - 128))) / 255 ) : (r0 * (r + 128)) / 255;
-		//g = g0 > 128 ? ( 255 - ((255 - g0) * (255 - (g - 128))) / 255 ) : (g0 * (g + 128)) / 255;
-		//b = r0 > 128 ? ( 255 - ((255 - r0) * (255 - (r - 128))) / 255 ) : (r0 * (r + 128)) / 255;
-		r = r0 < 128 ? (2 * (( r >> 1) + 64)) * (r0 / 255) : (255 - ( 2 * (255 - ( (r >> 1) + 64 ) ) * ( 255 - r0 ) / 255 ));
-		r = g0 < 128 ? (2 * (( g >> 1) + 64)) * (g0 / 255) : (255 - ( 2 * (255 - ( (g >> 1) + 64 ) ) * ( 255 - g0 ) / 255 ));
-		b = b0 < 128 ? (2 * (( b >> 1) + 64)) * (b0 / 255) : (255 - ( 2 * (255 - ( (b >> 1) + 64 ) ) * ( 255 - b0 ) / 255 ));
-		//r = r <= 128 ? ( r0 + (2 * r - 255) * (r0 - r0 * r0 / 255) / 255):(r0 + (2 * r - 255) * (Math.sqrt(r0/255)*255 - r0)/255);
-		//g = g <= 128 ? ( g0 + (2 * g - 255) * (g0 - g0 * g0 / 255) / 255):(g0 + (2 * g - 255) * (Math.sqrt(g0/255)*255 - g0)/255);
-		//b = b <= 128 ? ( b0 + (2 * b - 255) * (b0 - b0 * b0 / 255) / 255):(b0 + (2 * r - 255) * (Math.sqrt(b0/255)*255 - b0)/255);
-		
+	static SOFT_LIGHT(  color, {r, g, b} = rgb  ){
+		let r0 = color.r,g0 = color.g,　b0 = color.b;r = r <=128 ?  (r0 + (2 * r - 255) * (r0 - r0 * r0 / 255) / 255):(r0 + (2 * r - 255) * (Math.sqrt(r0/255)*255 - r0)/255)
+		g = g <=128 ?  (g0 + (2 * g - 255) * (g0 - g0 * g0 / 255) / 255):(g0 + (2 * g - 255) * (Math.sqrt(g0/255)*255 - g0)/255)
+		b = b <=128 ?  (b0 + (2 * b - 255) * (b0 - b0 * b0 / 255) / 255):(b0 + (2 * b - 255) * (Math.sqrt(b0/255)*255 - b0)/255)
 		return {r,g,b}
 	}
 	//强光（Hard Light）
@@ -210,14 +211,11 @@ class ColorBlender{
 	//18.点光（Pin Light）
 　　//点光模式她会根据混合色的颜色数值替换相应的颜色。如果混合层颜色（光源）亮度高于50%灰，比混合层颜色暗的像素将会被取代，而较之亮的像素则不发生变化。如果混合层颜色（光源）亮度低于50%灰，比混合层颜色亮的像素会被取代，而较之暗的像素则不发生变化。
 	//C[i]=Max(0, Max(2 * B[i] - 255, Min(B[i], 2 * A[i])))
-	static PIN_LIGHT_( color, {r, g, b} = rgb  ){
+	static PIN_LIGHT( color, {r, g, b} = rgb  ){
 		let r0 = color.r,g0 = color.g,　b0 = color.b;
-		//r =Math.max(0, Math.max(2 * r - 255, Math.min(r, 2 * r0)));
-		//g =Math.max(0, Math.max(2 * g - 255, Math.min(g, 2 * g0)));
-		//b =Math.max(0, Math.max(2 * b - 255, Math.min(b, 2 * b0)));
-		r = r0 > 128 ? Math.max (2*(r0-128), r): r/(2*(255-r0));
-		g = g0 > 128 ? Math.max (2*(g0-128), g): g/(2*(255-g0));
-		b = b0 > 128 ? Math.max (2*(b0-128), b): b/(2*(255-b0));
+		r =Math.max(0, Math.max(2 * r - 255, Math.min(r0, 2 * r)));
+		g =Math.max(0, Math.max(2 * g - 255, Math.min(g0, 2 * g)));
+		b =Math.max(0, Math.max(2 * b - 255, Math.min(b0, 2 * b)));
 		return {r,g,b}
 	}
 　　//计算公式：基色

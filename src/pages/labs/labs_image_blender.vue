@@ -4,7 +4,7 @@
     <div class="imglayer" ref="imglayer"></div>
 
     <div class="controls">
-      <el-select v-model="value" placeholder="请选择混合模式" @change="onChange">
+      <el-select size="mini" v-model="value" placeholder="请选择混合模式" @change="onChange">
         <el-option-group
           v-for="group in options"
           :key="group.label"
@@ -154,14 +154,12 @@ export default {
 
   methods:{
     async run(){
-      
-      let img = new KImage();
-      await img.load("http://www.shareme.cn/assets/labs/Hydrangeas.jpg")
-      this.$refs["imglayer"].appendChild( img.canvas );  
-
+      let img = new KImage(); 
+      await img.load("http://www.shareme.cn/assets/labs/Hydrangeas.jpg")       
+      this.$refs["imglayer"].appendChild( img.canvas );
       let img2 = new KImage();
       await img2.load("http://www.shareme.cn/assets/labs/Jellyfish.jpg");
-      this.$refs["imglayer"].appendChild( img2.canvas );  
+      this.$refs["imglayer"].appendChild( img2.canvas );
 
       let img3 = new KImage();
       this.$refs["imglayer"].appendChild( img3.canvas );
@@ -184,10 +182,8 @@ export default {
       window.__image.putImageData( newbitmap )
     }
   },
-  mounted(){
-    
+  mounted(){    
     this.run();
-    
   }
 }
 
@@ -196,7 +192,10 @@ export default {
   .imglayer canvas{
     width:200px;
     height: 150px;
+    border: 1px solid #ccc;
   }
+
+  
 </style>
 <style lang="less" scoped>  
   .label{
@@ -214,7 +213,7 @@ export default {
     background: red;
   }
   .controls{
-    width: 200*@rem;
+    width: 120*@rem;
     position: fixed;
     right: 0;
     top: 50*@rem;
@@ -229,5 +228,7 @@ export default {
       padding: 5*@rem;
     }
   }
+
+
 
 </style>

@@ -28,20 +28,26 @@ class KImage extends KFile{
 				h = img.height;
 			cvs.width = w;
 			cvs.height = h;
-	        ctx.drawImage(img, 0, 0, w, h);
-	        //console.log("ext",ext)
+			try{
+				//ios 零尺寸图片绘制会失败
+				ctx.drawImage(img, 0, 0, w, h);
+			}catch(e){
+			}
+		        //console.log("ext",ext)
 	        this._dataUrl = cvs.toDataURL();
-	        this._bitmap = ctx.getImageData(0, 0, w, h);      
+	        this._bitmap = ctx.getImageData(0, 0, w, h); 
 	        ctx.putImageData( this._bitmap ,0,0);
-	        this.blob = dataURLtoBlob( this._dataUrl );
+	        this.blob = dataURLtoBlob( this._dataUrl );	
 		}
 	}
 	/** override **/
 	update(){
 		this.draw();
 		if( this._dataUrl ){
-			let match = (this._dataUrl).match(new RegExp("(?<=\:)[^;]+","i"));
-			this.type = match ? match[0] : 'image/jpg';
+			//ios 不支持(?<=)零宽断言 
+			//let reg = new RegExp("(?<=\\:)[^;]+");
+			let match = (this._dataUrl).match( new RegExp("\\w+\\:([^;]+)","i") );
+			this.type = match ? match[1] : 'image/jpg';
 			this.ext = this.type.split("/")[1];
 		}
 		super.update();
@@ -73,6 +79,7 @@ class KImage extends KFile{
 					resolve( this );
 				});
 				this.source.onerror = (e=>{
+					alert('source.onerror'+e);
 					reject(e);
 				})
 				this.source.src = url;
@@ -135,15 +142,16 @@ class KImage extends KFile{
 		return this;
 	}
 
-	
 
 	putImageData( data ){
-		let ctx = this.canvas.getContext('2d');
+		let ctx = this.canvas.getContext('2d');	
+
 		if( !this.source.width ){
 			this.source.width =data.width;
 			this.source.height=data.height;
 			this.update();
-		}
+		};
+		
 		let bitmap = this.bitmap;
 		if( bitmap && bitmap.width ){
 			ctx.putImageData(data,0,0);

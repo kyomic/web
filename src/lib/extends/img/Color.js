@@ -36,7 +36,7 @@ class Color{
 	    r /= 255, g /= 255, b /= 255;
 	    var max = Math.max(r, g, b), min = Math.min(r, g, b);
 	    var h, s, l = (max + min) / 2;
-
+	    console.log(r,g,b,max,min)
 	    if (max == min){ 
 	        h = s = 0; // achromatic
 	    } else {
@@ -245,7 +245,7 @@ class Color{
 	 * rgb颜色转16进制表示
 	 */
 	static RGB2HEX ( {r, g, b} = rgb )  {
-		return "#" + (r << 16 | g << 8 || b).toString(16).padStart(6,"0");
+		return "#" + (r << 16 | g << 8 | b).toString(16).padStart(6,"0");
 	}
 
 	set color( obj ){
@@ -346,8 +346,8 @@ class Color{
 	/* 获取rgb分量 **/
 	get rgba(){
 		var n = Number(this._hexstring.replace(/#/,"0x"));
-		var r = n >> 16 & 0xFF;
-		var g = n >> 8 & 0xFF;
+		var r = ( n >> 16) & 0xFF;
+		var g = ( n >> 8) & 0xFF;
 		var b = n & 0xFF;
 		var alpha = this.alpha;
 		return {r,g,b,alpha}
