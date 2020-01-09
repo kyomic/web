@@ -22,7 +22,11 @@ class ColorFilter{
 		b =  Math.min(255, Math.max( b* percent + b , 0));
 		return {r,g,b}
 	}
-
+	//threshold
+	static THRESHOLD( { r, g, b } = color, threshold ){
+		var v = (0.2126*r + 0.7152*g + 0.0722*b >= threshold) ? 255 : 0;
+		return {r:v,g:v,b:v};
+	}
 	//see:http://beesbuzz.biz/code/16-hsv-color-transforms
 	//https://stackoverflow.com/questions/40600127/html5-canvas-hue-rotate-changing-saturation-and-lightness
 	static HUE( {r, g, b}=color, angle ){

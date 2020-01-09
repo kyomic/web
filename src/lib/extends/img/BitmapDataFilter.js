@@ -572,6 +572,111 @@ BitmapDataFilter.noor = (bitmapData)=>{
 	return bitmapData;
 }
 
+/**
+ * 卷积波滤镜(任意维度矩阵)
+ * see:https://rosettacode.org/wiki/Image_convolution
+ */
+BitmapDataFilter.convolution2 = ( bitmapData, {matrix, divisor=1,bias=1, opaque=0} = option )=>{
+	var d = bitmapData.data,
+		w = bitmapData.width,
+		h = bitmapData.height;
+	var c = Array.prototype.slice.call(d);
+	var len = d.length;	
+	var kernel = matrix.flat(); 
+    var dim = Math.sqrt( kernel.length),
+        pad = Math.floor(dim / 2);
+ 
+    if (dim % 2 !== 1) {
+        return new RangeError("Invalid kernel dimension");
+    }
+    var w = bitmapData.width,
+        h = bitmapData.height;
+
+    var row, col, pix, i, dx, dy, r, g, b;
+ 
+    for (row = pad; row <= h; row++) {
+        for (col = pad; col <= w; col++) {
+            r = g = b = 0;
+ 
+            for (dx = -pad; dx <= pad; dx++) {
+                for (dy = -pad; dy <= pad; dy++) {
+                    i = (dy + pad) * dim + (dx + pad); // kernel index
+                    pix = 4 * ((row + dy) * w + (col + dx)); // image index
+                    r += c[pix++] * kernel[i];
+                    g += c[pix++] * kernel[i];
+                    b += c[pix  ] * kernel[i];
+                }
+            }
+ 			r = r/divisor + bias
+ 			g = g/divisor + bias
+ 			b = b/divisor + bias
+            pix = 4 * ((row - pad) * w + (col - pad)); // destination index
+            d[pix++] = (r + .5) ^ 0;
+            d[pix++] = (g + .5) ^ 0;
+            d[pix++] = (b + .5) ^ 0;
+            d[pix  ] = 255; // we want opaque image
+        }
+    }
+	return bitmapData;
+}
+
+/**
+ * 卷积波滤镜(仅支持三维度矩阵，)
+ *  see:http://www.roborealm.com/help/Convolution.php
+ */
+BitmapDataFilter.convolution = ( bitmapData, { matrix, divisor=1, bias=0 } = option ) =>{
+	var d = bitmapData.data,
+		w = bitmapData.width,
+		h = bitmapData.height;
+	
+	var c = Array.prototype.slice.call(d);
+	var len = d.length;
+	let m = matrix;
+	let applyConvolution = ( coloridxs,  matrix, divisor, bias ) =>{	
+		let sum_r = 0,
+			sum_g = 0,
+			sum_b = 0;	
+		for(let i=0;i<3;i++){
+			for(let j=0;j<3;j++){
+				sum_r += c[ coloridxs[i][j] ]  * matrix[i][j];
+				sum_g += c[ coloridxs[i][j] + 1 ] * matrix[i][j]; 
+				sum_b += c[ coloridxs[i][j] + 2 ] * matrix[i][j];
+			}
+		}
+		sum_r = sum_r /divisor + bias;
+		sum_g = sum_g /divisor + bias;
+		sum_b = sum_b /divisor + bias;
+		sum_r = (sum_r < 0) ? 0 : ((sum_r >255) ? 255 : sum_r); 
+		sum_g = (sum_g < 0) ? 0 : ((sum_g >255) ? 255 : sum_g); 
+		sum_b = (sum_b < 0) ? 0 : ((sum_b >255) ? 255 : sum_b);
+		return {
+			r:sum_r,g:sum_g,b:sum_b
+		}
+	}	
+	for ( var x = 1; x < w-1; x++ ) { 
+		for ( var y = 1; y < h-1; y++) { 
+			// calculate new RGB value 
+			// Index of the pixel in the array 
+			var idx = (x + y * w) * 4;
+			var tidx  = (x + (y-1) * w) * 4;
+			var bidx  = (x + (y+1) * w) * 4;
+			// 四周颜色索引
+			let colors = [
+				[ tidx -4, tidx , tidx + 4 ],
+				[ idx - 4, idx , idx + 4 ],
+				[ bidx -4, bidx , bidx +4]
+			];
+			let rgb = applyConvolution( colors, m, divisor, bias )			
+			//if( x >= 10 ) throw new Error("debugger")
+			d[idx + 0] = rgb.r; // Red channel 
+			d[idx + 1] = rgb.g; // Green channel 
+			d[idx + 2] = rgb.b; // Blue channel 
+			d[idx + 3] = 255; // Alpha channel 
+		}
+		//if( x > 20 ) break;
+	}
+	return bitmapData;
+}
 
 BitmapDataFilter.applyMethod = ( bitmapData, { method} = option ) => {
 	let d = bitmapData.data; 

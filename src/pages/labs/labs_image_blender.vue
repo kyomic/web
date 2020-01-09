@@ -214,19 +214,6 @@ export default {
   }
   .controls{
     width: 120*@rem;
-    position: fixed;
-    right: 0;
-    top: 50*@rem;
-    .filter-title{
-      padding-left: 5*@rem;color: #ccc;
-    }
-    .filter-options{
-      padding: 5*@rem;
-    }
-    .filter-btn{
-      background: white;
-      padding: 5*@rem;
-    }
   }
 
 

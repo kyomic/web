@@ -1,0 +1,88 @@
+// ------------------------ HSV ------------------------ //
+
+		rgb2hsv: function(rgb) { // faster
+			var r = rgb.r,
+				g = rgb.g,
+				b = rgb.b,
+				k = 0, chroma, min, s;
+
+			if (g < b) {
+				g = b + (b = g, 0);
+				k = -1;
+			}
+			min = b;
+			if (r < g) {
+				r = g + (g = r, 0);
+				k = -2 / 6 - k;
+				min = _Math.min(g, b); // g < b ? g : b; ???
+			}
+			chroma = r - min;
+			s = r ? (chroma / r) : 0;
+			return {
+				h: s < 1e-15 ? ((_colors && _colors.hsl && _colors.hsl.h) || 0) :
+					chroma ? _Math.abs(k + (g - b) / (6 * chroma)) : 0,
+				s: r ? (chroma / r) : ((_colors && _colors.hsv && _colors.hsv.s) || 0), // ??_colors.hsv.s || 0
+				v: r
+			};
+		},
+
+		hsv2rgb: function(hsv) {
+			var h = hsv.h * 6,
+				s = hsv.s,
+				v = hsv.v,
+				i = ~~h, // _Math.floor(h) -> faster in most browsers
+				f = h - i,
+				p = v * (1 - s),
+				q = v * (1 - f * s),
+				t = v * (1 - (1 - f) * s),
+				mod = i % 6;
+
+			return {
+				r: [v, q, p, p, t, v][mod],
+				g: [t, v, v, q, p, p][mod],
+				b: [p, p, t, v, v, q][mod]
+			};
+		},
+
+		// ------------------------ HSL ------------------------ //
+
+		hsv2hsl: function(hsv) {
+			var l = (2 - hsv.s) * hsv.v,
+				s = hsv.s * hsv.v;
+
+			s = !hsv.s ? 0 : l < 1 ? (l ? s / l : 0) : s / (2 - l);
+
+			return {
+				h: hsv.h,
+				s: !hsv.v && !s ? ((_colors && _colors.hsl && _colors.hsl.s) || 0) : s, // ???
+				l: l / 2
+			};
+		},
+
+		rgb2hsl: function(rgb, dependent) { // not used in Color
+			var hsv = ColorConverter.rgb2hsv(rgb);
+
+			return ColorConverter.hsv2hsl(dependent ? hsv : (_colors.hsv = hsv));
+		},
+
+		hsl2rgb: function(hsl) {
+			var h = hsl.h * 6,
+				s = hsl.s,
+				l = hsl.l,
+				v = l < 0.5 ? l * (1 + s) : (l + s) - (s * l),
+				m = l + l - v,
+				sv = v ? ((v - m) / v) : 0,
+				sextant = ~~h, // _Math.floor(h) -> faster in most browsers
+				fract = h - sextant,
+				vsf = v * sv * fract,
+				t = m + vsf,
+				q = v - vsf,
+				mod = sextant % 6;
+
+			return {
+				r: [v, q, m, m, t, v][mod],
+				g: [t, v, v, q, m, m][mod],
+				b: [m, m, t, v, v, q][mod]
+			};
+		}
+	};

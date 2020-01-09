@@ -1,0 +1,38 @@
+
+*{
+	moz-user-select: -moz-none;
+	-moz-user-select: none;
+	-o-user-select:none;
+	-khtml-user-select:none;
+	-webkit-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
+}
+.conner{
+	position: absolute;
+	top: 0;
+	left: 0;
+	transform: translate(0px, -3px);
+}
+.conner:before{
+	content:"";
+	width: 0px;
+    height: 0px;
+    position: absolute;
+    border-top: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+	border-left: 3px solid black;
+	left: -3px;
+}
+.conner:after{
+	content:"";
+	width: 0px;
+    height: 0px;
+    position: absolute;
+    border-top: 3px solid transparent;
+    border-right: 3px solid black;
+    border-bottom: 3px solid transparent;
+	border-left: 3px solid transparent;
+	right: -13px;
+}

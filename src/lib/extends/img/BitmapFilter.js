@@ -1,3 +1,6 @@
+//NB 
+//see: http://www.fmwconcepts.com/imagemagick/index.php
+
 import BitmapDataFilter from './BitmapDataFilter';
 import BitmapFilterFunction from './BitmapFilterFunction';
 class BitmapFilter{
@@ -16,6 +19,9 @@ class BitmapFilter{
 		return new BitmapFilter( BitmapDataFilter.stackBlur, option, [{
 			name:"radius", type:"number",min:0,max:180,value:0.5,default:0
 		}], "快速高斯模糊滤镜");
+	}
+	static convolution( option ){
+		return new BitmapFilter( BitmapDataFilter.convolution,option,[],"卷积滤镜" );
 	}
 	static sepia(){
 		return new BitmapFilter( BitmapDataFilter.sepia,null,[],"一种复古效果" );

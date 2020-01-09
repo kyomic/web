@@ -181,6 +181,10 @@ router.beforeEach((to, from, next) => {
   }
   store.commit('env/updateRouter', {to, from});
   store.dispatch("user/session");
+  
+  if (to.meta.title) {
+    document.title = to.meta.title
+  }
   next();
   Vue.prototype.$removeMessage();
   

@@ -172,7 +172,10 @@ for(var i in labs.pages){
 	labsRouter.push({
 		path:"/labs/" + i, 
 		name:"labs_" + i, 
-		component: labs.pages[i].default
+		component: labs.pages[i].default,
+		meta: {
+	        title: labs.pages[i].default.title || ""
+	    }
 	})
 }
 routerOptions.routes = routerOptions.routes.concat( webRouter );

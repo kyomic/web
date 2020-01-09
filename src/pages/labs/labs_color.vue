@@ -6,17 +6,17 @@
     </div>
     <div class="controls">
       <el-collapse v-model="activeName" accordion>
-        <el-collapse-item title="RGB颜色调节" name="hsl">
+        <el-collapse-item title="RGB颜色调节" name="rgb">
           <div class="filter-title">调整RGB颜色</div>          
           <div class="filter-options">
-            <div class="filter-option">红(R):         
-              <el-slider v-model="rgb.r" :min="0" :max="255"></el-slider>              
+            <div class="filter-option">红(R={{rgb.r?rgb.r.toFixed(0):0}}):         
+              <el-slider :show-tooltip="false" v-model="rgb.r" :min="0" :max="255"></el-slider>              
             </div> 
-            <div class="filter-option">绿(G):         
-              <el-slider v-model="rgb.g" :min="0" :max="255"></el-slider>              
+            <div class="filter-option">绿(G={{rgb.g?rgb.g.toFixed(0):0}}):         
+              <el-slider :show-tooltip="false" v-model="rgb.g" :min="0" :max="255"></el-slider>              
             </div> 
-            <div class="filter-option">蓝(B):         
-              <el-slider v-model="rgb.b" :min="0" :max="255"></el-slider>              
+            <div class="filter-option">蓝(B={{rgb.b?rgb.b.toFixed(0):0}}):         
+              <el-slider :show-tooltip="false" v-model="rgb.b" :min="0" :max="255"></el-slider>              
             </div>    
           </div>         
         </el-collapse-item>
@@ -24,14 +24,29 @@
         <el-collapse-item title="HSL颜色调节" name="hsl">
           <div class="filter-title">调整HSL颜色</div>          
           <div class="filter-options">
-            <div class="filter-option">色相(H):         
-              <el-slider v-model="hsl.h" :min="0" :max="360" @input="applyColorHSL()"></el-slider>              
+            <div class="filter-option">色相(H={{hsl.h?hsl.h.toFixed(0):0}}):         
+              <el-slider :show-tooltip="false" v-model="hsl.h" :min="0" :max="360" @input="applyColorHSL()"></el-slider>              
             </div> 
-            <div class="filter-option">饱和度(S):         
-              <el-slider v-model="hsl.s" :min="0" :max="1" step="0.01" @input="applyColorHSL()"></el-slider>              
+            <div class="filter-option">饱和度(S={{hsl.s?hsl.s.toFixed(2):0}}):         
+              <el-slider :show-tooltip="false" v-model="hsl.s" :min="0" :max="1" step="0.01" @input="applyColorHSL()"></el-slider>              
             </div> 
-            <div class="filter-option">亮度(L):         
-              <el-slider v-model="hsl.l" :min="0" :max="1" step="0.01" @input="applyColorHSL()"></el-slider>              
+            <div class="filter-option">亮度(L={{hsl.l?hsl.l.toFixed(2):0}}):         
+              <el-slider :show-tooltip="false" v-model="hsl.l" :min="0.01" :max="0.99" step="0.01" @input="applyColorHSL()"></el-slider>              
+            </div>    
+          </div>         
+        </el-collapse-item>
+
+        <el-collapse-item title="HSV颜色调节" name="hsv">
+          <div class="filter-title">调整HSV颜色</div>          
+          <div class="filter-options">
+            <div class="filter-option">色相(H={{hsv.h}}):         
+              <el-slider :show-tooltip="false" v-model="hsv.h" :min="0" :max="360" @input="applyColorHSV()"></el-slider>              
+            </div> 
+            <div class="filter-option">饱和度(S={{hsv.s?hsv.s.toFixed(2):0}}):         
+              <el-slider :show-tooltip="false" v-model="hsv.s" :min="0" :max="1" step="0.01" @input="applyColorHSV()"></el-slider>              
+            </div> 
+            <div class="filter-option">明度(V={{hsv.v?hsv.v.toFixed(2):0}}):         
+              <el-slider :show-tooltip="false" v-model="hsv.v" :min="0.01" :max="0.99" step="0.01" @input="applyColorHSV()"></el-slider>               
             </div>    
           </div>         
         </el-collapse-item>
@@ -77,7 +92,8 @@ export default {
         g: Math.round(Math.random()*255),
         b: Math.round(Math.random()*255)        
       },
-      hsl:{}
+      hsl:{},
+      hsv:{}
     };
   },
 
@@ -93,6 +109,7 @@ export default {
       handler:function(c){
         let color = new Color( c );
         this.hsl = Color.RGB2HSL( color.rgba );
+        this.hsv = Color.RGB2HSV( color.rgba );
         console.log("hsl", this.hsl.h, this.hsl.s, this.hsl.l)
       },deep:true
     }
@@ -104,6 +121,13 @@ export default {
     applyColorHSL(  ){
       console.log("HSL", this.hsl)
       let color = new Color( this.hsl );      
+      this.rgb = color.rgba;
+    },
+
+    applyColorHSV(){
+      console.log("HSV", this.hsv)
+      let color = new Color( this.hsv );  
+      console.log("color", color)    
       this.rgb = color.rgba;
     },
     applyFilter( filter, reset =false ){

@@ -32,7 +32,7 @@ dom.removeClass = ( el, name )=>{
 }
 
 //ant design 
-dom.offset2 = ( el ) =>{
+dom.offset = ( el ) =>{
   let x = 0;
   let y = 0;
   while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop )){
@@ -42,7 +42,7 @@ dom.offset2 = ( el ) =>{
   }
   return {top:y, left:x};
 }
-dom.offset = ( el, offset )=>{
+dom.offset2 = ( el, offset )=>{
   if( !offset ){
     offset = { top :0, left : 0 }
   }

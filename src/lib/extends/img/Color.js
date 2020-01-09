@@ -36,7 +36,6 @@ class Color{
 	    r /= 255, g /= 255, b /= 255;
 	    var max = Math.max(r, g, b), min = Math.min(r, g, b);
 	    var h, s, l = (max + min) / 2;
-	    console.log(r,g,b,max,min)
 	    if (max == min){ 
 	        h = s = 0; // achromatic
 	    } else {
@@ -60,7 +59,7 @@ class Color{
 	 * s(0-1)
 	 * v(0-1)
 	 */
-	static RGB2HSV2( {r, g, b} = rgb )  {
+	static RGB2HSV( {r, g, b} = rgb )  {
 	    var rr, gg, bb,
 	        r = r / 255,
 	        g = g / 255,
@@ -113,6 +112,7 @@ class Color{
 	*/
 
 	static HSV2RGB( { h, s, v } = hsv ) {
+		h = h / 360;
 	    var r, g, b, i, f, p, q, t;
 	    i = Math.floor(h * 6);
 	    f = h * 6 - i;
@@ -134,29 +134,7 @@ class Color{
 	    };
 
 	}
-	/* accepts parameters
-	 * r  Object = {r:x, g:y, b:z}
-
-	 * OR 
-
-	 * r, g, b
-
-	*/
-
-	static RGB2HSV({r, g, b}= rgb ) {
-	    var max = Math.max(r, g, b), min = Math.min(r, g, b),
-	    	d = max - min,h,
-	    	s = (max === 0 ? 0 : d / max),
-	    	v = max / 255;
-	    switch (max) {
-	    	case min: h = 0; break;
-	    	case r: h = (g - b) + d * (g < b ? 6: 0); h /= 6 * d; break;
-	    	case g: h = (b - r) + d * 2; h /= 6 * d; break;
-	    	case b: h = (r - g) + d * 4; h /= 6 * d; break;
-	    }
-
-	    return {h, s, v};
-	}
+	
 
 	static HSV2HSL( {h, s, v}= hsv ) {
 	    var _h = h,
@@ -310,7 +288,12 @@ class Color{
 				this._hexstring = Color.RGB2HEX( obj );
 			}else if( typeof obj.h !='undefined'){
 				//hsl color
-				this._hexstring = Color.RGB2HEX( Color.HSL2RGB( obj ));
+				if( typeof obj.v != 'undefined'){
+					this._hexstring = Color.RGB2HEX( Color.HSV2RGB( obj ));
+				}else{
+					this._hexstring = Color.RGB2HEX( Color.HSL2RGB( obj ));
+				}
+				
 			}
 		}
 	}
@@ -327,7 +310,7 @@ class Color{
 	 * 返回hsl 颜色表示，如：hsl(100,100%,50%)
 	 * @prop {string} hlstring 
 	 */
-	get hslstring(){
+	get hslString(){
 		let hsl = Color.RGB2HSL( this.rgba );
 		let s = Math.floor(hsl.s*100)+'%';
 		let l = Math.floor(hsl.l*100)+'%';
@@ -338,7 +321,7 @@ class Color{
 	 * 返回rgba 颜色表示，如：rgba(255,0,0,1)
 	 * @prop {string} hlstring 
 	 */
-	get rgbstring(){
+	get rgbString(){
 		let {r,g,b,alpha} = this.rgba;
 		return `rgba(${r},${g},${b},${alpha})`;
 	}

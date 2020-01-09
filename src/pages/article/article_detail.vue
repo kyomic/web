@@ -163,7 +163,7 @@ export default {
 					this.$router.replace({path: '/404', query: {'type':'article'}})
 					return;
 				}
-				this.$updateTitle( res.log_Title );
+				//this.$updateTitle( res.log_Title );
 				this.$highlight( this.$el );
 			})
 		}

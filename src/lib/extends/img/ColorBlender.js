@@ -280,46 +280,58 @@ class ColorBlender{
 		let obj = new Color( color );
 		//图层色
 		let h0 = Color.RGB2HSL( obj.rgba );
-		obj.color = h0;
-		/*
-		obj.color = {r,g,b};
 		//混合色
+		obj.color = {r,g,b};
 		let h1 = Color.RGB2HSL( obj.rgba );
 		obj.color = {
-			h:h0.h, s: h0.s,l:h0.l
+			h:h1.h, s: h0.s,l:h0.l
 		}
-		*/
 		return obj.rgba;
 	}
 	//25.饱和度（Saturation）
 	//用混合图层的饱和度去替换基层图像的饱和度，而色相值与亮度不变。决定生成颜色的参数包括：基层颜色的明度与色相，混合层颜色的饱和度。饱和度只控制颜色的鲜艳程度，因此混合色只改变图片的鲜艳度，不能影响颜色。
 	//与色相模式相似，不过保留的混合色的值是S。
 	static SATURATION( color, {r, g, b} = rgb  ){
-		let c = new Color( color ).rgba;
-		let h0 = Color.RGB2HSL( c );
-		c.color = rgb;
-		let h1 = Color.RGB2HSL( c );
-		c.color = {
-			h:h1.h, s: h0.s,l:h1.l
+		let obj = new Color( color );
+		//图层色
+		let h0 = Color.RGB2HSL( obj.rgba );
+		//混合色
+		obj.color = {r,g,b};
+		let h1 = Color.RGB2HSL( obj.rgba );
+		obj.color = {
+			h:h0.h, s: h1.s,l:h0.l
 		}
-		return c.rgba;
+		return obj.rgba;
 	}
 	//26.颜色（Color）
 	//用混合图层的色相值与饱和度替换基层图像的色相值和饱和度，而亮度保持不变。决定生成颜色的参数包括：基层颜色的明度，混合层颜色的色相与饱和度。这种模式下混合色控制整个画面的颜色，是黑白图片上色的绝佳模式，因为这种模式下会保留基色图片也就是黑白图片的明度。
 	//与色相模式相似，不过保留的混合色的值是HS。
 	static COLOR( color, {r, g, b} = rgb  ){
-		let c = new Color( color ).rgba;
-		let h0 = Color.RGB2HSL( c );
-		c.color = rgb;
-		let h1 = Color.RGB2HSL( c );
-		c.color = {
-			h:h0.h, s: h0.s,l:h1.l
+		let obj = new Color( color );
+		//图层色
+		let h0 = Color.RGB2HSL( obj.rgba );
+		//混合色
+		obj.color = {r,g,b};
+		let h1 = Color.RGB2HSL( obj.rgba );
+		obj.color = {
+			h:h1.h, s: h1.s,l:h0.l
 		}
+		return obj.rgba;
 	}
 	//27.明度（Luminosity）
 	//用当前图层的亮度值去替换下层图像的亮度值，而色相值与饱和度不变。决定生成颜色的参数包括：基层颜色的色调与饱和度，混合层颜色的明度。跟颜色模式刚好相反，因此混合色图片只能影响图片的明暗度，不能对基色的颜色产生影响，黑、白、灰除外。
 	//与色相模式相似，不过保留的混合色的值是B。
 	static LUMINOSITY( color, {r, g, b} = rgb  ){
+		let obj = new Color( color );
+		//图层色
+		let h0 = Color.RGB2HSL( obj.rgba );
+		//混合色
+		obj.color = {r,g,b};
+		let h1 = Color.RGB2HSL( obj.rgba );
+		obj.color = {
+			h:h0.h, s: h0.s,l:h1.l
+		}
+		return obj.rgba;
 	}
 }
 

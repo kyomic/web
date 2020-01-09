@@ -110,7 +110,11 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  
+}
 
+p{
+  line-height: 25*@rem;
 }
 .tip{
   line-height: 25*@rem;
@@ -129,6 +133,9 @@ export default {
   .page-wrap{
     padding-top: 20*@rem;
   }
+}
+.wrapper{
+  padding:10*@rem;
 }
 .mobile .container{
   max-width: auto;
@@ -181,7 +188,9 @@ export default {
     padding: 5*@rem;
   }  
 }
+
 .mobile .controls{
+  position: fixed;
   width: 100*@rem;
   .el-button+.el-button{
     margin-left: 0;
