@@ -108,6 +108,7 @@ class ColorPicker{
 
 	constructor( option ){
 		this._color = option.color || new Color("#FF0000");
+		this._color = new Color("#00CCFF");
 		this._parent = option.root || document.body;
 		this._mode = option.mode;
 		this._isDotDragging = false;
@@ -287,8 +288,6 @@ class ColorPicker{
 						let distY = Math.abs( offsetY - h/2);
 						if( Math.sqrt(distX*distX + distY*distY)>w/2){
 							angle = Math.atan( (offsetY- w/2)/(offsetX-h/2));
-							//console.log( "angle", angle * Math.PI, angle)
-							//console.log(Math.sin(angle), Math.cos(angle))
 							if( angle > 0 ){
 								//2,4像限
 								if( offsetX > radius ){
@@ -343,9 +342,11 @@ class ColorPicker{
 		this._color = c;
 		this._hsv = Color.RGB2HSV( this.color.rgba );
 		this._rgb = this.color.rgba;
-		console.log("hsv",this._hsv)
+		console.log("hsv",this._hsv, "rgb", this._rgb)
+		this.updateXYZ();
 		this.draw();
 		this.updateColor();
+		
 	}
 	get color(){
 		return this._color;
@@ -383,7 +384,57 @@ class ColorPicker{
 		this._viewWrap.appendChild( this._dot );
 		this._rgbMask = this._rgblayer[ mode+"_mask" ];
 	}
-
+	//根据色彩空间更新小圆点位置
+	updateXYZ(){
+		let x=0,y=0,z=0;
+		let angle = 0;		
+		let w = this._colorViewWidth;
+		let h = this._colorViewHeight;
+		switch(this._mode){
+			case 'color':
+				x = this._hsv.s;
+				y = 1-this._hsv.v;
+				z = 1-this._hsv.h/360;
+				break;
+			case 'hsv':
+				x =	this._hsv.h/360;	
+				y = 1-this._hsv.v;
+				z = 1-this._hsv.s;
+				break;
+			case 'hvs':
+				x =	this._hsv.h/360;
+				y = this._hsv.s;
+				z = 1-this._hsv.v;
+				break;
+			case 'disk':
+				angle = (1-this._hsv.h/360) * Math.PI * 2;
+				let r = this._hsv.s * w/2;
+				x = 1/2 + Math.cos( angle )*r/w;
+				y = 1/2 + Math.sin( angle )*r/h;
+				z = 1-this._hsv.v;
+				console.log("XYZ",x,y,z)
+				break;
+			case 'r':
+				x = this._rgb.b / 255;
+				y = 1-this._rgb.g / 255;
+				z = 1-this._rgb.r / 255;
+				break;
+			case 'g':
+				x = this._rgb.b / 255;
+				y = 1-this._rgb.r / 255;
+				z = 1-this._rgb.g / 255;
+				break;
+			case 'b':
+				x = this._rgb.r / 255;
+				y = 1-this._rgb.g / 255;
+				z = 1-this._rgb.b / 255;
+		}
+		this._xPos = x * w;
+		this._yPos = y * h;
+		dom.setStyle( this._dot, {'left':this._xPos+"px","top":this._yPos+"px"});
+		dom.setStyle( this._conner, {'top':z*h+"px"} );
+	}
+	//更新颜色值
 	updateColor(){
 		this._color.color = this._colorSpace == 'hsv' ? this._hsv : this._rgb;
 		this._textWrap.innerHTML = this._color.hexString + "  " + [this._hsv.h,this._hsv.s,this._hsv.v].join(",")
@@ -401,6 +452,7 @@ class ColorPicker{
 	}
 
 	draw(){
+		//return;
 		if( !this._hsv ) return;
 		let ctw = this._view.getContext('2d');
 		let cbw = this._bar.getContext('2d');
