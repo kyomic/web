@@ -4,7 +4,7 @@ import dom from '@/lib/core/dom'
 import './style.less';
 /**
  * 
- * @mode 面板上显示显示的主要内容  color(颜色模式),hvs(色相/亮度模式),hsv(色相/饱和度模式), r(R分量),g(G分量),b(B分量)
+ * @mode 面板上显示显示的主要内容  color(颜色模式),hvs(色相/亮度模式),hsv(色相/饱和度模式), r(R分量),g(G分量),b(B分量),disk(色盘模式)
  * see:http://www.dematte.at/colorPicker/
  */
 class ColorPicker{
@@ -114,11 +114,11 @@ class ColorPicker{
 		this._initialize();
 		this._colorSpace = 'hsv';
 		this._rgb = {};
-		this._hsv = {};
+		this._hsv = null;
 		//view中小点的坐标	
 		this._xPos = 0;
 		this._yPos = 0;
-		this.mode = 'r';
+		this.mode = 'disk';
 		this.color = this._color;
 	}
 	_initialize(){
@@ -188,6 +188,9 @@ class ColorPicker{
 							//x为hue,y为brightness
 							this._hsv.v = 1-offsetY / h;
 							break;
+						case 'disk':
+							this._hsv.v = 1-offsetY / h;
+							break;
 						case 'r':
 						case 'g':
 						case 'b':
@@ -212,6 +215,8 @@ class ColorPicker{
 	onViewWrapEventHandler( e ){
 		let w = this._colorViewWidth;
 		let h = this._colorViewHeight;
+		let angle = 0;
+		let radius  = w/2;
 		switch( e.type ){
 			case 'mousedown':
 				this.onDragTarget( this._viewWrap , true )
@@ -243,6 +248,26 @@ class ColorPicker{
 							this._hsv.h = Math.round( offsetX / w * 360);
 							this._hsv.s = 1-offsetY / h;
 							break;
+						case 'disk':
+							let distX = Math.abs( offsetX - w/2);
+							let distY = Math.abs( offsetY - h/2);
+
+							angle = Math.atan( (offsetY- w/2)/(offsetX-h/2));
+							let c = angle;
+							if( offsetY < h/2 ){
+								if( angle < 0 ){
+									c += Math.PI*2
+								}else{
+									c =  Math.PI + angle;
+								}
+							}else{
+								if( angle <0 ){
+									c += Math.PI+ angle;
+								}
+							}
+							this._hsv.s = Math.sqrt( distX * distX + distY*distY)/ w/2;
+							this._hsv.h = Math.round(360-c/(Math.PI*2)*360);
+							break;
 						case 'r':
 							this._rgb.b = Math.round( offsetX / h * 255);
 							this._rgb.g = Math.round( (1-offsetY / h) * 255);
@@ -255,6 +280,36 @@ class ColorPicker{
 							this._rgb.r = Math.round( offsetX / h * 255);
 							this._rgb.g = Math.round( (1-offsetY / h) * 255);
 							break;
+					}
+
+					if( this._mode == 'disk'){						
+						let distX = Math.abs( offsetX - w/2);
+						let distY = Math.abs( offsetY - h/2);
+						if( Math.sqrt(distX*distX + distY*distY)>w/2){
+							angle = Math.atan( (offsetY- w/2)/(offsetX-h/2));
+							//console.log( "angle", angle * Math.PI, angle)
+							//console.log(Math.sin(angle), Math.cos(angle))
+							if( angle > 0 ){
+								//2,4像限
+								if( offsetX > radius ){
+									offsetY = radius + Math.sin(angle) * radius;
+									offsetX = radius + Math.cos(angle) * radius;
+								}else{
+									offsetY = radius - Math.sin(angle) * radius;
+									offsetX = radius - Math.cos(angle) * radius;
+								}
+							}else{
+								//1,3
+								if( offsetX > radius ){
+									offsetY = radius + Math.sin(angle) * radius;
+									offsetX = radius + Math.cos(angle) * radius;
+								}else{
+									offsetY = radius - Math.sin(angle) * radius;
+									offsetX = radius - Math.cos(angle) * radius;
+								}
+							}
+
+						}
 					}
 					dom.setStyle( this._dot, {left:offsetX+'px',top:offsetY+'px'})
 					
@@ -338,10 +393,10 @@ class ColorPicker{
 		this._root.style.cssText = "position:relative;height:200px;";
 		this._view.width = this._colorViewWidth;
 		this._view.height = this._colorViewHeight;
-		this._viewWrap.style.cssText = 'position:absolute;left:0;top:500px';
+		this._viewWrap.style.cssText = 'position:absolute;left:0;top:50px';
 		this._bar.width = 10;
 		this._bar.height = this._colorViewHeight;
-		this._barWrap.style.cssText = 'position:absolute;left:'+( this._colorViewWidth +10) + 'px;top:500px';
+		this._barWrap.style.cssText = 'position:absolute;left:'+( this._colorViewWidth +10) + 'px;top:50px';
 		this._dot.style.cssText = 'position:absolute;left:0;top:0;width: 6px;height: 6px;border-radius: 6px;box-shadow: rgb(255, 255, 255) 0px 0px 0px 1px inset;transform: translate(-4px, -4px);border:1px solid #000;';
 	}
 
@@ -351,7 +406,8 @@ class ColorPicker{
 		let cbw = this._bar.getContext('2d');
 		let w = this._colorViewWidth;
 		let h = this._colorViewHeight;
-			
+		
+		ctw.clearRect(0,0,w, h);
 		let gradient = ctw.createLinearGradient(0, 0, w, 0);
 		ColorPicker.HUE_MAP.map(res=>{
 			gradient.addColorStop(res.percent, res.color )
@@ -359,9 +415,9 @@ class ColorPicker{
 		ctw.fillStyle = gradient;
 		// 左上角和右下角分别填充2个矩形
 		ctw.fillRect(0, 0, w, h );
-		
+
 		let alpha = 1-this._hsv.v;
-		let brightness = Math.round(255 * this._hsv.v)
+		let brightness = Math.round(255 * this._hsv.v);
 		switch( this._mode ){
 			case 'color':
 				//draw color view
@@ -410,9 +466,43 @@ class ColorPicker{
 				gradient.addColorStop(1, `rgba(0,0,0,${1-this._hsv.s})`);
 				ctw.fillStyle = gradient;
 				ctw.fillRect(0, 0, w, h );
-				break;			
+				break;
+			case 'disk':
+				ctw.clearRect(0, 0, w, h );
+				let coords = [w/2,h/2];
+				var x = coords[0] || coords, // coordinate on x-axis
+					y = coords[1] || coords, // coordinate on y-axis
+					a = w/2, // radius on x-axis
+					b = h/2, // radius on y-axis
+					angle = 360,
+					rotate = 0, coef = Math.PI / 180;
+				ctw.save();
+				ctw.translate(x - a, y - b);
+				ctw.scale(a, b);
+				let steps = 1;
+				for (; angle > 0 ; angle -= steps){
+					ctw.beginPath();
+					if (steps !== 360) ctw.moveTo(1, 1); // stroke
+					ctw.arc(1, 1, 1,
+						(angle - (steps / 2) - 1) * coef,
+						(angle + (steps / 2) + 1) * coef);
+					if (true) {
+						gradient = ctw.createRadialGradient(1, 1, 1, 1, 1, 0);
+						gradient.addColorStop(0, 'hsl(' + (360 - angle + 0) + ', 100%, 50%)');
+						gradient.addColorStop(1, "#FFFFFF");
+						ctw.fillStyle = gradient;
+						ctw.fill();
+					} else {
+						ctw.fillStyle = 'black';
+						ctw.fill();
+					}
+				}
+				ctw.restore();
+				ctw.arc(a, b, a, 0, coef*360);
+				ctw.fillStyle = `rgba(0,0,0,${1-this._hsv.v})`;
+				ctw.fill();
+				break;	
 		}
-
 		gradient = cbw.createLinearGradient(0, 0, 0, h )
 		console.log("hsv", this._hsv,"mode", this.mode)
 		let rgb = Color.HSV2RGB( this._hsv );
@@ -447,7 +537,15 @@ class ColorPicker{
 				gradient.addColorStop(0, `rgba(128,128,128,0)`);
 				gradient.addColorStop(1, `rgba(128,128,128,${0.5-this._hsv.v})`);
 				break;
-
+			case "disk":
+				//Y轴为 V(HSV)
+				//draw hue bar			
+				rgb = Color.HSV2RGB( {h:this._hsv.h, s:this._hsv.s,v:1} );
+				gradient.addColorStop(0, `rgba(${rgb.r},${rgb.g},${rgb.b},1)`);
+				gradient.addColorStop(1, `rgba(0,0,0,1)`);
+				cbw.fillStyle = gradient;
+				cbw.fillRect(0, 0, 10, h );
+				break;
 			case 'r':
 				//0x000000 - 0xFF0000(红底)
 				//0x0000FF - 0xFF00FF(蓝-绿对比色( 紫))  x轴
@@ -487,7 +585,7 @@ class ColorPicker{
 				let y = pos[b];
 				let xAlpha = (x - y) / (1 - y) || 0;
 				let yAlpha = y;
-				console.log("xAlpha",xAlpha,yAlpha,g[idx][0], g[idx][1] )
+				//console.log("xAlpha",xAlpha,yAlpha,g[idx][0], g[idx][1] )
 				gradient = cbw.createLinearGradient(0, 0, 0, h )
 				gradient.addColorStop(0, `rgba(${g[idx][0].r},${g[idx][0].g},${g[idx][0].b},${xAlpha})`);
 				gradient.addColorStop(1, `rgba(${g[idx][1].r},${g[idx][1].g},${g[idx][1].b},${xAlpha})`);
@@ -502,7 +600,6 @@ class ColorPicker{
 				cbw.fillRect(0, 0, 10, h );
 				break;
 		}
-			
 		cbw.fillStyle = gradient;
 		// 左上角和右下角分别填充2个矩形
 		cbw.fillRect(0, 0, 10, h );
