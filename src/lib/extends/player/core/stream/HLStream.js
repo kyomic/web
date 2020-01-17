@@ -402,7 +402,14 @@ class HLStream extends AbstractStream{
             videoCodec = currentLevel.videoCodec;
         console.log("details",details, currentLevel)
         var uint8 = new Uint8Array( data );
-        this.push( uint8, audioCodec, videoCodec, start, this.fragCurrent.cc , level, sn, duration , this.fragCurrent.decryptdata );
+        let mediaSeeking = this.media && this.media.seeking;
+        /** 是否精准*/
+        let accurateTimeOffset = !mediaSeeking && (details.PTSKnown || !details.live);
+
+        //push (data, initSegment, audioCodec, videoCodec, frag, duration, accurateTimeOffset, defaultInitPTS) {
+        let initSegmentData = details.initSegment ? details.initSegment.data : [];
+        this.demuxer.push( uint8, initSegmentData, audioCodec, videoCodec, fragCurrent, duration, accurateTimeOffset, undefined );
+        //this.push( uint8, audioCodec, videoCodec, start, this.fragCurrent.cc , level, sn, duration , this.fragCurrent.decryptdata );
 		
 	}
 
@@ -413,29 +420,7 @@ class HLStream extends AbstractStream{
 		}
 	}
     
-    /**
-	*	@method push
-	*	@param data:uint8array
-	*	@param 
-	*/
-	push(data, audioCodec, videoCodec, timeOffset, cc, level, sn, duration, decryptdata) {
-		if( typeof timeOffset == "undefined") timeOffset = 0;
-		if( typeof cc == "undefined") cc = 0;
-		if( typeof level == "undefined") level = 0;
-		if( typeof sn == "undefined") sn = 0;
-		if( typeof duration == "undefined") duration = 0;
-		if( typeof decryptdata == "undefined"){
-			decryptdata = {
-				iv: null,
-				key: null,
-				method: null,
-				uri: null
-			}
-		}
-        console.log("Demux Data...");
-		this.demuxer.push( data, audioCodec, videoCodec, timeOffset, cc, level, sn, duration, decryptdata );
-	}
-
+    
 	tick(){
         console.log("state...", this._state)
 		switch( this._state ){

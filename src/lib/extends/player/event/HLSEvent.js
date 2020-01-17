@@ -24,12 +24,17 @@ export var HLSEvent = {
     FRAG_LOAD_EMERGENCY_ABORTED: 'hlsFragLoadEmergencyAborted',
     // fired when a fragment loading is completed - data: { frag : fragment object, payload : fragment payload, stats : { trequest, tfirst, tload, length}}
     FRAG_LOADED: 'hlsFragLoaded',
+    
+    INIT_PTS_FOUND:'hlsInitPtsFound',
+
     // fired when Init Segment has been extracted from fragment - data: { moov : moov MP4 box, codecs : codecs found while parsing fragment}
     FRAG_PARSING_INIT_SEGMENT: 'hlsFragParsingInitSegment',
     // fired when parsing id3 is completed - data: { samples : [ id3 samples pes ] }
     FRAG_PARSING_METADATA: 'hlsFraParsingMetadata',
     // fired when moof/mdat have been extracted from fragment - data: { moof : moof MP4 box, mdat : mdat MP4 box}
     FRAG_PARSING_DATA: 'hlsFragParsingData',
+
+    FRAG_PARSING_USERDATA:'hlsFragParsingUserData',//???
     // fired when fragment parsing is completed - data: undefined
     FRAG_PARSED: 'hlsFragParsed',
     // fired when fragment remuxed MP4 boxes have all been appended into SourceBuffer - data: { frag : fragment object, stats : { trequest, tfirst, tload, tparsed, tbuffered, length} }
