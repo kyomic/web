@@ -204,6 +204,7 @@ class Devices{
 		this.emit('resize', {type:'resize', data: this.viewSize });
 	}
 	onLoad(){
+		//会导致vue mounted 2次
 		this.emit('load', {type:'load', data: this.viewSize });
 		let p = this.performaceStack;
 		console.log(p);

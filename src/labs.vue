@@ -23,10 +23,10 @@
               <labs_menu></labs_menu>
             </div>            
         </el-drawer>
-        <div class="container" ref="container" v-if="mobile">
+        <div class="container" ref="container" v-show="mobile">
           <router-view/>
         </div>
-        <div class="container" ref="container" v-else>
+        <div class="container" ref="container" v-show="!mobile">
           <div class="page-wrap">
             <div class="menu">
               <labs_menu></labs_menu>
@@ -81,6 +81,7 @@ export default {
     checkSize(){
         //更新env.mobile类型
         let code = Devices.getInstance().grid24code;
+        console.log("grid24code", code)
         this.setGrid24( code );
         let html = Devices.getInstance().query("html");
         if( html && this.mobile ){
@@ -98,7 +99,7 @@ export default {
     debug && console.log("labes mounted, path", path)
     if( path == '' || path == '/'){
       //修复admin页面的主页和www的路由冲突
-      this.$router && this.$router.replace({path: '/labs/index'})
+      //this.$router && this.$router.replace({path: '/labs/index'})
     }
   }
 }

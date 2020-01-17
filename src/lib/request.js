@@ -6,21 +6,33 @@ import config from './config'
 
 
 axios.defaults.withCredentials=true;
-
+let CancelToken = axios.CancelToken;
 let request = {};
+request.cancel = function(){}
 request.get = ( url, option ) =>{
 	if( !/https?/ig.exec(url)){
 		url = config.api + url;
 	}
 	let params = Object.assign({}, option);
 	params = Object.assign({}, params );
+	params.url = url;
+	params.method = 'get'
+	//see https://www.jianshu.com/p/22b49e6ad819
+	params.cancelToken = new CancelToken(function executor(c) {
+	    request.cancel = c
+	    //console.log(c)
+	    // 这个参数 c 就是CancelToken构造函数里面自带的取消请求的函数，这里把该函数当参数用
+	});
+
 	return new Promise((resolve,reject)=>{
-		axios.get( url, {
-			params: params
-		}).then(res=>{
+		axios( params ).then(res=>{
 			setTimeout(()=>{
-				if( res && res.data && res.data.status == 200 ){
-					resolve( res.data.data );
+				if( res && res.data ){
+					if( typeof res.data == 'object' && res.data.status == 200 ){
+						resolve( res.data.data );
+					}else{
+						resolve( res.data );
+					}
 				}else{
 					reject( res );
 				}

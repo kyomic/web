@@ -67,7 +67,7 @@ import utils from '@/lib/core/utils'
 
 
 export default {
-  name: 'HelloWorld',
+  name: 'HelloWorld2',
   title:"JS版的ByteArray实现",
   components:{},
   data() {
@@ -109,7 +109,8 @@ export default {
     setTimeout(_=>{
       this.$highlight( this.$el, ".code" );
     },100)
-    console.log(this);
+    this._isMounted = true
+    console.log("mounted", this);
     document.title = this.$options.title;
   }
 }

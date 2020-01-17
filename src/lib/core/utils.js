@@ -1,3 +1,4 @@
+import tpl from './tpl'
 let utils = {}
 /**
  * 对字符串进行哈希计算
@@ -84,4 +85,6 @@ Date.prototype.Format = function(fmt)
   fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));   
   return fmt;   
 }  
+
+utils.compile = tpl.compile;
 export default utils;

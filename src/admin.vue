@@ -88,7 +88,7 @@ export default {
     let devices = Devices.getInstance();
     devices.context = window;
     devices.on('resize', this.checkSize );
-    devices.on('load', this.checkSize );
+    devices.on('ready', this.checkSize );
 
 
     let scrollInterval = 0;

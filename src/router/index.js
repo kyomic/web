@@ -24,9 +24,7 @@ import {
 	admin_log,
 } from '@/pages/admin';
 
-import {
-	labs_index
-} from '@/pages/labs';
+
 
 import NotFound from '@/components/NotFound';
 import Element from '@/components/Element';
@@ -160,13 +158,7 @@ let adminRouter = [
 	}
 ];
 
-let labsRouter = [
-	{
-		path:"/labs/index",
-		name:"labs_index",
-		component:labs_index
-	}
-];
+let labsRouter = [];
 let labs = require('@/pages/labs');
 for(var i in labs.pages){
 	labsRouter.push({
@@ -181,4 +173,5 @@ for(var i in labs.pages){
 routerOptions.routes = routerOptions.routes.concat( webRouter );
 routerOptions.routes = routerOptions.routes.concat( adminRouter );
 routerOptions.routes = routerOptions.routes.concat( labsRouter );
+console.log("router", routerOptions.routes)
 export default new Router( routerOptions );

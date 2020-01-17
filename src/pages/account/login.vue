@@ -124,6 +124,7 @@ export default {
     },
     mounted(){
       this.checkIsLogined();
+      console.log("mounted!!!!!!!")
       document.addEventListener('keyup', e=>{
         if( e.keyCode == 13 ){
           this.submitForm('ruleForm')
