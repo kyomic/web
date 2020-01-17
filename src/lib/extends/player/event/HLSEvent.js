@@ -26,7 +26,7 @@ export var HLSEvent = {
     FRAG_LOADED: 'hlsFragLoaded',
     
     INIT_PTS_FOUND:'hlsInitPtsFound',
-
+    BUFFER_CODECS:"hlsBufferCodecs",
     // fired when Init Segment has been extracted from fragment - data: { moov : moov MP4 box, codecs : codecs found while parsing fragment}
     FRAG_PARSING_INIT_SEGMENT: 'hlsFragParsingInitSegment',
     // fired when parsing id3 is completed - data: { samples : [ id3 samples pes ] }

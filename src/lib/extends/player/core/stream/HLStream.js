@@ -51,9 +51,12 @@ class HLStream extends AbstractStream{
         this.evtOnMediaSourceEvent = this.onMediaSourceEvent.bind( this );
         this.evtOnSourceBufferEvent = this.onSourceBufferEvent.bind( this );
 
-        this.sourceBuffer = null; //分为video和audio两个buffer
+        this.evtOnBufferEvent = this.onBufferEvent.bind( this );
+
+        this.sourceBuffer = {}; //分为video和audio两个buffer
         //缓冲数据
         this.bufferRange = [];
+        this.pendingTracks = {}; //sourceBuffer未打开时的缓存tracks
         /**
          * video
          * @member 
@@ -85,6 +88,7 @@ class HLStream extends AbstractStream{
         this.on( HLSEvent.FRAG_PARSING_INIT_SEGMENT, this.evtOnDemuxEvent );
         
         this.on( MediaEvent.MEDIA_ATTACHING, this.evtOnMediaEvent );
+        this.on( HLSEvent.BUFFER_CODECS, this.evtOnBufferEvent )
     }
 
     onVideoEvent( evt ){
@@ -133,32 +137,31 @@ class HLStream extends AbstractStream{
         }
     }
 
+    onBufferEvent( evt, data ){
+        switch( evt.type ){
+            case HLSEvent.BUFFER_CODECS:
+                let tracks = data;
+                // if source buffer(s) not created yet, appended buffer tracks in this.pendingTracks
+                // if sourcebuffers already created, do nothing ...
+                if (Object.keys(this.sourceBuffer).length === 0) {
+                  for (let trackName in tracks) this.pendingTracks[trackName] = tracks[trackName];
+                  let mediaSource = this.mediaSource;
+                  if (mediaSource && mediaSource.readyState === 'open') {
+                    // try to create sourcebuffers if mediasource opened
+                    this.checkPendingTracks();
+                  }
+                }
+                break;
+        }
+    }
+
     onSourceBufferEvent( evt ){
         switch(evt.type){
             case "updateend":
-                //流更新后，发现无可用字节
-                console.log("updateend  mp4segments.length", this.mp4segments.length)
-                if (this.state === STATE.APPENDING && this.mp4segments.length === 0) {
-                    var frag = this.fragCurrent,
-                    stats = this.stats;
-                    if (frag) {
-                        this.fragPrevious = frag;
-                        /*
-                        stats.tbuffered = performance.now();
-                        this.fragLastKbps = Math.round(8 * stats.length / (stats.tbuffered - stats.tfirst));
-                        this.hls.trigger(_events2['default'].FRAG_BUFFERED, {
-                            stats: stats,
-                            frag: frag
-                        });
-                        
-                        */
-                       // console.log('media buffered : ' + this.timeRangesToString(this.media.buffered));
-                        console.log("updateend...........")
-                        this._state = STATE.IDLE;
-                    }
-                }
-                console.timeEnd("TIME[sourcebuffer]");
-                this.tick();
+                //流更新后，发现无可用字节                
+                this.appending = false;
+                this.doAppending();
+                this.onSBUpdateEnd();
                 break;
             case "error":
                 break;
@@ -209,88 +212,150 @@ class HLStream extends AbstractStream{
 
     onDemuxEvent(  evt, data ){
         //console.log("onDemuxEvent", evt.type, data)
+        let self = this;
         switch( evt.type ){            
             case HLSEvent.FRAG_PARSING_INIT_SEGMENT:
-                if( this.state == STATE.PARSING ){
-                    var audioCodec = this._levels[this._level].audioCodec,
-                        videoCodec = this._levels[this._level].videoCodec,
-                        sb;//sourcebuffer
-                     // if playlist does not specify codecs, use codecs found while parsing fragment
-                    // if no codec found while parsing fragment, also set codec to undefined to avoid creating sourceBuffer
-                    if (audioCodec === undefined || data.audioCodec === undefined) {
-                        audioCodec = data.audioCodec;
+                const fragCurrent = this.fragCurrent;
+                const fragNew = data.frag;
+                data.id = 'main';//设置个id 干什么，多线程标识么
+                if (fragCurrent &&
+                data.id === 'main' &&
+                fragNew.sn === fragCurrent.sn &&
+                fragNew.level === fragCurrent.level &&
+                this.state === STATE.PARSING) {
+                    let tracks = data.tracks, trackName, track;
+
+                    // if audio track is expected to come from audio stream controller, discard any coming from main
+                    if (tracks.audio && this.altAudio) {
+                        delete tracks.audio;
                     }
 
-                    if (videoCodec === undefined || data.videoCodec === undefined) {
-                        videoCodec = data.videoCodec;
-                    }
-                    // in case several audio codecs might be used, force HE-AAC for audio (some browsers don't support audio codec switch)
-                    //don't do it for mono streams ...
-                    var ua = navigator.userAgent.toLowerCase();
-                    if (this.audiocodecswitch && data.audioChannelCount !== 1 && ua.indexOf('android') === -1 && ua.indexOf('firefox') === -1) {
-                        audioCodec = 'mp4a.40.5';
-                    }
-                    console.log("videoCodec", videoCodec, "auduoCodes", audioCodec);
-                    if (!this.sourceBuffer) {
-                        this.sourceBuffer = {};
-                        console.log('selected A/V codecs for sourceBuffers:' + audioCodec + ',' + videoCodec);
-                        // create source Buffer and link them to MediaSource
-                        console.log("### bind source Event.");
-                        if (audioCodec) {
-                            sb = this.sourceBuffer.audio = this.mediaSource.addSourceBuffer('video/mp4;codecs=' + audioCodec);
-                            sb.addEventListener('updateend', this.evtOnSourceBufferEvent );
-                            sb.addEventListener('error', this.evtOnSourceBufferEvent );
+                    // include levelCodec in audio and video tracks
+                    track = tracks.audio;
+                    if (track) {
+                        let audioCodec = this._levels[this._level].audioCodec,
+                        ua = navigator.userAgent.toLowerCase();
+                        if (audioCodec && this.audioCodecSwap) {
+                            window.debug && console.log('swapping playlist audio codec');
+                            if (audioCodec.indexOf('mp4a.40.5') !== -1) {
+                                audioCodec = 'mp4a.40.2';
+                            } else {
+                                audioCodec = 'mp4a.40.5';
+                            }
                         }
-                        if (videoCodec) {
-                            sb = this.sourceBuffer.video = this.mediaSource.addSourceBuffer('video/mp4;codecs=' + videoCodec);
-                            sb.addEventListener('updateend', this.evtOnSourceBufferEvent);
-                            sb.addEventListener('error', this.evtOnSourceBufferEvent );
+                        // in case AAC and HE-AAC audio codecs are signalled in manifest
+                        // force HE-AAC , as it seems that most browsers prefers that way,
+                        // except for mono streams OR on FF
+                        // these conditions might need to be reviewed ...
+                        if (this.audioCodecSwitch) {
+                            // don't force HE-AAC if mono stream
+                            if (track.metadata.channelCount !== 1 &&
+                                // don't force HE-AAC if firefox
+                                ua.indexOf('firefox') === -1) {
+                                audioCodec = 'mp4a.40.5';
+                            }
+                        }
+                        // HE-AAC is broken on Android, always signal audio codec as AAC even if variant manifest states otherwise
+                        if (ua.indexOf('android') !== -1 && track.container !== 'audio/mpeg') { // Exclude mpeg audio
+                            audioCodec = 'mp4a.40.2';
+                        }
+                        track.levelCodec = audioCodec;
+                        track.id = data.id;
+                    }
+                    track = tracks.video;
+                    if (track) {
+                        track.levelCodec = this._levels[this._level].videoCodec;
+                        track.id = data.id;
+                    }
+                    this.trigger( HLSEvent.BUFFER_CODECS, tracks )
+                    // loop through tracks that are going to be provided to bufferController
+                    for (trackName in tracks) {
+                        track = tracks[trackName];
+                        window.debug && console.log(`main track:${trackName},container:${track.container},codecs[level/parsed]=[${track.levelCodec}/${track.codec}]`);
+                        let initSegment = track.initSegment;
+                        if (initSegment) {
+                            this.appended = true;
+                            // arm pending Buffering flag before appending a segment
+                            this.pendingBuffering = true;
+                            this.pushTrack( { type: trackName, data: initSegment, parent: 'main', content: 'initSegment' } )
                         }
                     }
-                    if (audioCodec) {
-                        this.mp4segments.push({
-                            type: 'audio',
-                            data: data.audioMoov
-                        });
-                    }
-                    if (videoCodec) {
-                        this.mp4segments.push({
-                            type: 'video',
-                            data: data.videoMoov
-                        });
-                    }
-                    //trigger handler right now
+                    // trigger handler right now
                     this.tick();
                 }
                 break;
             case HLSEvent.FRAG_PARSING_DATA:
-                if( this.state == STATE.PARSING ){
+
+                var fragCurrent = this.fragCurrent;
+                var fragNew = data.frag;
+                data.id = 'main';
+
+                if (fragCurrent && data.id === 'main' && fragNew.sn === fragCurrent.sn && fragNew.level === fragCurrent.level && !(data.type === 'audio' && this.altAudio) && // filter out main audio if audio track is loaded through audio stream controller
+                this._state === STATE.PARSING) {
                     var level = this._levels[this._level],
-                        frag = this.fragCurrent;
-                    var drift = this.updateFragPTS( level.details, frag.sn, data.startPTS, data.endPTS );
+                        frag = fragCurrent;
+                    if (isNaN(data.endPTS)) {
+                        data.endPTS = data.startPTS + fragCurrent.duration;
+                        data.endDTS = data.startDTS + fragCurrent.duration;
+                    }
 
-                    /*　没啥用 
-                    self.trigger(_events2['default'].LEVEL_PTS_UPDATED, {
-                        details: level.details,
-                        level: self.level,
-                        drift: drift
-                    });
+                    if (data.hasAudio === true) {
+                        //TODO
+                        //frag.addElementaryStream(loader_fragment.ElementaryStreamTypes.AUDIO);
+                    }
+
+                    if (data.hasVideo === true) {
+                        //TODO
+                        //frag.addElementaryStream(loader_fragment.ElementaryStreamTypes.VIDEO);
+                    }
+
+                    window.debug && console.log('Parsed ' + data.type + ',PTS:[' + data.startPTS.toFixed(3) + ',' + data.endPTS.toFixed(3) + '],DTS:[' + data.startDTS.toFixed(3) + '/' + data.endDTS.toFixed(3) + '],nb:' + data.nb + ',dropped:' + (data.dropped || 0));
+
+                    // Detect gaps in a fragment  and try to fix it by finding a keyframe in the previous fragment (see _findFragments)
+                    if (data.type === 'video') {
+                        frag.dropped = data.dropped;
+                        if (frag.dropped) {
+                            if (!frag.backtracked) {
+                                var levelDetails = level.details;
+                                if (levelDetails && frag.sn === levelDetails.startSN) {
+                                    window.debug && console["b" /* window.debug && console */].warn('missing video frame(s) on first frag, appending with gap', frag.sn);
+                                } else {
+                                    window.debug && console["b" /* window.debug && console */].warn('missing video frame(s), backtracking fragment', frag.sn);
+                                    // Return back to the IDLE state without appending to buffer
+                                    // Causes findFragments to backtrack a segment and find the keyframe
+                                    // Audio fragments arriving before video sets the nextLoadPosition, causing _findFragments to skip the backtracked fragment
+                                    this.fragmentTracker.removeFragment(frag);
+                                    frag.backtracked = true;
+                                    this.nextLoadPosition = data.startPTS;
+                                    this._state = STATE.IDLE;
+                                    this.fragPrevious = frag;
+                                    this.tick();
+                                    return;
+                                }
+                            } else {
+                                window.debug && console["b" /* window.debug && console */].warn('Already backtracked on this fragment, appending with the gap', frag.sn);
+                            }
+                        } else {
+                        // Only reset the backtracked flag if we've loaded the frag without any dropped frames
+                            frag.backtracked = false;
+                        }
+                    }
+
+                    /** TODO 
+                    var drift = updateFragPTSDTS(level.details, frag, data.startPTS, data.endPTS, data.startDTS, data.endDTS),
+                    hls = this.hls;
+                    hls.trigger(events[].LEVEL_PTS_UPDATED, { details: level.details, level: this.level, drift: drift, type: data.type, start: data.startPTS, end: data.endPTS });
+                    // has remuxer dropped video frames located before first keyframe ?
                     */
-
-                    this.mp4segments.push({
-                        type: data.type,
-                        data: data.moof
-                    });
-                    this.mp4segments.push({
-                        type: data.type,
-                        data: data.mdat
-                    });
-
-                    this.bufferRange.push({
-                        type: data.type,
-                        start: data.startPTS,
-                        end: data.endPTS,
-                        frag: frag
+                    [data.data1, data.data2].forEach(function (buffer) {
+                        // only append in PARSING state (rationale is that an appending error could happen synchronously on first segment appending)
+                        // in that case it is useless to append following segments
+                        if ( buffer && buffer.length && self.state === STATE.PARSING) {
+                            self.appended = true;
+                            // arm pending Buffering flag before appending a segment
+                            self.pendingBuffering = true;
+                            self.pushTrack( { type: data.type, data: buffer, parent: 'main', content: 'data' } )
+                        }
                     });
                     this.tick();
                 }
@@ -303,6 +368,150 @@ class HLStream extends AbstractStream{
                 }
                 break;
         }
+    }
+
+    checkPendingTracks(){
+        //pendingTracks只有在mediaSource未打开时才会创建
+        // try to create sourcebuffers if mediasource opened
+        // if any buffer codecs pending, check if we have enough to create sourceBuffers
+
+        var pendingTracks = this.pendingTracks || {},
+            pendingTracksNb = Object.keys(pendingTracks).length;
+        // if any pending tracks and (if nb of pending tracks gt or equal than expected nb or if unknown expected nb)
+        if (pendingTracksNb && (this.sourceBufferNb <= pendingTracksNb || this.sourceBufferNb === 0)) {
+          // ok, let's create them now !
+          this.createSourceBuffers(pendingTracks);
+          this.pendingTracks = {};
+          // append any pending segments now !
+          this.doAppending();
+        }
+    }
+
+    /**
+     * @param {Object} track
+     * { type: trackName, data: initSegment, parent: 'main', content: 'initSegment/data' }
+     */
+    pushTrack( track ){
+        if (!this._needsFlush) {
+            if (!this.segments) {
+                this.segments = [ track ];
+            } else {
+                this.segments.push( track );
+            }
+            this.doAppending();
+        }
+    }
+
+    doAppending(){
+        let hls = this.hls, sourceBuffer = this.sourceBuffer, segments = this.segments;
+        if (Object.keys(sourceBuffer).length) {
+            if (this.media.error) {
+                this.segments = [];
+                window.debug && console.error('trying to append although a media error occured, flush segment and abort');
+                return;
+            }
+            if (this.appending) {
+                // window.debug && console.log(`sb appending in progress`);
+                return;
+            }
+            if (segments && segments.length) {
+                let segment = segments.shift();
+                try {
+                    let type = segment.type, sb = sourceBuffer[type];
+                    if (sb) {
+                        if (!sb.updating) {
+                            // reset sourceBuffer ended flag before appending segment
+                            sb.ended = false;
+                            // window.debug && console.log(`appending ${segment.content} ${type} SB, size:${segment.data.length}, ${segment.parent}`);
+                            this.parent = segment.parent;
+                            console.log("appendBuffer:", segment)
+                            sb.appendBuffer(segment.data);
+                            this.appendError = 0;
+                            this.appended++;
+                            this.appending = true;
+                        } else {
+                            segments.unshift(segment);
+                        }
+                    } else {
+                        // in case we don't have any source buffer matching with this segment type,
+                        // it means that Mediasource fails to create sourcebuffer
+                        // discard this segment, and trigger update end
+                        this.onSBUpdateEnd();
+                    }
+                } catch (err) {
+                    // in case any error occured while appending, put back segment in segments table
+                    window.debug && console.error(`error while trying to append buffer:${err.message}`);
+                    segments.unshift(segment);
+                    let event = { type: ErrorTypes.MEDIA_ERROR, parent: segment.parent };
+                    if (err.code !== 22) {
+                    if (this.appendError) {
+                    this.appendError++;
+                    } else {
+                    this.appendError = 1;
+                    }
+
+                    event.details = ErrorDetails.BUFFER_APPEND_ERROR;
+                    /* with UHD content, we could get loop of quota exceeded error until
+                    browser is able to evict some data from sourcebuffer. retrying help recovering this
+                    */
+                    if (this.appendError > hls.config.appendErrorMaxRetry) {
+                            window.debug && console.log(`fail ${hls.config.appendErrorMaxRetry} times to append segment in sourceBuffer`);
+                            segments = [];
+                            event.fatal = true;
+                            hls.trigger(Event.ERROR, event);
+                        } else {
+                            event.fatal = false;
+                            hls.trigger(Event.ERROR, event);
+                        }
+                    } else {
+                        // QuotaExceededError: http://www.w3.org/TR/html5/infrastructure.html#quotaexceedederror
+                        // let's stop appending any segments, and report BUFFER_FULL_ERROR error
+                        this.segments = [];
+                        event.details = ErrorDetails.BUFFER_FULL_ERROR;
+                        event.fatal = false;
+                        hls.trigger(Event.ERROR, event);
+                    }
+                }
+            }else{
+                console.log("没内容可更新了")
+                if( this._state != STATE.FRAG_LOADING ){
+                    this._state = STATE.IDLE;
+                    this.tick();
+                }
+                
+            }
+        }
+    }
+
+    onSBUpdateEnd(){
+
+    }
+
+    
+    createSourceBuffers( tracks ){
+        let sourceBuffer = this.sourceBuffer, 
+            mediaSource = this.mediaSource;
+
+        for (let trackName in tracks) {
+          if (!sourceBuffer[trackName]) {
+            let track = tracks[trackName];
+            // use levelCodec as first priority
+            let codec = track.levelCodec || track.codec;
+            let mimeType = `${track.container};codecs=${codec}`;
+            window.debug && console.log(`creating sourceBuffer(${mimeType})`);
+            try {
+              let sb = sourceBuffer[trackName] = mediaSource.addSourceBuffer(mimeType);
+              sb.addEventListener('updateend', this.evtOnSourceBufferEvent);
+              sb.addEventListener('error', this.evtOnSourceBufferEvent);
+              this.tracks[trackName] = { codec: codec, container: track.container };
+              track.buffer = sb;
+            } catch (err) {
+              //window.debug && console.error(`error while trying to add sourceBuffer:${err.message}`);
+              //this.hls.trigger(Event.ERROR, { type: ErrorTypes.MEDIA_ERROR, details: ErrorDetails.BUFFER_ADD_CODEC_ERROR, fatal: false, err: err, mimeType: mimeType });
+            }
+          }
+        }
+        //this.hls.trigger(Event.BUFFER_CREATED, { tracks: tracks });
     }
 	
     startLoad(){
@@ -321,7 +530,7 @@ class HLStream extends AbstractStream{
 
 
 	async load(){
-        request.cancel();
+        //request.cancel();
         
 		console.log("HLStream.load", this.option.url )
 		let content =  await request.get( this.option.url );
@@ -376,6 +585,22 @@ class HLStream extends AbstractStream{
         });
         this._levels = levels;
 
+        /*
+
+        var audioExpected = data.audio,
+        videoExpected = data.video || data.levels.length && data.altAudio,
+        sourceBufferNb = 0;
+        // in case of alt audio 2 BUFFER_CODECS events will be triggered, one per stream controller
+        // sourcebuffers will be created all at once when the expected nb of tracks will be reached
+        // in case alt audio is not used, only one BUFFER_CODEC event will be fired from main stream controller
+        // it will contain the expected nb of source buffers, no need to compute it
+        if (data.altAudio && (audioExpected || videoExpected)) {
+          sourceBufferNb = (audioExpected ? 1 : 0) + (videoExpected ? 1 : 0);  
+        }
+        */
+        this.sourceBufferNb = 0;
+
+
 		console.log("_levels", this._levels)
 		this._state = STATE.IDLE;
 		this.tick();
@@ -384,6 +609,7 @@ class HLStream extends AbstractStream{
 	async loadFrag( frag ){
         console.time("[TIME]loadfrag");
         this._state = STATE.FRAG_LOADING;
+        request.cancel();
 		let data = await request.get( frag.url, {responseType: 'arraybuffer','method':'get'} );
         console.timeEnd("[TIME]loadfrag");
 		var uint8 = new Uint8Array( data );
@@ -482,7 +708,7 @@ class HLStream extends AbstractStream{
                         if (bufferEnd < end) {
                             foundFrag = BinarySearch.search(fragments,
                             function(candidate) {
-                                //logger.log(`level/sn/start/end/bufEnd:${level}/${candidate.sn}/${candidate.start}/${(candidate.start+candidate.duration)}/${bufferEnd}`);
+                                //window.debug && console.log(`level/sn/start/end/bufEnd:${level}/${candidate.sn}/${candidate.start}/${(candidate.start+candidate.duration)}/${bufferEnd}`);
                                 // offset should be within fragment boundary
                                 if (candidate.start + candidate.duration <= bufferEnd) {
                                     return 1;
@@ -497,7 +723,7 @@ class HLStream extends AbstractStream{
                         if( foundFrag ){
                             _frag = foundFrag;
                             start = foundFrag.start;
-                            //logger.log('find SN matching with pos:' +  bufferEnd + ':' + frag.sn);
+                            //window.debug && console.log('find SN matching with pos:' +  bufferEnd + ':' + frag.sn);
                             if (fragPrevious && _frag.level === fragPrevious.level && _frag.sn === fragPrevious.sn) {
                                 if (_frag.sn < levelDetails.endSN) {
                                     _frag = fragments[_frag.sn + 1 - levelDetails.startSN];
@@ -534,9 +760,6 @@ class HLStream extends AbstractStream{
                         }
                     }
                 }
-
-
-				
 				break;
             case STATE.PARSING:
                 //等待状态变为parsed
@@ -555,7 +778,7 @@ class HLStream extends AbstractStream{
                     }else if( this.mp4segments.length ){
                         var segment = this.mp4segments.shift();
                         try {
-                            //logger.log(`appending ${segment.type} SB, size:${segment.data.length});
+                            //window.debug && console.log(`appending ${segment.type} SB, size:${segment.data.length});
                             console.time("TIME[sourcebuffer]");
                             console.log("segment:", segment);
                             console.log("segment", segment.data, "length=", segment.data.length);
@@ -662,7 +885,7 @@ class HLStream extends AbstractStream{
         for (i = 0, bufferLen = 0, bufferStart = bufferEnd = pos; i < buffered2.length; i++) {
             var start = buffered2[i].start,
             end = buffered2[i].end;
-            //logger.log('buf start/end:' + buffered.start(i) + '/' + buffered.end(i));
+            //window.debug && console.log('buf start/end:' + buffered.start(i) + '/' + buffered.end(i));
             if (pos + maxHoleDuration >= start && pos < end) {
                 // play position is inside this buffer TimeRange, retrieve end of buffer position and buffer length
                 bufferStart = start;
@@ -720,12 +943,12 @@ class HLStream extends AbstractStream{
             if (toIdx > fromIdx) {
                 fragFrom.duration = fragToPTS - fragFrom.start;
                 if (fragFrom.duration < 0) {
-                    _utilsLogger.logger.error('negative duration computed for ' + fragFrom + ', there should be some duration drift between playlist and fragment!');
+                    _utilswindow.debug && console.window.debug && console.error('negative duration computed for ' + fragFrom + ', there should be some duration drift between playlist and fragment!');
                 }
             } else {
                 fragTo.duration = fragFrom.start - fragToPTS;
                 if (fragTo.duration < 0) {
-                    _utilsLogger.logger.error('negative duration computed for ' + fragTo + ', there should be some duration drift between playlist and fragment!');
+                    _utilswindow.debug && console.window.debug && console.error('negative duration computed for ' + fragTo + ', there should be some duration drift between playlist and fragment!');
                 }
             }
         } else {
