@@ -4,10 +4,15 @@ import utils from '@/lib/core/utils';
 
 
 class VideoPlayer extends AbstractPlayer{
+	static VideoPlayerOptions = {
+		autoplay:true, 
+		playsinline:true,
+		
+	}
 	constructor( option ){
 		super( option );
 		console.log("videoplayer", option )
-		this.option = Object.assign({}, option );
+		this.option = Object.assign( Object.assign( {}, VideoPlayer.VideoPlayerOptions ), option );
 		this.initialize();
 	}
 
@@ -23,7 +28,7 @@ class VideoPlayer extends AbstractPlayer{
 			'<div class="fxp-control"></div>'
 		].join('');
 
-		let html = utils.compile(tpl)( {} );
+		let html = utils.compile(tpl)( this.option );
 
 		this._wrapper = document.createElement("div");
 		let target = this.option.target;

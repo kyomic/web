@@ -215,7 +215,7 @@ class HLStream extends AbstractStream{
         let self = this;
         switch( evt.type ){            
             case HLSEvent.FRAG_PARSING_INIT_SEGMENT:
-                const fragCurrent = this.fragCurrent;
+                var fragCurrent = this.fragCurrent;
                 const fragNew = data.frag;
                 data.id = 'main';//设置个id 干什么，多线程标识么
                 if (fragCurrent &&
@@ -285,7 +285,6 @@ class HLStream extends AbstractStream{
                 }
                 break;
             case HLSEvent.FRAG_PARSING_DATA:
-
                 var fragCurrent = this.fragCurrent;
                 var fragNew = data.frag;
                 data.id = 'main';
@@ -361,9 +360,17 @@ class HLStream extends AbstractStream{
                 }
                 break;
             case HLSEvent.FRAG_PARSED:
-                if (this._state === STATE.PARSING) {
+                var fragCurrent = this.fragCurrent;
+                var fragNew = data.frag;
+                data.id = 'main'
+                if (fragCurrent &&
+                    data.id === 'main' &&
+                    fragNew.sn === fragCurrent.sn &&
+                    fragNew.level === fragCurrent.level &&
+                    this._state === STATE.PARSING) {
+                  
                     this._state = STATE.PARSED;
-                    //trigger handler right now
+                    this._checkAppendedParsed();
                     this.tick();
                 }
                 break;
@@ -402,6 +409,26 @@ class HLStream extends AbstractStream{
         }
     }
 
+
+    /** 检测append的数据是否解析完 */
+    _checkAppendedParsed(){
+        // trigger handler right now
+        if (this._state === STATE.PARSED && (!this.appended || !this.pendingBuffering)) {
+            const frag = this.fragCurrent;
+            if (frag) {
+                const media = this.mediaBuffer ? this.mediaBuffer : this.media;                
+                this.fragPrevious = frag;
+                const stats = this.stats;
+                //stats.tbuffered = window.performance.now();
+                // we should get rid of this.fragLastKbps
+                //this.fragLastKbps = Math.round(8 * stats.total / (stats.tbuffered - stats.tfirst));
+                //this.hls.trigger(Event.FRAG_BUFFERED, { stats: stats, frag: frag, id: 'main' });
+                this._state = STATE.IDLE;
+            }
+            this.tick();
+
+        }
+    }
     doAppending(){
         let hls = this.hls, sourceBuffer = this.sourceBuffer, segments = this.segments;
         if (Object.keys(sourceBuffer).length) {
@@ -473,18 +500,21 @@ class HLStream extends AbstractStream{
                     }
                 }
             }else{
-                console.log("没内容可更新了")
-                if( this._state != STATE.FRAG_LOADING ){
-                    this._state = STATE.IDLE;
-                    this.tick();
-                }
+                
                 
             }
         }
     }
 
     onSBUpdateEnd(){
-
+        this.appending = false;
+        let parent = this.parent;
+        // count nb of pending segments waiting for appending on this sourcebuffer
+        //正和处理的segements数据
+        let pending = this.segments.reduce((counter, segment) => (segment.parent === parent) ? counter + 1 : counter, 0);
+        this.pendingBuffering = pending > 0;
+        this._checkAppendedParsed();
+        this.doAppending();
     }
 
     
@@ -680,7 +710,7 @@ class HLStream extends AbstractStream{
                     fragPrevious = this.fragPrevious,
                     maxBufLen;
                 var level = this._level;//暂只处理单码率
-                console.log("level", level)
+                
                 // compute max Buffer Length that we could get from this load level, based on level bitrate. don't buffer more than 60 MB and more than 30s
                 if (this._levels[level].hasOwnProperty('bitrate')) {
                     maxBufLen = Math.max(8 * this.option.maxBufferSize / this.levels[level].bitrate, this.option.maxBufferLength);
@@ -690,6 +720,7 @@ class HLStream extends AbstractStream{
                     maxBufLen = this.option.maxBufferLength;
                 }
                 let levelDetails = this._levels[level].details;;
+                console.log("level", level, "bufferLen", bufferLen)
                 if (bufferLen < maxBufLen ) {
                     
                     if( typeof levelDetails == 'undefined'){
@@ -765,7 +796,6 @@ class HLStream extends AbstractStream{
                 //等待状态变为parsed
                 break;
             case STATE.PARSED:
-            case STATE.APPENDING:
                 console.log("appendBuffer....")
                 if( this.sourceBuffer ){
                     if (this.media.error) {
@@ -816,9 +846,7 @@ class HLStream extends AbstractStream{
                             */
                         }
                     }
-                    this._state = STATE.APPENDING;
-                }else{
-                    this._state = STATE.IDLE;
+                    
                 }
                 break;
 
