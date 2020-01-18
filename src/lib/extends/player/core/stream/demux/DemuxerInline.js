@@ -1,5 +1,6 @@
 import { MP4Remuxer } from "../remux/MP4Remuxer";
-import { TSDemuxer } from "./index.js"
+import { PassThroughRemuxer } from '../remux/PassThroughRemuxer'
+import { TSDemuxer, MP4Demuxer } from "./index.js"
 class DemuxerInline{
 	/** 
 	 * @param {Object} observer - 绑定的侦听者
@@ -72,8 +73,8 @@ class DemuxerInline{
 			const config = this.config;
 			// probing order is TS/AAC/MP3/MP4
 			const muxConfig = [
-				{ demux: TSDemuxer, remux: MP4Remuxer }
-				//{ demux: MP4Demuxer, remux: PassThroughRemuxer },
+				{ demux: TSDemuxer, remux: MP4Remuxer },
+				{ demux: MP4Demuxer, remux: PassThroughRemuxer },
 				//{ demux: AACDemuxer, remux: MP4Remuxer },
 				//{ demux: MP3Demuxer, remux: MP4Remuxer }
 			];

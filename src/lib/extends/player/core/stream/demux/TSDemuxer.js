@@ -269,7 +269,7 @@ class TSDemuxer {
           }
 
           if (unknownPIDs && !pmtParsed) {
-            logger.log('reparse from beginning');
+            window.debug && console.log('reparse from beginning');
             unknownPIDs = false;
             // we set it to -188, the += 188 in the for loop will reset start to 0
             start = syncOffset - 188;
@@ -306,7 +306,7 @@ class TSDemuxer {
       audioTrack.pesData = null;
     } else {
       if (audioData && audioData.size) {
-        logger.log('last AAC PES packet truncated,might overlap between fragments');
+        window.debug && console.log('last AAC PES packet truncated,might overlap between fragments');
       }
 
       // either audioData null or PES truncated, keep it for next frag parsing
@@ -358,7 +358,7 @@ class TSDemuxer {
   _parsePAT (data, offset) {
     // skip the PSI header and parse the first PMT entry
     return (data[offset + 10] & 0x1F) << 8 | data[offset + 11];
-    // logger.log('PMT PID:'  + this._pmtId);
+    // window.debug && console.log('PMT PID:'  + this._pmtId);
   }
 
   _parsePMT (data, offset, mpegSupported, isSampleAes) {
@@ -375,14 +375,14 @@ class TSDemuxer {
       switch (data[offset]) {
       case 0xcf: // SAMPLE-AES AAC
         if (!isSampleAes) {
-          logger.log('unkown stream type:' + data[offset]);
+          window.debug && console.log('unkown stream type:' + data[offset]);
           break;
         }
         /* falls through */
 
         // ISO/IEC 13818-7 ADTS AAC (MPEG-2 lower bit-rate audio)
       case 0x0f:
-        // logger.log('AAC PID:'  + pid);
+        // window.debug && console.log('AAC PID:'  + pid);
         if (result.audio === -1) {
           result.audio = pid;
         }
@@ -391,7 +391,7 @@ class TSDemuxer {
 
         // Packetized metadata (ID3)
       case 0x15:
-        // logger.log('ID3 PID:'  + pid);
+        // window.debug && console.log('ID3 PID:'  + pid);
         if (result.id3 === -1) {
           result.id3 = pid;
         }
@@ -400,14 +400,14 @@ class TSDemuxer {
 
       case 0xdb: // SAMPLE-AES AVC
         if (!isSampleAes) {
-          logger.log('unkown stream type:' + data[offset]);
+          window.debug && console.log('unkown stream type:' + data[offset]);
           break;
         }
         /* falls through */
 
         // ITU-T Rec. H.264 and ISO/IEC 14496-10 (lower bit-rate video)
       case 0x1b:
-        // logger.log('AVC PID:'  + pid);
+        // window.debug && console.log('AVC PID:'  + pid);
         if (result.avc === -1) {
           result.avc = pid;
         }
@@ -418,9 +418,9 @@ class TSDemuxer {
         // or ISO/IEC 13818-3 (MPEG-2 halved sample rate audio)
       case 0x03:
       case 0x04:
-        // logger.log('MPEG PID:'  + pid);
+        // window.debug && console.log('MPEG PID:'  + pid);
         if (!mpegSupported) {
-          logger.log('MPEG audio found, not supported in this browser for now');
+          window.debug && console.log('MPEG audio found, not supported in this browser for now');
         } else if (result.audio === -1) {
           result.audio = pid;
           result.isAAC = false;
@@ -428,11 +428,11 @@ class TSDemuxer {
         break;
 
       case 0x24:
-        logger.warn('HEVC stream type found, not supported for now');
+        window.debug && console.warn('HEVC stream type found, not supported for now');
         break;
 
       default:
-        logger.log('unkown stream type:' + data[offset]);
+        window.debug && console.log('unkown stream type:' + data[offset]);
         break;
       }
       // move to the next table entry
@@ -497,7 +497,7 @@ class TSDemuxer {
             pesDts -= 8589934592;
           }
           if (pesPts - pesDts > 60 * 90000) {
-            logger.warn(`${Math.round((pesPts - pesDts) / 90000)}s delta between PTS and DTS, align them`);
+            window.debug && console.warn(`${Math.round((pesPts - pesDts) / 90000)}s delta between PTS and DTS, align them`);
             pesPts = pesDts;
           }
         } else {
@@ -558,12 +558,12 @@ class TSDemuxer {
       }
     }
     if (avcSample.debug.length) {
-      logger.log(avcSample.pts + '/' + avcSample.dts + ':' + avcSample.debug);
+      window.debug && console.log(avcSample.pts + '/' + avcSample.dts + ':' + avcSample.debug);
     }
   }
 
   _parseAVCPES (pes, last) {
-    // logger.log('parse new PES');
+    // window.debug && console.log('parse new PES');
     let track = this._avcTrack,
       units = this._parseAVCNALu(pes.data),
       debug = false,
@@ -814,7 +814,7 @@ class TSDemuxer {
   _parseAVCNALu (array) {
     let i = 0, len = array.byteLength, value, overflow, track = this._avcTrack, state = track.naluState || 0, lastState = state;
     let units = [], unit, unitType, lastUnitStart = -1, lastUnitType;
-    // logger.log('PES:' + Hex.hexDump(array));
+    // window.debug && console.log('PES:' + Hex.hexDump(array));
 
     if (state === -1) {
     // special use case where we found 3 or 4-byte start codes exactly at the end of previous PES packet
@@ -842,7 +842,7 @@ class TSDemuxer {
       } else if (value === 1) {
         if (lastUnitStart >= 0) {
           unit = { data: array.subarray(lastUnitStart, i - state - 1), type: lastUnitType };
-          // logger.log('pushing NALU, type/size:' + unit.type + '/' + unit.data.byteLength);
+          // window.debug && console.log('pushing NALU, type/size:' + unit.type + '/' + unit.data.byteLength);
           units.push(unit);
         } else {
           // lastUnitStart is undefined => this is the first start code found in this PES packet
@@ -863,7 +863,7 @@ class TSDemuxer {
             // If NAL units are not starting right at the beginning of the PES packet, push preceding data into previous NAL unit.
             overflow = i - state - 1;
             if (overflow > 0) {
-              // logger.log('first NALU found with overflow:' + overflow);
+              // window.debug && console.log('first NALU found with overflow:' + overflow);
               let tmp = new Uint8Array(lastUnit.data.byteLength + overflow);
               tmp.set(lastUnit.data, 0);
               tmp.set(array.subarray(0, overflow), lastUnit.data.byteLength);
@@ -874,7 +874,7 @@ class TSDemuxer {
         // check if we can read unit type
         if (i < len) {
           unitType = array[i] & 0x1f;
-          // logger.log('find NALU @ offset:' + i + ',type:' + unitType);
+          // window.debug && console.log('find NALU @ offset:' + i + ',type:' + unitType);
           lastUnitStart = i;
           lastUnitType = unitType;
           state = 0;
@@ -889,7 +889,7 @@ class TSDemuxer {
     if (lastUnitStart >= 0 && state >= 0) {
       unit = { data: array.subarray(lastUnitStart, len), type: lastUnitType, state: state };
       units.push(unit);
-      // logger.log('pushing NALU, type/size/state:' + unit.type + '/' + unit.data.byteLength + '/' + state);
+      // window.debug && console.log('pushing NALU, type/size/state:' + unit.type + '/' + unit.data.byteLength + '/' + state);
     }
     // no NALu found
     if (units.length === 0) {
@@ -962,7 +962,7 @@ class TSDemuxer {
       let tmp = new Uint8Array(aacOverFlow.byteLength + data.byteLength);
       tmp.set(aacOverFlow, 0);
       tmp.set(data, aacOverFlow.byteLength);
-      // logger.log(`AAC: append overflowing ${aacOverFlow.byteLength} bytes to beginning of new PES`);
+      // window.debug && console.log(`AAC: append overflowing ${aacOverFlow.byteLength} bytes to beginning of new PES`);
       data = tmp;
     }
     // look for ADTS header (0xFFFx)
@@ -981,7 +981,7 @@ class TSDemuxer {
         reason = 'no ADTS header found in AAC PES';
         fatal = true;
       }
-      logger.warn(`parsing error:${reason}`);
+      window.debug && console.warn(`parsing error:${reason}`);
       this.observer.trigger(Event.ERROR, { type: ErrorTypes.MEDIA_ERROR, details: ErrorDetails.FRAG_PARSING_ERROR, fatal: fatal, reason: reason });
       if (fatal) {
         return;
@@ -997,7 +997,7 @@ class TSDemuxer {
     if (aacOverFlow && aacLastPTS) {
       let newPTS = aacLastPTS + frameDuration;
       if (Math.abs(newPTS - pts) > 1) {
-        logger.log(`AAC: align PTS for overlapping frames by ${Math.round((newPTS - pts) / 90)}`);
+        window.debug && console.log(`AAC: align PTS for overlapping frames by ${Math.round((newPTS - pts) / 90)}`);
         pts = newPTS;
       }
     }
@@ -1007,12 +1007,12 @@ class TSDemuxer {
       if (ADTS.isHeader(data, offset) && (offset + 5) < len) {
         let frame = ADTS.appendFrame(track, data, offset, pts, frameIndex);
         if (frame) {
-          // logger.log(`${Math.round(frame.sample.pts)} : AAC`);
+          // window.debug && console.log(`${Math.round(frame.sample.pts)} : AAC`);
           offset += frame.length;
           stamp = frame.sample.pts;
           frameIndex++;
         } else {
-          // logger.log('Unable to parse AAC frame');
+          // window.debug && console.log('Unable to parse AAC frame');
           break;
         }
       } else {
@@ -1023,7 +1023,7 @@ class TSDemuxer {
 
     if (offset < len) {
       aacOverFlow = data.subarray(offset, len);
-      // logger.log(`AAC: overflow detected:${len-offset}`);
+      // window.debug && console.log(`AAC: overflow detected:${len-offset}`);
     } else {
       aacOverFlow = null;
     }
@@ -1046,7 +1046,7 @@ class TSDemuxer {
           offset += frame.length;
           frameIndex++;
         } else {
-          // logger.log('Unable to parse Mpeg audio frame');
+          // window.debug && console.log('Unable to parse Mpeg audio frame');
           break;
         }
       } else {

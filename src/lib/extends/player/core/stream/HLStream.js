@@ -513,7 +513,7 @@ class HLStream extends AbstractStream{
         //正和处理的segements数据
         let pending = this.segments.reduce((counter, segment) => (segment.parent === parent) ? counter + 1 : counter, 0);
         this.pendingBuffering = pending > 0;
-        this._checkAppendedParsed();
+        
         this.doAppending();
     }
 

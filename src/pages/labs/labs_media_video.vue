@@ -1,6 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="imglayer" ref="imglayer">
+      <input type="file" @change="onChange($event)" />
     </div>
     <div class="controls">
       
@@ -23,8 +24,10 @@ import bufferUtils from '@/lib/extends/img/bufferUtils';
 import utils from '@/lib/core/utils'
 
 import WebVideo from '@/lib/extends/player/WebVideo'
-import { HLStream } from '@/lib/extends/player/core/stream';
+import { HLStream, BufferStream } from '@/lib/extends/player/core/stream';
+import { FileReferenceProvider } from '@/lib/extends/player/data'
 let mountedId = 0;
+let player = null;
 export default {
   name: 'HelloWorld',
   components:{},
@@ -43,17 +46,24 @@ export default {
     }
   },
   methods:{
-    
+    onChange(e){
+      let file = e.target;
+      let files = file.files || [];
+      if( files.length ){
+        let stream = new BufferStream( new FileReferenceProvider( { files:files } ) )
+        player.attachStream( stream );
+        player.play();
+      }
+       
+    }
   },
   mounted(){  
     //整出个bug,多次mounted的问题
     clearTimeout( mountedId )
     mountedId = setTimeout( _=>{
       var dom = document.querySelector(".imglayer")
-      let v = new WebVideo({target: dom})    
-      let stream = new HLStream( { url:"http://web.fun.tv/demo/test2.m3u8"} )
-      v.attachStream( stream );
-      v.play(); 
+      player= new WebVideo({target: dom})    
+      
     },2000)
        
     
