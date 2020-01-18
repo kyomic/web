@@ -13,6 +13,9 @@ request.get = ( url, option ) =>{
 	if( !/https?/ig.exec(url)){
 		url = config.api + url;
 	}
+	if( /mp4/i.exec(url)){
+		axios.defaults.withCredentials=false;
+	}
 	let params = Object.assign({}, option);
 	params = Object.assign({}, params );
 	params.url = url;

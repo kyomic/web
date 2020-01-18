@@ -661,11 +661,17 @@ class HLStream extends AbstractStream{
         let mediaSeeking = this.media && this.media.seeking;
         /** 是否精准*/
         let accurateTimeOffset = !mediaSeeking && (details.PTSKnown || !details.live);
-
-        //push (data, initSegment, audioCodec, videoCodec, frag, duration, accurateTimeOffset, defaultInitPTS) {
-        let initSegmentData = details.initSegment ? details.initSegment.data : [];
-        this.demuxer.push( uint8, initSegmentData, audioCodec, videoCodec, fragCurrent, duration, accurateTimeOffset, undefined );
-        //this.push( uint8, audioCodec, videoCodec, start, this.fragCurrent.cc , level, sn, duration , this.fragCurrent.decryptdata );
+        if( fragCurrent.sn == 'initSegment'){
+            details.initSegment.data = uint8;
+            this._state = STATE.IDLE;
+            this.tick();
+        }else{
+            //push (data, initSegment, audioCodec, videoCodec, frag, duration, accurateTimeOffset, defaultInitPTS) {
+            let initSegmentData = details.initSegment ? details.initSegment.data : [];
+            this.demuxer.push( uint8, initSegmentData, audioCodec, videoCodec, fragCurrent, duration, accurateTimeOffset, undefined );
+            //this.push( uint8, audioCodec, videoCodec, start, this.fragCurrent.cc , level, sn, duration , this.fragCurrent.decryptdata );
+        }
+        
 		
 	}
 
@@ -751,6 +757,10 @@ class HLStream extends AbstractStream{
                         }else{
                             foundFrag = fragments[fragLen - 1];// reach end of playlist
                         }
+                        if( levelDetails.initSegment && !levelDetails.initSegment.data ){
+                            //mp4初始frag
+                            foundFrag = levelDetails.initSegment;
+                        }
                         if( foundFrag ){
                             _frag = foundFrag;
                             start = foundFrag.start;
@@ -781,7 +791,7 @@ class HLStream extends AbstractStream{
                         }
 
                         if( _frag ){
-                            if (_frag.decryptdata.uri != null && _frag.decryptdata.key == null) {
+                            if ( _frag.decryptdata && _frag.decryptdata.uri != null && _frag.decryptdata.key == null) {
                                 //TODO,有加密段
                             }else{
                                 this.fragCurrent = _frag;
@@ -845,6 +855,9 @@ class HLStream extends AbstractStream{
                             }
                             */
                         }
+                    }else{
+                        this._state = STATE.IDLE;
+                        this.tick();
                     }
                     
                 }

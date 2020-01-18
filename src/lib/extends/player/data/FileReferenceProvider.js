@@ -18,7 +18,8 @@ class FileReferenceProvider extends BufferProvider{
 		if( value && value.length ){
 			this._files = value;
 			this._file = this._files[0];
-			this._bytesTotal = this._file.size;			
+			this._bytesTotal = this._file.size;		
+			this._blockSize = this._bytesTotal;	
 			this.slice = this._file.slice || this._file.webkitSlice || this._file.mozSlice;
 			setTimeout(_=>{
 				this.trigger('load', { files: this._files, file: this._file } );

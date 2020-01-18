@@ -50,7 +50,8 @@ export default {
       let file = e.target;
       let files = file.files || [];
       if( files.length ){
-        let stream = new BufferStream( new FileReferenceProvider( { files:files } ) )
+        //let stream = new BufferStream( new FileReferenceProvider( { files:files } ) )
+        let stream = new HLStream({url:"http://web.fun.tv/demo/playlist_v-0144p-0100k-libx264.m3u8"})
         player.attachStream( stream );
         player.play();
       }
