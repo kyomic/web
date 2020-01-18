@@ -132,7 +132,7 @@ class HLStream extends AbstractStream{
                     this.media.currentTime = this.startPosition;
                 }
                 this.loadedmetadata = true;
-                this.tick();
+                //this.tick();
                 break;
         }
     }
@@ -156,6 +156,7 @@ class HLStream extends AbstractStream{
     }
 
     onSourceBufferEvent( evt ){
+        console.log("onSourceBufferEvent:", evt.type)
         switch(evt.type){
             case "updateend":
                 //流更新后，发现无可用字节                
@@ -513,7 +514,7 @@ class HLStream extends AbstractStream{
         //正和处理的segements数据
         let pending = this.segments.reduce((counter, segment) => (segment.parent === parent) ? counter + 1 : counter, 0);
         this.pendingBuffering = pending > 0;
-        
+        this._checkAppendedParsed();
         this.doAppending();
     }
 
@@ -531,12 +532,13 @@ class HLStream extends AbstractStream{
             window.debug && console.log(`creating sourceBuffer(${mimeType})`);
             try {
               let sb = sourceBuffer[trackName] = mediaSource.addSourceBuffer(mimeType);
+              console.log("bind source event")
               sb.addEventListener('updateend', this.evtOnSourceBufferEvent);
               sb.addEventListener('error', this.evtOnSourceBufferEvent);
-              this.tracks[trackName] = { codec: codec, container: track.container };
+              //this.tracks[trackName] = { codec: codec, container: track.container };
               track.buffer = sb;
             } catch (err) {
-              //window.debug && console.error(`error while trying to add sourceBuffer:${err.message}`);
+              window.debug && console.error(`error while trying to add sourceBuffer:${err.message}`);
               //this.hls.trigger(Event.ERROR, { type: ErrorTypes.MEDIA_ERROR, details: ErrorDetails.BUFFER_ADD_CODEC_ERROR, fatal: false, err: err, mimeType: mimeType });
             }
           }
@@ -815,6 +817,7 @@ class HLStream extends AbstractStream{
                     }
                     // if MP4 segment appending in progress nothing to do
                     if (this.sourceBuffer.audio && this.sourceBuffer.audio.updating || this.sourceBuffer.video && this.sourceBuffer.video.updating) {
+                        console.log("updating....")
                     }else if( this.mp4segments.length ){
                         var segment = this.mp4segments.shift();
                         try {
