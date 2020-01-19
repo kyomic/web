@@ -8,3 +8,5 @@ export const ErrorTypes = {
 export const ErrorCodes = {
 
 }
+
+export const ErrorDetails = {}

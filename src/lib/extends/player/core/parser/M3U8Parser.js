@@ -72,7 +72,9 @@ class M3U8Parser{
             uri: null
         };
         //regexp = /(?:#EXT-X-(MEDIA-SEQUENCE):(\d+))|(?:#EXT-X-(TARGETDURATION):(\d+))|(?:#EXT-X-(KEY):(.*))|(?:#EXT(INF):([\d\.]+)[^\r\n]*([\r\n]+[^#|\r\n]+)?)|(?:#EXT-X-(BYTERANGE):([\d]+[@[\d]*)]*[\r\n]+([^#|\r\n]+)?|(?:#EXT-X-(ENDLIST))|(?:#EXT-X-(DIS)CONTINUITY))/g;
-        regexp = /(?:#EXT-X-(MEDIA-SEQUENCE):(\d+))|(?:#EXT-X-(TARGETDURATION):(\d+))|(?:#EXT-X-(KEY):(.*))|(?:#EXT(INF):([\d\.]+)[^\r\n]*(([\r\n]#[^#|\r\n]*)*)([\r\n]+[^#|\r\n]+)?)|(?:#EXT-X-(BYTERANGE):([\d]+[@[\d]*)]*[\r\n]+([^#|\r\n]+)?|(?:#EXT-X-(ENDLIST))|(?:#EXT-X-(DIS)CONTINUITY))|(?:#EXT-X-(MAP)\:URI="([^"]+)")/g;
+
+        //#EXTINF:10.0,1579425639-1-1578441923.hls.ts
+        regexp = /(?:#EXT-X-(MEDIA-SEQUENCE):(\d+))|(?:#EXT-X-(TARGETDURATION):(\d+))|(?:#EXT-X-(KEY):(.*))|(?:#EXT(INF):([\d\.]+)[^\r\n,]*(([\r\n,]#?[^#|\r\n]*)*)([\r\n]+[^#|\r\n]+)?)|(?:#EXT-X-(BYTERANGE):([\d]+[@[\d]*)]*[\r\n]+([^#|\r\n]+)?|(?:#EXT-X-(ENDLIST))|(?:#EXT-X-(DIS)CONTINUITY))|(?:#EXT-X-(MAP)\:URI="([^"]+)")/g;
         var idx = 0;
         while ((result = regexp.exec(string)) !== null) {
             result.shift();
@@ -121,9 +123,14 @@ class M3U8Parser{
                     } else {
                         fragdecryptdata = levelkey;
                     }
+                    var url = result[2] ? (result[4] ? urls.resolve(result[4], baseurl) : null) : (result[3] ? urls.resolve(result[3], baseurl) : null);
+                    if( !url && result[2]){
+                        url = result[2];
+                    }
+                    url = url ? url.replace(',','') : url;
                     level.fragments.push({
                         //url: result[2] ? urls.resolve(result[2], baseurl) : null,
-                        url: result[2] ? (result[4] ? urls.resolve(result[4], baseurl) : null) : (result[3] ? urls.resolve(result[3], baseurl) : null),
+                        url: url,
                         duration: duration,
                         start: totalduration,
                         sn: sn,
@@ -249,7 +256,14 @@ class M3U8Parser{
         return levels;
     }
 
-    parse( string, url ){
+    parse( string, url ){        
+        if( /proxy\.php/.exec(url)){
+            try{
+                url = (/[\?&]url\=([^\?&]+)/i).exec(url)[1];
+                url = decodeURIComponent( url )
+            }catch(e){
+            }
+        }
         let baseurl = url;
         if (string.indexOf('#EXTM3U') === 0) {
             if (string.indexOf('#EXTINF:') > 0) {

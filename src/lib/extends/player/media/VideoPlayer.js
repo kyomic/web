@@ -5,14 +5,16 @@ import utils from '@/lib/core/utils';
 
 class VideoPlayer extends AbstractPlayer{
 	static VideoPlayerOptions = {
-		autoplay:true, 
+		//是否自动播放
+		autoplay:true,
+		//是否内联播放 
 		playsinline:true,
 		
 	}
 	constructor( option ){
-		super( option );
-		console.log("videoplayer", option )
+		super( option );		
 		this.option = Object.assign( Object.assign( {}, VideoPlayer.VideoPlayerOptions ), option );
+		console.log("videoplayer", option )
 		this.initialize();
 	}
 
@@ -52,6 +54,9 @@ class VideoPlayer extends AbstractPlayer{
 	}
 
 	play(){
+		if( !this.stream ){
+			throw new Error("*** 请先设置流: video.attachStream ***")
+		}
 		this.stream.play();
 	}
 	get wrapper(){

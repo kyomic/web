@@ -1,5 +1,4 @@
 import EventEmitter from 'event-emitter'
-
 import VideoPlayer from './media/VideoPlayer';
 
 class WebVideo{
@@ -14,8 +13,9 @@ class WebVideo{
 	}
 
 	play(){
-		console.log("#############play")
 		this.video.play();
 	}
+
+	static events = ['play', 'playing', 'pause', 'ended', 'error', 'seeking', 'seeked','timeupdate', 'waiting', 'canplay', 'canplaythrough', 'durationchange', 'volumechange', 'loadeddata', 'loadedmetadata'];
 }
 export default WebVideo;

@@ -442,52 +442,7 @@ class TSDemuxer {
     }
     return result;
   }
-  //ccav版本
-  _parsePES( e ){
 
-    var t, r, i, a, n, o, s, l, u = 0, d = e.data;
-    if (!e || 0 === e.size)
-        return null;
-    for (; d[0].length < 19 && 1 < d.length; ) {
-        var f = new Uint8Array(d[0].length + d[1].length);
-        f.set(d[0]),
-        f.set(d[1], d[0].length),
-        d[0] = f,
-        d.splice(1, 1)
-    }
-    if (1 !== ((t = d[0])[0] << 16) + (t[1] << 8) + t[2])
-        return null;
-    if ((i = (t[4] << 8) + t[5]) && i > e.size - 6)
-        return null;
-    192 & (r = t[7]) && (4294967295 < (o = 536870912 * (14 & t[9]) + 4194304 * (255 & t[10]) + 16384 * (254 & t[11]) + 128 * (255 & t[12]) + (254 & t[13]) / 2) && (o -= 8589934592),
-    64 & r ? (4294967295 < (s = 536870912 * (14 & t[14]) + 4194304 * (255 & t[15]) + 16384 * (254 & t[16]) + 128 * (255 & t[17]) + (254 & t[18]) / 2) && (s -= 8589934592),
-    54e5 < o - s && (k.logger.warn(Math.round((o - s) / 9e4) + "s delta between PTS and DTS, align them"),
-    o = s)) : s = o),
-    l = (a = t[8]) + 9,
-    e.size -= l,
-    n = new Uint8Array(e.size);
-    for (var c = 0, h = d.length; c < h; c++) {
-        var p = (t = d[c]).byteLength;
-        if (l) {
-            if (p < l) {
-                l -= p;
-                continue
-            }
-            t = t.subarray(l),
-            p -= l,
-            l = 0
-        }
-        n.set(t, u),
-        u += p
-    }
-    return i && (i -= a + 3),
-    {
-        data: n,
-        pts: o,
-        dts: s,
-        len: i
-    }
-  }
   _parsePES (stream) {
     let i = 0, frag, pesFlags, pesPrefix, pesLen, pesHdrLen, pesData, pesPts, pesDts, payloadStartOffset, data = stream.data;
     // safety check
@@ -759,9 +714,6 @@ class TSDemuxer {
         }
 
         if (!track.sps) {
-          //ccav干的坏事
-          unit.data[2] = 254 & unit.data[2]
-          //ccav干的坏事
           expGolombDecoder = new ExpGolomb(unit.data);
           let config = expGolombDecoder.readSPS();
           track.width = config.width;

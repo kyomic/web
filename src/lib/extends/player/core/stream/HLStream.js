@@ -642,7 +642,11 @@ class HLStream extends AbstractStream{
         console.time("[TIME]loadfrag");
         this._state = STATE.FRAG_LOADING;
         request.cancel();
-		let data = await request.get( frag.url, {responseType: 'arraybuffer','method':'get'} );
+        if( !/http/.exec(frag.url) && window.debughost ){
+            frag.url = window.debughost + frag.url;
+        }
+        let url = ' http://web.fun.tv/proxy.php?url=' + encodeURIComponent( frag.url );
+		let data = await request.get( url, {responseType: 'arraybuffer','method':'get'} );
         console.timeEnd("[TIME]loadfrag");
 		var uint8 = new Uint8Array( data );
 		//console.log(data)
@@ -663,7 +667,7 @@ class HLStream extends AbstractStream{
         let mediaSeeking = this.media && this.media.seeking;
         /** 是否精准*/
         let accurateTimeOffset = !mediaSeeking && (details.PTSKnown || !details.live);
-        if( fragCurrent.sn == 'initSegment'){
+        if( fragCurrent.sn == 'initSegment' ){
             details.initSegment.data = uint8;
             this._state = STATE.IDLE;
             this.tick();

@@ -59,10 +59,11 @@ class Demuxer {
     // refer to https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/navigator
     const vendor = navigator.vendor;
     if (config.enableWorker && (typeof (Worker) !== 'undefined')) {
+     
       window.debug && console.log('demuxing in webworker');
       let w;
       try {
-        w = this.w = work(require.resolve('../demux/demuxer-worker.js'));
+        w = this.w = work(require.resolve('./demuxer-worker.js'));
         this.onwmsg = this.onWorkerMessage.bind(this);
         w.addEventListener('message', this.onwmsg);
         w.onerror = function (event) {

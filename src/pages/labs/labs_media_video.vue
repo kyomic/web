@@ -24,7 +24,7 @@ import bufferUtils from '@/lib/extends/img/bufferUtils';
 import utils from '@/lib/core/utils'
 
 import WebVideo from '@/lib/extends/player/WebVideo'
-import { HLStream, BufferStream } from '@/lib/extends/player/core/stream';
+import { HLStream, BufferStream,URLStream } from '@/lib/extends/player/core/stream';
 import { FileReferenceProvider } from '@/lib/extends/player/data'
 let mountedId = 0;
 let player = null;
@@ -49,9 +49,18 @@ export default {
     onChange(e){
       let file = e.target;
       let files = file.files || [];
-      if( files.length ){
+      if( files.length || true ){
+        window.debughost = "https://cctv5alih5c.v.myalicdn.com/";
+        window.debugstream = "https://cctv5alih5c.v.myalicdn.com/live/cdrmcctv5_1td.m3u8";
+
+        window.debugstream = "http://vss.cbnmtv.com/live/yt_cctv1_h_1.m3u8?channelid=yt_cctv1_h"
+        window.debughost = /(https?:\/\/[^\/]+)/.exec(window.debugstream)[1] + "/";
         //let stream = new BufferStream( new FileReferenceProvider( { files:files } ) )
         let stream = new HLStream({url:"http://web.fun.tv/demo/playlist_v-0144p-0100k-libx264.m3u8"})
+
+        stream = new HLStream({url: "http://web.fun.tv/proxy.php?url="+ encodeURIComponent(window.debugstream)})
+        //let stream = new URLStream( {url: files[0] })
+        //let stream = new URLStream( {url: "http://web.fun.tv/demo/test.mp4" })
         player.attachStream( stream );
         player.play();
       }
@@ -64,7 +73,7 @@ export default {
     mountedId = setTimeout( _=>{
       var dom = document.querySelector(".imglayer")
       player= new WebVideo({target: dom})    
-      
+      this.onChange({target:{}})
     },2000)
        
     
