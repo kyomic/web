@@ -1,7 +1,7 @@
 let config = {};
 config.ver = {major:0,minor:1,revision:1};
 //inject start
-config.buildtime = "202001021528";
+config.buildtime = "202001201622";
 //inject end
 config.version = ['version:' + [config.ver.major,config.ver.minor,config.ver.revision].join(".") +' build:',config.buildtime ].join("");
 console.log("%c"+config.version+"\n%cmail:kyomic@163.com","color:#666;font-size:9px", "color:#f86400");

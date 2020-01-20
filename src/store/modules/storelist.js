@@ -5,7 +5,7 @@ class StoreList{
 		}
 		return StoreList.instance();
 	}
-	static create( api ){
+	static create( api, params ){
 		let state = {
 			list: {
 		        data: [],
@@ -52,7 +52,16 @@ class StoreList{
 				return dispatch('nextPage', payload );
 			},
 			async query({state, dispatch}, payload ){
-				state.query = payload;
+				state.query = payload;	
+				if( payload ){
+					state.query = payload;					
+				}
+				if( params ){
+					state.query = state.query || {}
+					for(var i in params){
+						state.query[i] = params[i]
+					}
+				}			
 				dispatch('reload');
 			},
 			/**
@@ -61,6 +70,12 @@ class StoreList{
 			async nextPage({state,dispatch}, payload ) {
 				if( payload ){
 					state.query = payload;
+				}
+				if( params ){
+					state.query = state.query || {}
+					for(var i in params){
+						state.query[i] = params[i]
+					}
 				}
 		        let page = 0;
 		        let total = 0;
