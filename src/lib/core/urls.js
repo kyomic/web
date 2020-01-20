@@ -140,7 +140,7 @@ urls.buildAbsolutePath = function(basePath, relativePath) {
 }
 
 urls.resolve = function( basePath, relativePath ){
-    return urls.buildAbsoluteURL( relativePath, basePath );
+    return urls.buildAbsoluteURL( basePath, relativePath );
 }
 export default urls;
 export { urls };

@@ -32,12 +32,12 @@ request.get = ( url, option ) =>{
 			setTimeout(()=>{
 				if( res && res.data ){
 					if( typeof res.data == 'object' && res.data.status == 200 ){
-						resolve( res.data.data );
+						resolve( { data:res.data.data, target:this } );
 					}else{
-						resolve( res.data );
+						resolve( { data:res.data, target:this } );
 					}
 				}else{
-					reject( res );
+					reject( { data:res, target:this });
 				}
 			},1000);
 		}).catch(e=>{

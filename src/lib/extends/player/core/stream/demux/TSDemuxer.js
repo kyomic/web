@@ -760,7 +760,7 @@ class TSDemuxer {
 
         if (!track.sps) {
           //ccav干的坏事
-          unit.data[2] = 254 & unit.data[2]
+          //unit.data[2] = 254 & unit.data[2]
           //ccav干的坏事
           expGolombDecoder = new ExpGolomb(unit.data);
           let config = expGolombDecoder.readSPS();

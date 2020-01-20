@@ -25,6 +25,8 @@ const HLStreamOptions = {
     liveMaxLatencyDurationCount:Infinity, //直播延迟
     liveSyncDurationCount:3, //直播同步
     maxMaxBufferLength:600,//最多缓冲600s
+    maxBufferLength:30,//默认缓冲30s
+    maxBufferSize:60 * 1000 * 1000
 }
 
 class HLStream extends AbstractStream{
@@ -560,14 +562,12 @@ class HLStream extends AbstractStream{
         }
     }
 
-
-	async load(){
+	async load( url, level = undefined ){
         //request.cancel();
-        
+        let isLevel = typeof level != 'undefined'
 		console.log("HLStream.load", this.option.url )
-		let content =  await request.get( this.option.url );
-		let m3u8data = new M3U8Parser().parse( content , this.option.url );
-
+		let { data } =  await request.get( url );        
+		let m3u8data = new M3U8Parser().parse( data , this.option.url );
         //过滤数据
         var levels0 = [],
             levels = [],
@@ -615,7 +615,12 @@ class HLStream extends AbstractStream{
 
             return (!audioCodec || checkSupported(audioCodec)) && (!videoCodec || checkSupported(videoCodec));
         });
-        this._levels = levels;
+        if( isLevel ){
+            this._levels[ level ].details = levels[0].details;
+        }else{
+            this._levels = levels;
+        }
+        
 
         /*
 
@@ -642,11 +647,14 @@ class HLStream extends AbstractStream{
         console.time("[TIME]loadfrag");
         this._state = STATE.FRAG_LOADING;
         request.cancel();
-        if( !/http/.exec(frag.url) && window.debughost ){
-            frag.url = window.debughost + frag.url;
+        
+        if( !frag.cross ){
+            if( !/proxy/.exec(frag.url)){
+                frag.url = 'http://web.fun.tv/proxy.php?url=' + encodeURIComponent( frag.url );
+            }
         }
-        let url = ' http://web.fun.tv/proxy.php?url=' + encodeURIComponent( frag.url );
-		let data = await request.get( url, {responseType: 'arraybuffer','method':'get'} );
+        let url = frag.url;
+		let { data } = await request.get( url, {responseType: 'arraybuffer','method':'get'} );
         console.timeEnd("[TIME]loadfrag");
 		var uint8 = new Uint8Array( data );
 		//console.log(data)
@@ -684,7 +692,7 @@ class HLStream extends AbstractStream{
 
 	async play(){
 		if( this._state == STATE.IDLE ){
-			this.load();
+			this.load( this.option.url );
 		}
 	}
     
@@ -725,14 +733,18 @@ class HLStream extends AbstractStream{
                 
                 // compute max Buffer Length that we could get from this load level, based on level bitrate. don't buffer more than 60 MB and more than 30s
                 if (this._levels[level].hasOwnProperty('bitrate')) {
-                    maxBufLen = Math.max(8 * this.option.maxBufferSize / this.levels[level].bitrate, this.option.maxBufferLength);
+                    maxBufLen = Math.max(8 * this.option.maxBufferSize / this._levels[level].bitrate, this.option.maxBufferLength);
                     maxBufLen = Math.min(maxBufLen, this.option.maxMaxBufferLength);
                 } else {
-                    this.option.maxBufferLength = 30;//30秒
                     maxBufLen = this.option.maxBufferLength;
                 }
-                let levelDetails = this._levels[level].details;;
+                let levelDetails = this._levels[level].details;
                 console.log("level", level, "bufferLen", bufferLen)
+                if( !levelDetails ){
+                    this._state = STATE.WAITING_LEVEL;
+                    this.load(this._levels[level].url, level );
+                    return;
+                }
                 if (bufferLen < maxBufLen ) {
                     
                     if( typeof levelDetails == 'undefined'){
@@ -812,7 +824,7 @@ class HLStream extends AbstractStream{
                 //等待状态变为parsed
                 break;
             case STATE.PARSED:
-                console.log("appendBuffer....")
+                console.log("appendBuffer....", this.segments)
                 if( this.sourceBuffer ){
                     if (this.media.error) {
                         console.error('trying to append although a media error occured, switch to ERROR state');

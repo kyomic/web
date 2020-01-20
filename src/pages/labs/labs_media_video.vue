@@ -47,20 +47,28 @@ export default {
   },
   methods:{
     onChange(e){
+      //p2p
+      //http://novage.com.ua/p2p-media-loader/demo.html
       let file = e.target;
       let files = file.files || [];
       if( files.length || true ){
         window.debughost = "https://cctv5alih5c.v.myalicdn.com/";
         window.debugstream = "https://cctv5alih5c.v.myalicdn.com/live/cdrmcctv5_1td.m3u8";
 
-        window.debugstream = "http://vss.cbnmtv.com/live/yt_cctv1_h_1.m3u8?channelid=yt_cctv1_h"
+        window.debugstream = "https://wowza.peer5.com/live/smil:bbb_abr.smil/chunklist_b591000.m3u8"
         window.debughost = /(https?:\/\/[^\/]+)/.exec(window.debugstream)[1] + "/";
         //let stream = new BufferStream( new FileReferenceProvider( { files:files } ) )
         let stream = new HLStream({url:"http://web.fun.tv/demo/playlist_v-0144p-0100k-libx264.m3u8"})
 
-        stream = new HLStream({url: "http://web.fun.tv/proxy.php?url="+ encodeURIComponent(window.debugstream)})
+        stream = new HLStream({url:window.debugstream})
         //let stream = new URLStream( {url: files[0] })
-        //let stream = new URLStream( {url: "http://web.fun.tv/demo/test.mp4" })
+        //mutil video
+        //stream = new HLStream( {url:"https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s-fmp4/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"})
+        //stream = new HLStream( {url: "https://storage.googleapis.com/shaka-demo-assets/angel-one-hls/hls.m3u8" })
+
+        //stream = new HLStream( {url: "http://web.fun.tv/demo/test.m3u8" })
+        //stream = new HLStream( {url: "http://web.fun.tv/demo/test2.m3u8" })
+        //stream = new HLStream( {url: "http://web.fun.tv/demo/playlist_v-0144p-0100k-libx264.m3u8" })
         player.attachStream( stream );
         player.play();
       }
