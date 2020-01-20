@@ -13,6 +13,9 @@ request.get = ( url, option ) =>{
 	if( !/https?/ig.exec(url)){
 		url = config.api + url;
 	}
+	if( /mp4/i.exec(url)){
+		axios.defaults.withCredentials=false;
+	}
 	let params = Object.assign({}, option);
 	params = Object.assign({}, params );
 	params.url = url;
@@ -29,14 +32,14 @@ request.get = ( url, option ) =>{
 			setTimeout(()=>{
 				if( res && res.data ){
 					if( typeof res.data == 'object' && res.data.status == 200 ){
-						resolve( res.data.data );
+						resolve( { data:res.data.data, target:this } );
 					}else{
-						resolve( res.data );
+						resolve( { data:res.data, target:this } );
 					}
 				}else{
-					reject( res );
+					reject( { data:res, target:this });
 				}
-			},1000);
+			},0);
 		}).catch(e=>{
 			reject(e);
 		})
