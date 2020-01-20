@@ -12,7 +12,7 @@ pages["image_filter_convolution"] = require('./labs_image_filter_convolution.vue
 pages["image_blender"] = require('./labs_image_blender.vue');
 
 pages["color_ui"] = require('./labs_color_ui.vue');
-pages["media_video"] = require('./labs_media_video.vue');
+//pages["media_video"] = require('./labs_media_video.vue');
 export {
 	pages
 }

@@ -17,6 +17,7 @@ request.get = ( url, option ) =>{
 		axios.defaults.withCredentials=false;
 	}
 	let params = Object.assign({}, option);
+	let api = !!(/api/.exec( url ));
 	params = Object.assign({}, params );
 	params.url = url;
 	params.method = 'get'
@@ -32,12 +33,12 @@ request.get = ( url, option ) =>{
 			setTimeout(()=>{
 				if( res && res.data ){
 					if( typeof res.data == 'object' && res.data.status == 200 ){
-						resolve( { data:res.data.data, target:this } );
+						resolve( api ? res.data.data : { data:res.data.data, target:this } );
 					}else{
-						resolve( { data:res.data, target:this } );
+						resolve( api ? res.data: { data:res.data, target:this } );
 					}
 				}else{
-					reject( { data:res, target:this });
+					reject( api? res: { data:res, target:this });
 				}
 			},0);
 		}).catch(e=>{
