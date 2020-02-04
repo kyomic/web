@@ -563,6 +563,9 @@ class HLStream extends AbstractStream{
     }
 
 	async load( url, level = undefined ){
+        if( !this.option.cross ){
+            url = 'http://web.fun.tv/proxy.php?url=' + encodeURIComponent( url );
+        }
         //request.cancel();
         let isLevel = typeof level != 'undefined'
 		console.log("HLStream.load", this.option.url )
@@ -648,7 +651,7 @@ class HLStream extends AbstractStream{
         this._state = STATE.FRAG_LOADING;
         request.cancel();
         
-        if( !frag.cross ){
+        if( !this.option.cross ){
             if( !/proxy/.exec(frag.url)){
                 frag.url = 'http://web.fun.tv/proxy.php?url=' + encodeURIComponent( frag.url );
             }

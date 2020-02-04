@@ -443,7 +443,7 @@ class TSDemuxer {
     return result;
   }
   //ccav版本
-  _parsePES( e ){
+  _parsePES2( e ){
 
     var t, r, i, a, n, o, s, l, u = 0, d = e.data;
     if (!e || 0 === e.size)

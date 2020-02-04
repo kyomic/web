@@ -61,6 +61,9 @@ export default {
         let stream = new HLStream({url:"http://web.fun.tv/demo/playlist_v-0144p-0100k-libx264.m3u8"})
 
         stream = new HLStream({url:window.debugstream})
+        stream = new HLStream({url:"https://haoa.haozuida.com/20200105/TV2gMlpD/index.m3u8",cross:false})
+
+        stream = new HLStream({url:"http://cdn.lv.funshion.com/cdn.lv.funshion.com/livestream/3976873713cf1c979737c9defa7a31ac88437336.m3u8?codec=ts"})
         //let stream = new URLStream( {url: files[0] })
         //mutil video
         //stream = new HLStream( {url:"https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s-fmp4/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"})
@@ -82,6 +85,8 @@ export default {
       var dom = document.querySelector(".imglayer")
       player= new WebVideo({target: dom})    
       this.onChange({target:{}})
+
+      document.querySelector(".container").style.cssText = "display:block"
     },2000)
        
     

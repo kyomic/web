@@ -39,7 +39,7 @@ request.get = ( url, option ) =>{
 				}else{
 					reject( { data:res, target:this });
 				}
-			},1000);
+			},0);
 		}).catch(e=>{
 			reject(e);
 		})
