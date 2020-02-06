@@ -8,6 +8,8 @@ import { Demuxer } from './demux';
 let axios = require('axios');
 
 const STATE = {
+    PEDDING:"pending",
+
     ERROR: "error",
     STARTING: "starting",
     IDLE: "idle",
@@ -22,6 +24,7 @@ const STATE = {
 
 
 const HLStreamOptions = {
+    cross:true,
     liveMaxLatencyDurationCount:Infinity, //直播延迟
     liveSyncDurationCount:3, //直播同步
     maxMaxBufferLength:600,//最多缓冲600s
@@ -39,7 +42,7 @@ class HLStream extends AbstractStream{
         }
 
 
-		this._state = STATE.IDLE;
+		this._state = STATE.PEDDING;
 		this._levels = [];
         this._level = 0;
 
@@ -75,6 +78,7 @@ class HLStream extends AbstractStream{
     attachVideo(video){
         this.media = video;
         this.trigger( MediaEvent.MEDIA_ATTACHING, { media: this.media } );
+        window.media = this.media
     }
 
     detachEvent(){
@@ -650,7 +654,6 @@ class HLStream extends AbstractStream{
         console.time("[TIME]loadfrag");
         this._state = STATE.FRAG_LOADING;
         request.cancel();
-        
         if( !this.option.cross ){
             if( !/proxy/.exec(frag.url)){
                 frag.url = 'http://web.fun.tv/proxy.php?url=' + encodeURIComponent( frag.url );
@@ -694,11 +697,18 @@ class HLStream extends AbstractStream{
 
 
 	async play(){
-		if( this._state == STATE.IDLE ){
+		if( this._state == STATE.PEDDING ){
 			this.load( this.option.url );
-		}
+		}else{
+            this.media.play();
+        }
 	}
     
+    pause(){
+        if( this.media ){
+            this.media.pause();
+        }
+    }
     
 	tick(){
         console.log("state...", this._state)
@@ -742,7 +752,7 @@ class HLStream extends AbstractStream{
                     maxBufLen = this.option.maxBufferLength;
                 }
                 let levelDetails = this._levels[level].details;
-                console.log("level", level, "bufferLen", bufferLen)
+                console.log("level", level, "bufferLen", bufferLen, "maxBufLen", maxBufLen)
                 if( !levelDetails ){
                     this._state = STATE.WAITING_LEVEL;
                     this.load(this._levels[level].url, level );
@@ -1027,6 +1037,21 @@ class HLStream extends AbstractStream{
 
     get state(){
         return this._state;
+    }
+
+
+    get duration(){
+        if( this.media ){
+            return this.media.duration;
+        }
+        return 0;
+    }
+
+    get currentTime(){
+        if( this.media ){
+            return this.media.currentTime;
+        }
+        return 0;
     }
 
     destroy(){

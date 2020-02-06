@@ -1,4 +1,15 @@
 let dom = {}
+
+dom.create = (name, props={}, className='', html='') =>{
+  var ele = document.createElement( name );
+  for(var i in props ){
+    ele.setAttribute(i, props[i]);
+  }
+  if( className ) ele.className = className;
+  if( html ) ele.innerHTML = html;
+  return ele;
+}
+
 dom.closet = (el, selector)=>{
     var matchesSelector = el.matches || el.webkitMatchesSelector || el.mozMatchesSelector || el.msMatchesSelector;
     while (el) {

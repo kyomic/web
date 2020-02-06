@@ -37,6 +37,24 @@ utils.stringhash = function( str, len ){
 
 }
 
+/**
+ * 将数字秒转为时间表达方式
+ * @param {Number} time - 秒
+ */
+utils.time = function( time ){
+    if( isNaN( time )){
+        return '00:00';
+    }
+    let hour = Math.floor( time / 3600 );
+    let minute = Math.floor( (time - hour * 3600)/60 );
+    let second = Math.floor((time - hour * 3600 - minute * 60));
+    if( !hour ){
+        return [String(minute).padStart(2,'0'), String(second).padStart(2,'0') ].join(':')
+    }else{
+        return [String(hour).padStart(2,'0'), String(minute).padStart(2,'0'), String(second).padStart(2,'0') ].join(':')
+    }
+}
+
 utils.decodeHTML = function( str ){
     var s = "";
     if(str.length == 0) return "";

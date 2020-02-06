@@ -4,7 +4,6 @@
       <input type="file" @change="onChange($event)" />
     </div>
     <div class="controls">
-      
     </div>    
   </div>
 
@@ -99,6 +98,9 @@ export default {
     width:400px;
     height: 300px;
   }
+  .kwp-video video{
+    width:100%;
+  }
 </style>
 <style lang="less" scoped>  
   .label{
@@ -112,6 +114,7 @@ export default {
     height: 100%;
     border: 1px solid red;
   }
+
   .imglayer{
     min-width: 100px;
     min-height: 100px;

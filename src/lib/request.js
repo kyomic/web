@@ -5,7 +5,7 @@ import config from './config'
 //import qs from 'qs';
 
 
-axios.defaults.withCredentials=true;
+//axios.defaults.withCredentials=true;
 let CancelToken = axios.CancelToken;
 let request = {};
 request.cancel = function(){}
