@@ -60,8 +60,13 @@ let BitmapFilterDescription = [];
 for(var name in filters){
 	let defaultProps = ["name","prototype","length","constructor"];
 	if( defaultProps.indexOf(name)==-1){
-		let filter = BitmapFilter[ name ]();
-		let item = { name: name, description: filter.description, filter:BitmapFilter[ name ], args:filter.config }
+		let filter = {};
+		let func = function(){}
+		try{
+			func = BitmapFilter[ name ];
+		}catch(e){}
+		filter = func() || {};
+		let item = { name: name, description: filter.description, filter:func, args:filter.config }
 		BitmapFilterDescription.push( item );
 	}
 }

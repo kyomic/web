@@ -6,7 +6,6 @@ import App from './App';
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
 
-
 let {Row,Col,Button,Input,Notification,Message, Drawer, Form, FormItem} = require('element-ui')  //按需引用element-ui组件
 
 import config from '@/lib/config'
@@ -56,7 +55,6 @@ Vue.prototype.$animate = function(){
     }
   })  
 }
-
 Vue.prototype.$network = function(e){
   let msg = e.data ? (e.data.msg||'未知错误') : e;
   this.$message({

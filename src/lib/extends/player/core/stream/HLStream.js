@@ -62,11 +62,7 @@ class HLStream extends AbstractStream{
         //缓冲数据
         this.bufferRange = [];
         this.pendingTracks = {}; //sourceBuffer未打开时的缓存tracks
-        /**
-         * video
-         * @member 
-         */
-        this.media = null;  
+        
         this.mediaSource = null;
         //mp4碎片流
         this.mp4segments = [];
@@ -75,11 +71,7 @@ class HLStream extends AbstractStream{
 	}
 
 
-    attachVideo(video){
-        this.media = video;
-        this.trigger( MediaEvent.MEDIA_ATTACHING, { media: this.media } );
-        window.media = this.media
-    }
+   
 
     detachEvent(){
         this.off( HLSEvent.FRAG_PARSED, this.evtOnDemuxEvent );
@@ -140,6 +132,30 @@ class HLStream extends AbstractStream{
                 this.loadedmetadata = true;
                 //this.tick();
                 break;
+            case 'timeupdate':
+                let pos = this.media.currentTime;
+                var bufferInfo = this.bufferInfo(pos, 0.3),
+                    bufferLen = bufferInfo.len,
+                    bufferEnd = bufferInfo.end,
+                    fragPrevious = this.fragPrevious,
+                    maxBufLen;
+                var level = this._level;//暂只处理单码率
+                
+                // compute max Buffer Length that we could get from this load level, based on level bitrate. don't buffer more than 60 MB and more than 30s
+                if (this._levels[level].hasOwnProperty('bitrate')) {
+                    maxBufLen = Math.max(8 * this.option.maxBufferSize / this._levels[level].bitrate, this.option.maxBufferLength);
+                    maxBufLen = Math.min(maxBufLen, this.option.maxMaxBufferLength);
+                } else {
+                    maxBufLen = this.option.maxBufferLength;
+                }
+                let levelDetails = this._levels[level].details;
+                if( bufferLen < maxBufLen && this._state == STATE.IDLE  ){
+                    this._state = STATE.IDLE;
+                    this.tick();
+                }
+                //console.log("BufferLength", bufferLen, bufferEnd, maxBufLen)
+                //console.log("bufferRange", this.getBufferedRange())
+                break;
         }
     }
 
@@ -183,7 +199,7 @@ class HLStream extends AbstractStream{
                 media.addEventListener('seeked', this.evtOnVideoEvent );
                 media.addEventListener('loadedmetadata', this.evtOnVideoEvent);
                 media.addEventListener('ended', this.evtOnVideoEvent );
-                
+                media.addEventListener('timeupdate', this.evtOnVideoEvent );
 
                 this.startLoad();
                 //debug
@@ -436,6 +452,11 @@ class HLStream extends AbstractStream{
 
         }
     }
+
+    _checkBufferEmpty(){
+
+    }
+
     doAppending(){
         let hls = this.hls, sourceBuffer = this.sourceBuffer, segments = this.segments;
         if (Object.keys(sourceBuffer).length) {
@@ -704,11 +725,7 @@ class HLStream extends AbstractStream{
         }
 	}
     
-    pause(){
-        if( this.media ){
-            this.media.pause();
-        }
-    }
+    
     
 	tick(){
         console.log("state...", this._state)
@@ -898,6 +915,27 @@ class HLStream extends AbstractStream{
 		}
 	}
 
+    getBufferedRange () {
+        let range = [0, 0]
+        let video = this.media;
+        let buffered = video.buffered
+        let currentTime = video.currentTime
+        if (buffered) {
+            for (let i = 0, len = buffered.length; i < len; i++) {
+                range[0] = buffered.start(i)
+                range[1] = buffered.end(i)
+                if (range[0] <= currentTime && currentTime <= range[1]) {
+                    break
+                }
+            }
+        }       
+        if (range[0] - currentTime <= 0 && currentTime - range[1] <= 0) {
+            return range
+        } else {
+            return [0, 0]
+        }
+    }
+
 
     bufferInfo(pos, maxHoleDuration) {
         var media = this.media,
@@ -1039,20 +1077,12 @@ class HLStream extends AbstractStream{
         return this._state;
     }
 
-
-    get duration(){
-        if( this.media ){
-            return this.media.duration;
-        }
-        return 0;
+    get paused(){
+        
     }
 
-    get currentTime(){
-        if( this.media ){
-            return this.media.currentTime;
-        }
-        return 0;
-    }
+
+    
 
     destroy(){
 

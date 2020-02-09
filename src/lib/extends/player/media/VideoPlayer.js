@@ -18,6 +18,7 @@ class VideoPlayer extends AbstractPlayer{
 		super( option );		
 		this.option = Object.assign( Object.assign( {}, VideoPlayer.VideoPlayerOptions ), option );
 		console.log("videoplayer", option )
+		this.bufferTimeoutId = 0
 		this.evtOnVideoEvent = this.onVideoEvent.bind( this );
 		this.initialize();
 	}
@@ -43,7 +44,7 @@ class VideoPlayer extends AbstractPlayer{
 		}else{
 			target.appendChild( this._wrapper );
 		}
-		dom.addClass( this._wrapper, 'kwp-video');
+		dom.addClass( this._wrapper, 'kwp-player');
 		this._wrapper.innerHTML = html;
 		this.video = dom.query("video", this._wrapper );
 
@@ -51,9 +52,21 @@ class VideoPlayer extends AbstractPlayer{
 			this.controlbar = new ControlBar( this );
 		}
 
+		this.showBuffering();
 	}
 
 	onVideoEvent(e){
+		console.log('evt:',e.type)
+		switch( e.type ){
+			case 'canplaythrough':
+			case 'playing':
+				this.showBuffering( false );
+				break;
+			case 'seeking':
+			case 'waiting':
+				this.showBuffering( true );
+				break;
+		}
 		this.emit( e.type, {type:e.type, target:this, originEvent: e});
 	}
 	attachStream( stream ){
@@ -61,13 +74,27 @@ class VideoPlayer extends AbstractPlayer{
 			this.stream.destroy();
 		}
 		this.stream = stream;
-
 		VideoPlayer.events.map(type=>{
 			this.video.addEventListener( type, this.evtOnVideoEvent );
 		})
+		this.stream.on('playstatechange', this.evtOnVideoEvent );
 		this.stream.attachVideo( this.video );
 	}
 
+	showBuffering( show = true ){
+		if( !this.loading ){
+			this.loading = dom.create("div",{style:'display:none'},'loading','<div class="loader">');
+			dom.query('.kwp-video-cover', this.wrapper).appendChild( this.loading );
+		}
+		clearTimeout( this.bufferTimeoutId );
+		if( show ){
+			this.bufferTimeoutId = setTimeout( _=>{
+				dom.setStyle( this.loading, {display:'flex'});
+			},1500)
+		}else{
+			dom.setStyle( this.loading, {display:'none'});
+		}
+	}
 	play(){
 		if( !this.stream ){
 			throw new Error("*** 请先设置流: video.attachStream ***")
@@ -81,6 +108,12 @@ class VideoPlayer extends AbstractPlayer{
 		}		
 	}
 
+	get paused(){
+		if( this.stream ){
+			return this.stream.paused;
+		}
+		return false;
+	}
 	get duration(){
 		if( this.stream ){
 			return this.stream.duration;
@@ -89,11 +122,48 @@ class VideoPlayer extends AbstractPlayer{
 		
 	}
 
+	get bufferredTime(){
+		if( this.stream ){
+			return this.stream.getBufferedRange()[1];
+		}
+		return 0;
+	}
 	get currentTime(){
 		if( this.stream ){
 			return this.stream.currentTime;
 		}
 		return 0;
+	}
+	set currentTime( time ){
+		if( this.stream ){
+			this.stream.currentTime = time;
+		}
+	}
+
+	set volume( v ){
+		if( this.stream ){
+			this.stream.volume = v;
+		}
+	}
+
+	get volume(){
+		if( this.stream ){
+			return this.stream.volume;
+		}
+		return 1;
+	}
+
+	set muted( v ){
+		if( this.stream ){
+			this.stream.muted = v;
+		}
+	}
+
+	get muted(){
+		if( this.stream ){
+			return this.stream.muted
+		}
+		return false;
 	}
 	get wrapper(){
 		return this._wrapper;

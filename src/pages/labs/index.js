@@ -13,6 +13,7 @@ pages["image_blender"] = require('./labs_image_blender.vue');
 
 pages["color_ui"] = require('./labs_color_ui.vue');
 pages["media_video"] = require('./labs_media_video.vue');
+pages["css_loading"] = require('./labs_loading.vue');
 export {
 	pages
 }

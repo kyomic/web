@@ -130,8 +130,11 @@ class Devices{
 	get performaceStack(){
 		let per = window.performance;
 		if( per ){
-			var t = per.getEntriesByType("navigation")[0]
-              , r = 0;
+			var t;
+			var r = 0;
+			try{
+				t = per.getEntriesByType("navigation")[0]
+			}catch(e){}
             t || (r = (t = per.timing).navigationStart);
             var n = [{
                 key: "Redirect",

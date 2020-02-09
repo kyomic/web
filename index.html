@@ -11,6 +11,8 @@
     <meta name="description" content="{$page.description}">
 
     <title>{$page.title}</title>
+    <script src="https://cdn.bootcss.com/vConsole/3.3.4/vconsole.min.js"></script>
+    <script src="https://cdn.bootcss.com/babel-polyfill/7.6.0/polyfill.js"></script>
     <style type="text/css" lang="less">        
         .seo{display: none;} 
         .preload{position:absolute;top:10px;width: 100%;text-align: center;} 
@@ -40,6 +42,58 @@
     </style>
     <script>
     	window.vuedata = '{$page.json}';
+        /**
+         * Proxy部分兼容处理
+         * 仅支持代理apply与construct
+         * @author 范围兄 <ambit_tsai@qq.com>
+         */
+
+        window.Proxy = window.Proxy || function(target, handler){
+            if(typeof target !== 'function'){
+                console.log("target", target)
+                throw new TypeError('Only support function proxy in this polyfill');
+            }
+
+            function __Proxy__(){
+                if(this instanceof __Proxy__){
+                    // 实例化
+                    var obj;
+                    if(typeof handler.construct === 'function'){
+                        obj = handler.construct(target, arguments);
+                        if(obj && typeof obj==='object'){
+                            return obj;
+                        }else{
+                            throw new TypeError('Proxy handler\'s construct must return an object');
+                        }
+                    }else if(handler.construct == null){
+                        obj = target.apply(this, arguments);
+                        if(obj && typeof obj==='object'){
+                            return obj;
+                        }else{
+                            return this;
+                        }
+                    }else{
+                        throw new TypeError('Proxy handler\'s construct must be a function');
+                    }
+                }else{
+                    // 函数调用
+                    if(typeof handler.apply === 'function'){
+                        return handler.apply(target, this, arguments);
+                    }else if(handler.apply == null){
+                        return target.apply(this, arguments);
+                    }else{
+                        throw new TypeError('Proxy handler\'s apply must be a function');
+                    }
+                }
+            }
+
+            Object.setPrototypeOf(__Proxy__, target);   // 复制原对象的[[Prototype]]
+            Object.assign(__Proxy__, target);           // 复制原对象的属性
+            __Proxy__.prototype = target.prototype;     // 复制原对象的原型
+            return __Proxy__;
+        };
+
+
     </script>
     <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
     <!-- 其他标签 -->
@@ -87,5 +141,9 @@
     <script src="//cdn.bootcss.com/vue-router/3.0.1/vue-router.min.js"></script>
     <script src="//cdn.bootcss.com/element-ui/2.4.0/index.js"></script>
     <script src="//cdn.bootcss.com/babel-polyfill/7.0.0-alpha.15/polyfill.min.js"></script --> 
+
+    <script type="text/javascript">
+    window.vConsole = new window.VConsole();
+    </script>
   </body>
 </html>

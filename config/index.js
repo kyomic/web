@@ -61,7 +61,8 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: 'http://www.shareme.cn/',
+    //assetsPublicPath: 'http://www.shareme.cn/',
+    assetsPublicPath: 'http://192.168.1.8/',
 
     /**
      * Source Maps

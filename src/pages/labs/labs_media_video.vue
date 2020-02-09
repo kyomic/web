@@ -51,26 +51,35 @@ export default {
       let file = e.target;
       let files = file.files || [];
       if( files.length || true ){
-        window.debughost = "https://cctv5alih5c.v.myalicdn.com/";
-        window.debugstream = "https://cctv5alih5c.v.myalicdn.com/live/cdrmcctv5_1td.m3u8";
+        let stream = null;
+        try{
+           window.debughost = "https://cctv5alih5c.v.myalicdn.com/";
+          window.debugstream = "https://cctv5alih5c.v.myalicdn.com/live/cdrmcctv5_1td.m3u8";
 
-        window.debugstream = "https://wowza.peer5.com/live/smil:bbb_abr.smil/chunklist_b591000.m3u8"
-        window.debughost = /(https?:\/\/[^\/]+)/.exec(window.debugstream)[1] + "/";
-        //let stream = new BufferStream( new FileReferenceProvider( { files:files } ) )
-        let stream = new HLStream({url:"http://web.fun.tv/demo/playlist_v-0144p-0100k-libx264.m3u8"})
+          window.debugstream = "https://wowza.peer5.com/live/smil:bbb_abr.smil/chunklist_b591000.m3u8"
+          //window.debughost = /(https?:\/\/[^\/]+)/.exec(window.debugstream)[1] + "/";
+          //let stream = new BufferStream( new FileReferenceProvider( { files:files } ) )
+          stream = new HLStream({url:"http://web.fun.tv/demo/playlist_v-0144p-0100k-libx264.m3u8"})
 
-        stream = new HLStream({url:window.debugstream})
-        stream = new HLStream({url:"https://haoa.haozuida.com/20200105/TV2gMlpD/index.m3u8",cross:false})
+          stream = new HLStream({url:window.debugstream})
+          stream = new HLStream({url:"https://haoa.haozuida.com/20200105/TV2gMlpD/index.m3u8",cross:false})
 
-        stream = new HLStream({url:"http://cdn.lv.funshion.com/cdn.lv.funshion.com/livestream/3976873713cf1c979737c9defa7a31ac88437336.m3u8?codec=ts"})
-        //let stream = new URLStream( {url: files[0] })
-        //mutil video
-        //stream = new HLStream( {url:"https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s-fmp4/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"})
-        //stream = new HLStream( {url: "https://storage.googleapis.com/shaka-demo-assets/angel-one-hls/hls.m3u8" })
+          stream = new HLStream({url:"http://cdn.lv.funshion.com/cdn.lv.funshion.com/livestream/3976873713cf1c979737c9defa7a31ac88437336.m3u8?codec=ts"})
+          //let stream = new URLStream( {url: files[0] })
+          //mutil video
+          //stream = new HLStream( {url:"https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s-fmp4/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"})
+          //stream = new HLStream( {url: "https://storage.googleapis.com/shaka-demo-assets/angel-one-hls/hls.m3u8" })
 
-        //stream = new HLStream( {url: "http://web.fun.tv/demo/test.m3u8" })
-        //stream = new HLStream( {url: "http://web.fun.tv/demo/test2.m3u8" })
-        //stream = new HLStream( {url: "http://web.fun.tv/demo/playlist_v-0144p-0100k-libx264.m3u8" })
+          //stream = new HLStream( {url: "http://web.fun.tv/demo/test.m3u8" })
+          //stream = new HLStream( {url: "http://web.fun.tv/demo/test2.m3u8" })
+          //stream = new HLStream( {url: "http://web.fun.tv/demo/playlist_v-0144p-0100k-libx264.m3u8" })
+        }catch(e){
+          console.error(e)
+        }
+       
+
+        
+        stream = new URLStream({url:"https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_9b68ca7a2eb570f791113a0d1801e038.mp4"})
         player.attachStream( stream );
         player.play();
       }

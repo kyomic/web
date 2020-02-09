@@ -1,4 +1,4 @@
-let instance = {}
+let instance = function(){}
 let context = window;
 
 let KYO = new Proxy( instance , {
@@ -18,4 +18,5 @@ let KYO = new Proxy( instance , {
 		}
 	}
 })
+
 export default KYO;

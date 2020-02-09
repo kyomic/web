@@ -26,6 +26,8 @@ dom.query = ( el, selector )=>{
 }
 
 dom.hasClass = ( el, name )=>{
+  if( !el || !el.className || typeof el.className!='string' ) return false;
+  //svg. className是个对象
 	return !!el.className.match( new RegExp( "(\\s|^)" + name + "(\\s|$)") ); 
 }
 

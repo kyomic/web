@@ -11,6 +11,7 @@
     <meta name="description" content="Kyomic的图形图像视频实验站">
 
     <title>kyomic's labs</title>
+    <script src="https://cdn.bootcss.com/vConsole/3.3.4/vconsole.min.js"></script>
     <style type="text/css">
       .preload{position:absolute;top:10px;width: 100%;text-align: center;} 
       .preload i:nth-child(1){animation:ani 1s linear 0s infinite ;-webkit-animation:ani 1s linear 0s infinite ;}
@@ -37,8 +38,58 @@
           }
       }
     </style>
+
     <script>
     	window.vuedata = '';
+      /* Proxy部分兼容处理
+         * 仅支持代理apply与construct
+         * @author 范围兄 <ambit_tsai@qq.com>
+         */
+
+        window.Proxy = window.Proxy || function(target, handler){
+            if(typeof target !== 'function'){
+                console.log("target", target)
+                throw new TypeError('Only support function proxy in this polyfill');
+            }
+
+            function __Proxy__(){
+                if(this instanceof __Proxy__){
+                    // 实例化
+                    var obj;
+                    if(typeof handler.construct === 'function'){
+                        obj = handler.construct(target, arguments);
+                        if(obj && typeof obj==='object'){
+                            return obj;
+                        }else{
+                            throw new TypeError('Proxy handler\'s construct must return an object');
+                        }
+                    }else if(handler.construct == null){
+                        obj = target.apply(this, arguments);
+                        if(obj && typeof obj==='object'){
+                            return obj;
+                        }else{
+                            return this;
+                        }
+                    }else{
+                        throw new TypeError('Proxy handler\'s construct must be a function');
+                    }
+                }else{
+                    // 函数调用
+                    if(typeof handler.apply === 'function'){
+                        return handler.apply(target, this, arguments);
+                    }else if(handler.apply == null){
+                        return target.apply(this, arguments);
+                    }else{
+                        throw new TypeError('Proxy handler\'s apply must be a function');
+                    }
+                }
+            }
+
+            Object.setPrototypeOf(__Proxy__, target);   // 复制原对象的[[Prototype]]
+            Object.assign(__Proxy__, target);           // 复制原对象的属性
+            __Proxy__.prototype = target.prototype;     // 复制原对象的原型
+            return __Proxy__;
+        };
     </script>
     <!-- 其他标签 -->
     <% htmlWebpackPlugin.options.cdnConfig.forEach(function(item){ if(item.css){ %>
@@ -52,5 +103,8 @@
     <script type="text/javascript" src="<%= item.js %>"></script>
     <% }}) %>
     <!-- built files will be auto injected -->
+    <script type="text/javascript">
+    window.vConsole = new window.VConsole();
+    </script>
   </body>
 </html>

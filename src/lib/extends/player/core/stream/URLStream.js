@@ -14,7 +14,6 @@ class URLStream extends AbstractStream{
 
     attachVideo(video){
         this.media = video;
-
         this.trigger( MediaEvent.MEDIA_ATTACHING, { media: this.media } );
     }
 
@@ -23,7 +22,8 @@ class URLStream extends AbstractStream{
     }
 
     onVideoEvent( evt ){
-        console.log("videoevent:", evt.type)
+        console.log("evt",evt)
+        this.emit( evt.type, {type:evt.type, target:this, originEvent: evt});
     }
 
     //video attached
@@ -32,6 +32,13 @@ class URLStream extends AbstractStream{
         switch( evt.type ){
             case MediaEvent.MEDIA_ATTACHING:
                 let media = data.media;
+
+                media.addEventListener('seeking', this.evtOnVideoEvent );
+                media.addEventListener('seeked', this.evtOnVideoEvent );
+                media.addEventListener('loadedmetadata', this.evtOnVideoEvent);
+                media.addEventListener('ended', this.evtOnVideoEvent );
+                media.addEventListener('timeupdate', this.evtOnVideoEvent );
+
                 if( typeof this.url == 'string'){
                     media.src = this.url;
                 }else{
@@ -40,32 +47,6 @@ class URLStream extends AbstractStream{
                 break;
         }
     }
-
-    getBufferedRange () {
-        let range = [0, 0]
-        let video = this.media;
-        let buffered = video.buffered
-        let currentTime = video.currentTime
-        if (buffered) {
-            for (let i = 0, len = buffered.length; i < len; i++) {
-                range[0] = buffered.start(i)
-                range[1] = buffered.end(i)
-                if (range[0] <= currentTime && currentTime <= range[1]) {
-                    break
-                }
-            }
-        }
-        if( this._state == PlayerState.STOPED ){
-            return [0,0];
-        }
-        if (range[0] - currentTime <= 0 && currentTime - range[1] <= 0) {
-            return range
-        } else {
-            return [0, 0]
-        }
-    }
-
-    play(){}
 }
 
 export default URLStream;
