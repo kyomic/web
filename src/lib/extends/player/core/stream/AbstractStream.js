@@ -30,12 +30,12 @@ class AbstractStream{
             this.emit('playstatechange', {type:'playstatechange'});  
             this._paused = false;
             let promise = this.media.play();
-            try{
+            if( typeof promise=='object' && promise.catch ){
                 promise.catch(e=>{
                     this._paused = true;
                     this.emit('playstatechange', {type:'playstatechange'});
                 })
-            }catch(e){}			        
+            }        
 		}
 	}
 

@@ -636,7 +636,12 @@ class HLStream extends AbstractStream{
         // only keep level with supported audio/video codecs
         levels = levels.filter(function(level) {
             var checkSupported = function checkSupported(codec) {
-                return MediaSource.isTypeSupported('video/mp4;codecs=' + codec);
+                try{
+                    return MediaSource.isTypeSupported('video/mp4;codecs=' + codec);
+                }catch(e){
+
+                }
+                return false;
             };
             var audioCodec = level.audioCodec,
             videoCodec = level.videoCodec;

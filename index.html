@@ -47,7 +47,6 @@
          * 仅支持代理apply与construct
          * @author 范围兄 <ambit_tsai@qq.com>
          */
-
         window.Proxy = window.Proxy || function(target, handler){
             if(typeof target !== 'function'){
                 console.log("target", target)
@@ -144,6 +143,7 @@
 
     <script type="text/javascript">
     window.vConsole = new window.VConsole();
+    alert(window.vConsole)
     </script>
   </body>
 </html>
