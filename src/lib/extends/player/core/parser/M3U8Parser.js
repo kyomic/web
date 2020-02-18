@@ -282,7 +282,7 @@ class M3U8Parser{
 			// if the fragments are TS or MP4, except if we download them :/
 			// but this is to be able to handle SIDX.
 			if (level.fragments.every((frag) => MP4_REGEX_SUFFIX.test(frag.url))) {
-				logger.warn('MP4 fragments found but no init segment (probably no MAP, incomplete M3U8), trying to fetch SIDX');
+				console.warn('MP4 fragments found but no init segment (probably no MAP, incomplete M3U8), trying to fetch SIDX');
 
 				frag = new Fragment();
 				frag.url = level.fragments[0].url;

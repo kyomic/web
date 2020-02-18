@@ -1,6 +1,6 @@
 import { MP4Remuxer } from "../remux/MP4Remuxer";
 import { PassThroughRemuxer } from '../remux/PassThroughRemuxer'
-import { TSDemuxer, MP4Demuxer } from "./index.js"
+import { TSDemuxer, MP4Demuxer, FLVDemuxer } from "./index.js"
 class DemuxerInline{
 	/** 
 	 * @param {Object} observer - 绑定的侦听者
@@ -75,6 +75,7 @@ class DemuxerInline{
 			const muxConfig = [
 				{ demux: TSDemuxer, remux: MP4Remuxer },
 				{ demux: MP4Demuxer, remux: PassThroughRemuxer },
+				{ demux: FLVDemuxer, remux: MP4Remuxer },
 				//{ demux: AACDemuxer, remux: MP4Remuxer },
 				//{ demux: MP3Demuxer, remux: MP4Remuxer }
 			];
@@ -90,6 +91,7 @@ class DemuxerInline{
 					break;
 				}
 			}
+			debugger;
 			console.log("demuxer,". demuxer, this.remuxer)
 			if (!demuxer) {
 				observer.trigger(Event.ERROR, { type: ErrorTypes.MEDIA_ERROR, details: ErrorDetails.FRAG_PARSING_ERROR, fatal: true, reason: 'no demux matching with content found' });

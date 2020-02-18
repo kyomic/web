@@ -216,7 +216,7 @@ class MP4Remuxer {
     }
   }
 
-  remuxVideo (track, timeOffset, contiguous, audioTrackLength, accurateTimeOffset) {
+  remuxVideo (track, timeOffset, contiguous, audioTrackLength, accurateTimeOffset) {    
     let offset = 8,
       timeScale = track.timescale,
       mp4SampleDuration,
@@ -251,7 +251,8 @@ class MP4Remuxer {
     if (nbSamples === 0) {
       return;
     }
-
+    debugger
+    console.log("remuxVideo::::::", track, nbSamples, arguments)
     // Safari does not like overlapping DTS on consecutive fragments. let's use nextAvcDts to overcome this if fragments are consecutive
     if (isSafari) {
       // also consider consecutive fragments as being contiguous (even if a level switch occurs),
@@ -333,6 +334,7 @@ class MP4Remuxer {
     }
 
     let nbNalu = 0, naluLen = 0;
+    console.log("nbSamples.length", nbSamples)
     for (let i = 0; i < nbSamples; i++) {
       // compute total/avc sample length and nb of NAL units
       let sample = inputSamples[i], units = sample.units, nbUnits = units.length, sampleLen = 0;

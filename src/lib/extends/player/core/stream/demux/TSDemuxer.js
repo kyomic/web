@@ -142,7 +142,9 @@ class TSDemuxer {
    *
    * @override
    */
-  resetTimeStamp () {}
+  resetTimeStamp ( defaultTimeStamp ) {
+    this._initPTS = this._initDTS = defaultTimeStamp;
+  }
 
   // feed incoming data to the front of the parsing pipeline
   append (data, timeOffset, contiguous, accurateTimeOffset) {
@@ -313,7 +315,7 @@ class TSDemuxer {
       // either audioData null or PES truncated, keep it for next frag parsing
       audioTrack.pesData = audioData;
     }
-
+    console.log("AVCTrack", avcTrack, "AudioTrack", audioTrack )
     if (id3Data && (pes = parsePES(id3Data)) && pes.pts !== undefined) {
       parseID3PES(pes);
       id3Track.pesData = null;
