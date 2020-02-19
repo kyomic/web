@@ -3,7 +3,10 @@
     <div class="imglayer" ref="imglayer">
       <input type="file" @change="onChange($event)" />
     </div>
-    <div class="controls">
+    <div class="list">
+      <div class="epids">
+        <div :class="epid_idx==key?'current':''" class="epid" v-for="(value,key,index) in epids" @click="play(value,key)">第{{key+1}}集</div>
+      </div>
     </div>    
   </div>
 
@@ -32,7 +35,24 @@ export default {
   components:{},
   data() {
     return {
-     
+      epid_idx:0,
+      epids:[
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_9b68ca7a2eb570f791113a0d1801e038.mp4",
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_7c9791ceb66af9af203d135c1a411af0.mp4",
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_3c3f052a1279bad9f7c0af12b5124f1c.mp4",
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_b1d07f7ba405daab62213af0563ceef4.mp4",
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_716a44168e6c85e2948f624031d05a4a.mp4",
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_fdff4ba008a4bb7ac14a9fc43ec288e1.mp4",
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_390e31acd0175e10968ffa619d34d18a.mp4",
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_9c9deefe4a38302a303568a99074d142.mp4",
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_6738bbba7aec5ebef554f84e679db2a8.mp4",
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_32d041caa1e26169148fd2d44d4bddf2.mp4",
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_17299d79ed705cbfab9ed4b29f51ee34.mp4",
+
+        "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_05e0e8a95e84a65f351192f9004668e0.mp4"
+
+
+      ]
     };
   },
 
@@ -45,6 +65,12 @@ export default {
     }
   },
   methods:{
+    play(url,idx){
+      let stream = new URLStream({url})
+      player.attachStream( stream );
+      player.play();
+      this.epid_idx = idx;
+    },
     onChange(e){
       //p2p
       //http://novage.com.ua/p2p-media-loader/demo.html
@@ -77,7 +103,7 @@ export default {
           console.error(e)
         }
        
-
+        stream = new HLStream( {url: "http://test.fun.tv/flv.m3u8" })
         
         //stream = new URLStream({url:"https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_9b68ca7a2eb570f791113a0d1801e038.mp4"})
         player.attachStream( stream );
@@ -109,6 +135,14 @@ export default {
   }
   .kwp-video video{
     width:100%;
+  }
+  .epid{
+    display:inline-block;
+    border:1px solid black;
+    padding:10px;
+  }
+  .current{
+    color: red;
   }
 </style>
 <style lang="less" scoped>  

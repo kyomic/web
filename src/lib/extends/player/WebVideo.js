@@ -38,6 +38,11 @@ class WebVideo{
 		return this.video.bufferredTime;
 	}
 
+	toggleFullScreen(){
+		if( this.video ){
+			this.video.toggleFullScreen();
+		}
+	}
 	static events = ['play', 'playing', 'pause', 'ended', 'error', 'seeking', 'seeked','timeupdate', 'waiting', 'canplay', 'canplaythrough', 'durationchange', 'volumechange', 'loadeddata', 'loadedmetadata'];
 }
 export default WebVideo;

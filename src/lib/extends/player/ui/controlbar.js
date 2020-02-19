@@ -1,5 +1,6 @@
 import utils from '@/lib/core/utils';
 import dom from '@/lib/core/dom';
+import fullScreen from '@/lib/core/fullscreen';
 import Icon from './Icon'
 
 
@@ -137,10 +138,25 @@ class ControlBar{
 			document.addEventListener('mouseup', this.evtOnDragUp );
 		})
 
+
+
+        /*
+        $(this.video).on('webkitbeginfullscreen webkitendfullscreen', function(e){
+			//video全屏时，player也为screennormal状态，视觉效果更好
+			self.screenNormal(1);
+		})
+		*/
+
+
+		this.uis["full"].addEventListener('click',e=>{
+			this.player.toggleFullScreen();
+		})
+
 		this.player.on('playstatechange', this.evtOnPlayerEvent );
 		this.player.on('loadedmetadata', this.evtOnPlayerEvent );
 		this.player.on('timeupdate', this.evtOnPlayerEvent );
 		this.player.on('playing', this.evtOnPlayerEvent );
+		this.player.on('fullscreen', this.evtOnPlayerEvent );
 
 		this.player.wrapper.addEventListener('mousemove', e=>{
 			this._showControlBar();
@@ -170,6 +186,16 @@ class ControlBar{
 				break;
 			case 'playstatechange':
 				this._updatePlayPauseState();
+				break;
+			case 'fullscreen':
+				//全屏事件监听
+				dom.setStyle( this.uis["full-in"], {display:'none'});
+        		dom.setStyle( this.uis["full-out"], {display:'none'});
+        		if ( e.fullscreen ) {
+                    dom.setStyle( this.uis["full-in"], {display:'block'});
+                } else {
+                    dom.setStyle( this.uis["full-out"], {display:'block'});
+                }		        
 				break;
 			case 'playing':
 				if( !this.isVV ){
@@ -253,6 +279,7 @@ class ControlBar{
 		this.uis['full'] = dom.create('div',{},'kwp-button btn-state kwp-button-full');
 		this.uis['full-out'] = createButton('fullout', Icon('full'))
 		this.uis['full-in'] = createButton('fullin', Icon('full-in'))
+		dom.setStyle( this.uis['full-in'],{display:'none'})
 		this.uis['full'].appendChild( this.uis['full-out'] )
 		this.uis['full'].appendChild( this.uis['full-in'] )
 
@@ -368,6 +395,7 @@ class ControlBar{
 			hide();
 		})
 	}
+
 
 }
 

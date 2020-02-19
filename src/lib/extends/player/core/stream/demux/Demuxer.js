@@ -51,9 +51,9 @@ class Demuxer {
     observer.on(HLSEvent.INIT_PTS_FOUND, forwardMessage);
 
     const typeSupported = {
-      mp4: MediaSource.isTypeSupported('video/mp4'),
-      mpeg: MediaSource.isTypeSupported('audio/mpeg'),
-      mp3: MediaSource.isTypeSupported('audio/mp4; codecs="mp3"')
+      mp4: MediaSource ? MediaSource.isTypeSupported('video/mp4'):false,
+      mpeg: MediaSource ? MediaSource.isTypeSupported('audio/mpeg'):false,
+      mp3: MediaSource ? MediaSource.isTypeSupported('audio/mp4; codecs="mp3"'):false
     };
     // navigator.vendor is not always available in Web Worker
     // refer to https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/navigator

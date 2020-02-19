@@ -1,6 +1,7 @@
 import AbstractPlayer from './AbstractPlayer'
 import dom from '@/lib/core/dom';
 import utils from '@/lib/core/utils';
+import fullScreen from '@/lib/core/fullscreen';
 import ControlBar from '../ui/controlbar';
 
 
@@ -11,6 +12,7 @@ class VideoPlayer extends AbstractPlayer{
 		autoplay:true,
 		//是否内联播放 
 		playsinline:true,
+		airplay:true,
 		controls:true
 		
 	}
@@ -21,12 +23,17 @@ class VideoPlayer extends AbstractPlayer{
 		this.bufferTimeoutId = 0
 		this.evtOnVideoEvent = this.onVideoEvent.bind( this );
 		this.initialize();
+
+
+		        
 	}
 
 	initialize(){
 		let tpl = [			
 			'<div class="kwp-video">',
-			'	<video <% if autoplay%> autoplay<%/if%> playsinline="<% playsinline %>" webkit-playsinline="<% playsinline %>" airplay="<% airplay %>" webkit-airplay="<% airplay %>" preload="meta" x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-orientation="h5"></video>',
+			'	<div class="kwp-videobox">',
+			'		<video <% if autoplay%> autoplay<%/if%> playsinline="<% playsinline %>" webkit-playsinline="<% playsinline %>" airplay="<% airplay %>" webkit-airplay="<% airplay %>" preload="meta" x-webkit-airplay="allow" x5-video-player-type="h5" x5-video-orientation="h5"></video>',
+			'	</div>',
 			'	<div class="kwp-video-cover">',
 			'		<i class="logo"></i>',
 			'		<span class="title"></span>',
@@ -79,6 +86,28 @@ class VideoPlayer extends AbstractPlayer{
 		})
 		this.stream.on('playstatechange', this.evtOnVideoEvent );
 		this.stream.attachVideo( this.video );
+
+		if ( fullScreen.fullScreenEventName ) {
+        	window.addEventListener( fullScreen.fullScreenEventName, (e=>{
+        		if(fullScreen.isFullScreen()){
+        			this.emit('fullscreen',{type:'fullscreen', fullscreen:true})
+        		}else{
+        			this.emit('fullscreen',{type:'fullscreen', fullscreen:false})
+        		}
+        	}))
+        }else{
+        	let isIos = (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent));
+        	if( isIos ){
+        		this.video.addEventListener('webkitbeginfullscreen', e=>{
+        			this._fullscreen = true;
+        			this.emit('fullscreen',{type:'fullscreen', fullscreen:this._fullscreen })
+        		})
+        		this.video.addEventListener('webkitendfullscreen', e=>{
+        			this._fullscreen = false;
+        			this.emit('fullscreen',{type:'fullscreen', fullscreen:this._fullscreen })
+        		})
+        	}
+        }
 	}
 
 	showBuffering( show = true ){
@@ -165,6 +194,44 @@ class VideoPlayer extends AbstractPlayer{
 		}
 		return false;
 	}
+
+	/** 
+	 * 是否处于全屏状态
+	 * @member 
+	 */
+
+	get isFullScreen(){
+		if( fullScreen.supportsFullScreen ){
+			return api.isFullScreen();
+		}else{
+			if( typeof this._fullscreen !='undefined'){
+				return this._fullscreen;
+			}
+		}
+		return false;
+	}
+
+	toggleFullScreen(){
+		let api = fullScreen;
+		if ( api.supportsFullScreen ) {
+            if ( api.isFullScreen() ) {
+                api.cancelFullScreen();
+            } else {            	
+                api.requestFullScreen( this.wrapper );
+            }
+        }else{
+        	try{
+	        	//webkitExitFullscreen();
+	        	if( this.isFullScreen ){
+	        		this.stream.media.webkitExitFullscreen();
+	        	}else{
+	        		this.stream.media.webkitEnterFullscreen();
+	        	}	        	
+	        }catch(e){}
+        }
+        
+	}
+
 	get wrapper(){
 		return this._wrapper;
 	}

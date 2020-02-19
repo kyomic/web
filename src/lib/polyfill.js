@@ -29,5 +29,4 @@ window.globalVar = window.globalVar || new Proxy(function(){}, {
 });
 
 
-window.MediaSource = window.MediaSource || window.webkitMediaSource || window.mozMediaSource
-alert("MediaSource:" + window.MediaSource)
+window.MediaSource = window.MediaSource || window.WebkitMediaSource || window.mozMediaSource
