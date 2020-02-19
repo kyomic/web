@@ -207,7 +207,7 @@ class HLStream extends AbstractStream{
                 //this.play();
                 // once received, don't listen anymore to sourceopen event
                 this.mediaSource.removeEventListener('sourceopen', this.evtOnMediaSourceEvent );
-
+                this.play();
                 break;
             case 'sourceended':
                 break;
@@ -719,9 +719,12 @@ class HLStream extends AbstractStream{
 
 	async play(){
 		if( this._state == STATE.PEDDING ){
-			this.load( this.option.url );
+			this.load( this.option.url ).then(res=>{
+                super.play();
+            })
 		}else{
-            this.media.play();
+            super.play();
+            //this.media.play();
         }
 	}
     

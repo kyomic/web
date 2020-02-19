@@ -123,7 +123,7 @@ class BufferStream extends AbstractStream{
                 //this.play();
                 // once received, don't listen anymore to sourceopen event
                 this.mediaSource.removeEventListener('sourceopen', this.evtOnMediaSourceEvent );
-
+                
                 break;
             case 'sourceended':
                 break;

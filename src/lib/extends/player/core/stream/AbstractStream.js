@@ -26,16 +26,22 @@ class AbstractStream{
 
     async play(){
         this._paused = false;
+        console.log("尝试播放")
 		if( this.media ){         
             this.emit('playstatechange', {type:'playstatechange'});  
             this._paused = false;
-            let promise = this.media.play();
+            
             try{
-                promise.catch(e=>{
+                let promise = this.media.play().then(res=>{
+
+                }).catch(e=>{
                     this._paused = true;
+                    console.log("自动播放失败")
                     this.emit('playstatechange', {type:'playstatechange'});
                 })
-            }catch(e){}			        
+            }catch(e){
+                console.log('err', e)
+            }			        
 		}
 	}
 
