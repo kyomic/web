@@ -91,7 +91,6 @@ class DemuxerInline{
 					break;
 				}
 			}
-			debugger;
 			console.log("demuxer,". demuxer, this.remuxer)
 			if (!demuxer) {
 				observer.trigger(Event.ERROR, { type: ErrorTypes.MEDIA_ERROR, details: ErrorDetails.FRAG_PARSING_ERROR, fatal: true, reason: 'no demux matching with content found' });

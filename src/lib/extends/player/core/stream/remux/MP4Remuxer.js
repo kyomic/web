@@ -76,6 +76,7 @@ class MP4Remuxer {
     if (!this.ISGenerated) {
       this.generateIS(audioTrack, videoTrack, timeOffset);
     }
+    debugger;
 
     if (this.ISGenerated) {
       const nbAudioSamples = audioTrack.samples.length;
@@ -139,7 +140,94 @@ class MP4Remuxer {
     this.observer.trigger(HLSEvent.FRAG_PARSED);
   }
 
-  generateIS (audioTrack, videoTrack, timeOffset) {
+  generatePTSDTS( audioTrack, videoTrack, timeOffset ){
+    let audioSamples = audioTrack.samples,
+      videoSamples = videoTrack.samples,
+      computePTSDTS = (this._initPTS === undefined),
+      initPTS, initDTS;
+    if (computePTSDTS) {
+      initPTS = initDTS = Infinity;
+    }
+    if( computePTSDTS ){
+      if (audioTrack.config && audioSamples.length) {
+        initPTS = initDTS = audioSamples[0].pts - audioTrack.inputTimeScale * timeOffset;
+      }
+      if( videoSamples.length ){
+        initPTS = Math.min(initPTS, videoSamples[0].pts - inputTimeScale * timeOffset);
+        initDTS = Math.min(initDTS, videoSamples[0].dts - inputTimeScale * timeOffset);
+      }
+    }
+    if( initPTS != undefined ){
+      this._initPTS = initPTS;
+      this._initDTS = initDTS;
+    }
+  }
+  generateIS( audioTrack, videoTrack, timeOffset ){
+    this.generatePTSDTS( audioTrack, videoTrack, timeOffset );
+    let observer = this.observer,
+      audioSamples = audioTrack.samples,
+      videoSamples = videoTrack.samples,
+      typeSupported = this.typeSupported,
+      container = 'audio/mp4',
+      tracks = {},
+      data = { tracks: tracks },
+      computePTSDTS = (this._initPTS === undefined),
+      initPTS, initDTS;
+
+    if (computePTSDTS) {
+      initPTS = initDTS = Infinity;
+    }
+
+    if (audioTrack.config ) {
+      // let's use audio sampling rate as MP4 time scale.
+      // rationale is that there is a integer nb of audio frames per audio sample (1024 for AAC)
+      // using audio sampling rate here helps having an integer MP4 frame duration
+      // this avoids potential rounding issue and AV sync issue
+      audioTrack.timescale = audioTrack.samplerate;
+      window.debug && console.log(`audio sampling rate : ${audioTrack.samplerate}`);
+      if (!audioTrack.isAAC) {
+        if (typeSupported.mpeg) { // Chrome and Safari
+          container = 'audio/mpeg';
+          audioTrack.codec = '';
+        } else if (typeSupported.mp3) { // Firefox
+          audioTrack.codec = 'mp3';
+        }
+      }
+      tracks.audio = {
+        container: container,
+        codec: audioTrack.codec,
+        initSegment: !audioTrack.isAAC && typeSupported.mpeg ? new Uint8Array() : MP4.initSegment([audioTrack]),
+        metadata: {
+          channelCount: audioTrack.channelCount
+        }
+      };
+    }
+    
+    if ( videoTrack ) {
+    //if (videoTrack.sps && videoTrack.pps && videoSamples.length) {
+      // let's use input time scale as MP4 video timescale
+      // we use input time scale straight away to avoid rounding issues on frame duration / cts computation
+      const inputTimeScale = videoTrack.inputTimeScale;
+      videoTrack.timescale = inputTimeScale;
+      tracks.video = {
+        container: 'video/mp4',
+        codec: videoTrack.codec,
+        initSegment: MP4.initSegment([videoTrack]),
+        metadata: {
+          width: videoTrack.width,
+          height: videoTrack.height
+        }
+      };      
+    }
+    debugger;
+    if (Object.keys(tracks).length) {
+      observer.trigger( HLSEvent.FRAG_PARSING_INIT_SEGMENT, data);
+      this.ISGenerated = true;
+    } else {
+      observer.trigger(Event.ERROR, { type: ErrorTypes.MEDIA_ERROR, details: ErrorDetails.FRAG_PARSING_ERROR, fatal: false, reason: 'no audio/video samples found' });
+    }
+  }
+  generateIS2 (audioTrack, videoTrack, timeOffset) {
     let observer = this.observer,
       audioSamples = audioTrack.samples,
       videoSamples = videoTrack.samples,
@@ -182,8 +270,9 @@ class MP4Remuxer {
         initPTS = initDTS = audioSamples[0].pts - audioTrack.inputTimeScale * timeOffset;
       }
     }
-
-    if (videoTrack.sps && videoTrack.pps && videoSamples.length) {
+    debugger;
+    if (videoSamples.length) {
+    //if (videoTrack.sps && videoTrack.pps && videoSamples.length) {
       // let's use input time scale as MP4 video timescale
       // we use input time scale straight away to avoid rounding issues on frame duration / cts computation
       const inputTimeScale = videoTrack.inputTimeScale;

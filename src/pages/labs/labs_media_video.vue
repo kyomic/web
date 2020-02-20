@@ -97,14 +97,14 @@ export default {
           //stream = new HLStream( {url: "https://storage.googleapis.com/shaka-demo-assets/angel-one-hls/hls.m3u8" })
 
           //stream = new HLStream( {url: "http://web.fun.tv/demo/test.m3u8" })
-          stream = new HLStream( {url: "http://web.fun.tv/demo/flv.m3u8" })
+          //stream = new HLStream( {url: "http://web.fun.tv/demo/flv.m3u8" })
           //stream = new HLStream( {url: "http://web.fun.tv/demo/playlist_v-0144p-0100k-libx264.m3u8" })
         }catch(e){
           console.error(e)
         }
        
         stream = new HLStream( {url: "http://test.fun.tv/flv.m3u8" })
-        
+        //
         //stream = new URLStream({url:"https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_9b68ca7a2eb570f791113a0d1801e038.mp4"})
         player.attachStream( stream );
         player.play();

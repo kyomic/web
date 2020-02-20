@@ -48,7 +48,9 @@ class ExpGolomb {
       this.bitsAvailable -= count;
     }
   }
-
+  readByte(){
+    return this.readBits(8)
+  }
   // (size:int):uint
   readBits (size) {
     let
@@ -298,6 +300,10 @@ class ExpGolomb {
     this.readUEG();
     // return slice_type
     return this.readUEG();
+  }
+
+  destroy() {
+    this.data = null;
   }
 }
 
