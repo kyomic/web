@@ -33,7 +33,7 @@ export var HLSEvent = {
     FRAG_PARSING_METADATA: 'hlsFraParsingMetadata',
     // fired when moof/mdat have been extracted from fragment - data: { moof : moof MP4 box, mdat : mdat MP4 box}
     FRAG_PARSING_DATA: 'hlsFragParsingData',
-
+    FRAG_PARSING:'hlsFragParsing',//被通知开始解析
     FRAG_PARSING_USERDATA:'hlsFragParsingUserData',//???
     // fired when fragment parsing is completed - data: undefined
     FRAG_PARSED: 'hlsFragParsed',

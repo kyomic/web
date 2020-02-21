@@ -44,6 +44,8 @@ class Demuxer {
     observer.on(HLSEvent.FRAG_PARSING_INIT_SEGMENT, forwardMessage);
     observer.on(HLSEvent.FRAG_PARSING_DATA, forwardMessage);
     observer.on(HLSEvent.FRAG_PARSED, forwardMessage);
+    observer.on(HLSEvent.FRAG_PARSING, forwardMessage);
+
 
     observer.on(HLSEvent.ERROR, forwardMessage);
     observer.on(HLSEvent.FRAG_PARSING_METADATA, forwardMessage);

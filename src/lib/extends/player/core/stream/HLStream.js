@@ -75,6 +75,8 @@ class HLStream extends AbstractStream{
 
     detachEvent(){
         this.off( HLSEvent.FRAG_PARSED, this.evtOnDemuxEvent );
+
+        this.off( HLSEvent.FRAG_PARSING, this.evtOnDemuxEvent );
         this.off( HLSEvent.FRAG_PARSING_DATA, this.evtOnDemuxEvent );
         this.off( HLSEvent.FRAG_PARSING_INIT_SEGMENT, this.evtOnDemuxEvent );        
         this.off( MediaEvent.MEDIA_ATTACHING, this.evtOnMediaEvent );
@@ -82,6 +84,7 @@ class HLStream extends AbstractStream{
     attachEvent(){
 
         this.on( HLSEvent.FRAG_PARSED, this.evtOnDemuxEvent );
+        this.on( HLSEvent.FRAG_PARSING, this.evtOnDemuxEvent );
         this.on( HLSEvent.FRAG_PARSING_DATA, this.evtOnDemuxEvent );
         this.on( HLSEvent.FRAG_PARSING_INIT_SEGMENT, this.evtOnDemuxEvent );
         
@@ -308,11 +311,15 @@ class HLStream extends AbstractStream{
                     this.tick();
                 }
                 break;
+            case HLSEvent.FRAG_PARSING:
+                //由Demuxer主动触发
+                this._state =  STATE.PARSING;
+                break;
             case HLSEvent.FRAG_PARSING_DATA:
                 var fragCurrent = this.fragCurrent;
                 var fragNew = data.frag;
                 data.id = 'main';
-
+                debugger;
                 if (fragCurrent && data.id === 'main' && fragNew.sn === fragCurrent.sn && fragNew.level === fragCurrent.level && !(data.type === 'audio' && this.altAudio) && // filter out main audio if audio track is loaded through audio stream controller
                 this._state === STATE.PARSING) {
                     var level = this._levels[this._level],

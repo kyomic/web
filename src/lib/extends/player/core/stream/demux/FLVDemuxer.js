@@ -3,6 +3,9 @@ import SPSParser from '../../parser/sps-parser'
 
 import MediaInfo from './media-info'
 
+//import work from 'webworkify-webpack';
+import { HLSEvent } from '../../../event/HLSEvent'
+
 function Swap16(src) {
     return (((src >>> 8) & 0xFF) |
             ((src & 0xFF) << 8));
@@ -88,8 +91,8 @@ class FLVDemuxer {
 
   resetInitSegment (initSegment, audioCodec, videoCodec, duration) {
     this._firstParse = true;
-    this._videoTrack = {type: 'video', id: 1, sequenceNumber: 0, samples: [],sps:[], pps:[], length: 0, inputTimeScale: 1};
-    this._audioTrack = {type: 'audio', id: 2, sequenceNumber: 0, samples: [],sps:[], pps:[], length: 0, inputTimeScale: 1};
+    this._videoTrack = {type: 'video', id: 1, sequenceNumber: 0, samples: [],sps:[], pps:[], length: 0, inputTimeScale: this._timescale};
+    this._audioTrack = {type: 'audio', id: 2, sequenceNumber: 0, samples: [],sps:[], pps:[], length: 0, inputTimeScale: this._timescale};
 
     this._id3Track = {type: 'id3', id: 3, sequenceNumber: 0, samples: [], length: 0};
     this._txtTrack = {type: 'text', id: 4, sequenceNumber: 0, samples: [], length: 0};
@@ -236,11 +239,13 @@ class FLVDemuxer {
     console.log("@@@@@@@@@MediaInfo", mediainfo)
 
     this.remuxer.remux( this._audioTrack, this._videoTrack, this._id3Track, this._txtTrack, 0 );
-    throw new Error("end")
+    //throw new Error("end")
   }
   _onDataAvailable( audioTrack, videoTrack ){
     console.log("数据可用....", audioTrack, videoTrack)
-    //this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
+
+    this.observer.trigger( HLSEvent.FRAG_PARSING, {});
+    this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
   }
   /** 
    * 一般情况只触发一次
