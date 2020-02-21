@@ -301,6 +301,7 @@ class HLStream extends AbstractStream{
                         window.debug && console.log(`main track:${trackName},container:${track.container},codecs[level/parsed]=[${track.levelCodec}/${track.codec}]`);
                         let initSegment = track.initSegment;
                         if (initSegment) {
+                            debugger;
                             this.appended = true;
                             // arm pending Buffering flag before appending a segment
                             this.pendingBuffering = true;

@@ -202,7 +202,7 @@ class FLVDemuxer {
 
       let dataOffset = offset + 11;
       let map = {8:"音频",9:"视频",18:"脚本"}
-      console.log("tagType:", tagType, "(", map[tagType] ,")dataSize", dataSize, 'timestamp', timestamp)
+      //console.log("tagType:", tagType, "(", map[tagType] ,")dataSize", dataSize, 'timestamp', timestamp)
 
 
       switch (tagType) {
@@ -221,7 +221,7 @@ class FLVDemuxer {
       if (prevTagSize !== 11 + dataSize) {
           console.log(this.TAG, `Invalid PrevTagSize ${prevTagSize}`);
       }
-      console.log("#####################")
+      //console.log("#####################")
       offset += 11 + dataSize + 4;  // tagBody + dataSize + prevTagSize
 
       
@@ -243,7 +243,7 @@ class FLVDemuxer {
   }
   _onDataAvailable( audioTrack, videoTrack ){
     console.log("数据可用....", audioTrack, videoTrack)
-
+    debugger;
     this.observer.trigger( HLSEvent.FRAG_PARSING, {});
     this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
   }
@@ -373,8 +373,8 @@ class FLVDemuxer {
       //this._onError(DemuxErrors.CODEC_UNSUPPORTED, `Flv: Unsupported codec in video frame: ${codecId}`);
       return;
     }
-    console.log("spec", spec)
-    console.log("codecId", codecId)
+    //console.log("spec", spec)
+    //console.log("codecId", codecId)
     this._parseAVCVideoPacket(arrayBuffer, dataOffset + 1, dataSize - 1, tagTimestamp, tagPosition, frameType);
     
   }
@@ -396,7 +396,7 @@ class FLVDemuxer {
     let packetType = v.getUint8(0);
     let cts_unsigned = v.getUint32(0, !le) & 0x00FFFFFF;
     let cts = (cts_unsigned << 8) >> 8;  // convert to 24-bit signed int
-    console.log("AVCPackType:", packetType, "cts", cts)
+    //console.log("AVCPackType:", packetType, "cts", cts)
     if (packetType === 0) {  // AVCDecoderConfigurationRecord
       this._parseAVCDecoderConfigurationRecord(arrayBuffer, dataOffset + 4, dataSize - 4);
     } else if (packetType === 1) {  // One or more Nalus
@@ -601,7 +601,7 @@ class FLVDemuxer {
     let offset = 0;
     const lengthSize = this._naluLengthSize;
     let dts = this._timestampBase + tagTimestamp;
-    console.log("DTS===============", dts, tagTimestamp)
+    //console.log("DTS===============", dts, tagTimestamp)
     //add by wangxk
     let keyframe = (frameType === 1);  // from FLV Frame Type constants
 
@@ -650,7 +650,7 @@ class FLVDemuxer {
       track.samples.push(avcSample);
       track.length += length;
     }
-    console.log("AVCVideo:", this._videoTrack)
+    //console.log("AVCVideo:", this._videoTrack)
   }
 
   _parseAudioData(arrayBuffer, dataOffset, dataSize, tagTimestamp) {
@@ -703,7 +703,7 @@ class FLVDemuxer {
       meta.channelCount = (soundType === 0 ? 1 : 2);
     }
 
-    console.log("音频格式:", soundFormat)
+    //console.log("音频格式:", soundFormat)
     if (soundFormat === 10) {  // AAC
       track.isAAC = true;
       let aacData = this._parseAACAudioData(arrayBuffer, dataOffset + 1, dataSize - 1);
@@ -826,7 +826,12 @@ class FLVDemuxer {
 
       track.samples.push(mp3Sample);
       track.length += data.length;
+
     }
+
+    //MP4Remuxer need
+    //add by wangxk
+    track.len = track.length;
   }
 
   _parseAACAudioData(arrayBuffer, dataOffset, dataSize) {

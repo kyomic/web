@@ -103,7 +103,7 @@ export default {
           console.error(e)
         }
        
-        stream = new HLStream( {url: "http://test.fun.tv/flv.m3u8" })
+        //stream = new HLStream( {url: "http://test.fun.tv/flv.m3u8" })
         //
         //stream = new URLStream({url:"https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_9b68ca7a2eb570f791113a0d1801e038.mp4"})
         player.attachStream( stream );
