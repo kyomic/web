@@ -129,6 +129,7 @@ class HLStream extends AbstractStream{
                 if (this.media.currentTime !== this.startPosition) {
                     this.media.currentTime = this.startPosition;
                 }
+                console.log("视频时长:", this.media.duration)
                 this.loadedmetadata = true;
                 //this.tick();
                 break;

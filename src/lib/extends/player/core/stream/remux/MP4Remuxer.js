@@ -76,9 +76,9 @@ class MP4Remuxer {
     if (!this.ISGenerated) {
       this.generateIS(audioTrack, videoTrack, timeOffset);
     }
-    debugger;
-
     if (this.ISGenerated) {
+      this.generatePTSDTS( audioTrack, videoTrack, timeOffset );
+
       const nbAudioSamples = audioTrack.samples.length;
       const nbVideoSamples = videoTrack.samples.length;
       let audioTimeOffset = timeOffset;
@@ -143,7 +143,7 @@ class MP4Remuxer {
   generatePTSDTS( audioTrack, videoTrack, timeOffset ){
     let audioSamples = audioTrack.samples,
       videoSamples = videoTrack.samples,
-      computePTSDTS = (this._initPTS === undefined),
+      computePTSDTS = (this._initPTS === undefined||this._initPTS===Infinity),
       initPTS, initDTS;
     if (computePTSDTS) {
       initPTS = initDTS = Infinity;
@@ -153,11 +153,12 @@ class MP4Remuxer {
         initPTS = initDTS = audioSamples[0].pts - audioTrack.inputTimeScale * timeOffset;
       }
       if( videoSamples.length ){
+        let inputTimeScale = videoTrack.inputTimeScale;
         initPTS = Math.min(initPTS, videoSamples[0].pts - inputTimeScale * timeOffset);
         initDTS = Math.min(initDTS, videoSamples[0].dts - inputTimeScale * timeOffset);
       }
     }
-    if( initPTS != undefined ){
+    if( initPTS || initPTS == 0 ){
       this._initPTS = initPTS;
       this._initDTS = initDTS;
     }
@@ -220,6 +221,7 @@ class MP4Remuxer {
       };      
     }
     debugger;
+    console.log("initMP4", data)
     if (Object.keys(tracks).length) {
       observer.trigger( HLSEvent.FRAG_PARSING_INIT_SEGMENT, data);
       this.ISGenerated = true;
@@ -292,7 +294,7 @@ class MP4Remuxer {
         this.observer.trigger( HLSEvent.INIT_PTS_FOUND, { initPTS: initPTS });
       }
     }
-
+    console.log("initMP4", data)
     if (Object.keys(tracks).length) {
       observer.trigger( HLSEvent.FRAG_PARSING_INIT_SEGMENT, data);
       this.ISGenerated = true;
@@ -560,6 +562,7 @@ class MP4Remuxer {
       nb: outputSamples.length,
       dropped: dropped
     };
+    console.log("parseMP4", data)
     this.observer.trigger( HLSEvent.FRAG_PARSING_DATA, data);
     return data;
   }
@@ -819,6 +822,7 @@ class MP4Remuxer {
         hasVideo: false,
         nb: nbSamples
       };
+      console.log("parseMP4", audioData)
       this.observer.trigger( HLSEvent.FRAG_PARSING_DATA, audioData);
       return audioData;
     }

@@ -88,8 +88,8 @@ class FLVDemuxer {
 
   resetInitSegment (initSegment, audioCodec, videoCodec, duration) {
     this._firstParse = true;
-    this._videoTrack = {type: 'video', id: 1, sequenceNumber: 0, samples: [],sps:[], pps:[], length: 0, inputTimeScale: 90000};
-    this._audioTrack = {type: 'audio', id: 2, sequenceNumber: 0, samples: [],sps:[], pps:[], length: 0, inputTimeScale: 90000};
+    this._videoTrack = {type: 'video', id: 1, sequenceNumber: 0, samples: [],sps:[], pps:[], length: 0, inputTimeScale: 1};
+    this._audioTrack = {type: 'audio', id: 2, sequenceNumber: 0, samples: [],sps:[], pps:[], length: 0, inputTimeScale: 1};
 
     this._id3Track = {type: 'id3', id: 3, sequenceNumber: 0, samples: [], length: 0};
     this._txtTrack = {type: 'text', id: 4, sequenceNumber: 0, samples: [], length: 0};
@@ -190,6 +190,7 @@ class FLVDemuxer {
       let ts3 = v.getUint8(7);
 
       let timestamp = ts0 | (ts1 << 8) | (ts2 << 16) | (ts3 << 24);
+      //add by wangxk
 
       let streamId = v.getUint32(7, !le) & 0x00FFFFFF;
       if (streamId !== 0) {
@@ -235,10 +236,11 @@ class FLVDemuxer {
     console.log("@@@@@@@@@MediaInfo", mediainfo)
 
     this.remuxer.remux( this._audioTrack, this._videoTrack, this._id3Track, this._txtTrack, 0 );
+    throw new Error("end")
   }
   _onDataAvailable( audioTrack, videoTrack ){
     console.log("数据可用....", audioTrack, videoTrack)
-    this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
+    //this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
   }
   /** 
    * 一般情况只触发一次
@@ -594,11 +596,13 @@ class FLVDemuxer {
     let offset = 0;
     const lengthSize = this._naluLengthSize;
     let dts = this._timestampBase + tagTimestamp;
+    console.log("DTS===============", dts, tagTimestamp)
+    //add by wangxk
     let keyframe = (frameType === 1);  // from FLV Frame Type constants
 
     while (offset < dataSize) {
       if (offset + 4 >= dataSize) {
-          Log.w(this.TAG, `Malformed Nalu near timestamp ${dts}, offset = ${offset}, dataSize = ${dataSize}`);
+          window.debug && console.log(this.TAG, `Malformed Nalu near timestamp ${dts}, offset = ${offset}, dataSize = ${dataSize}`);
           break;  // data not enough for next Nalu
       }
       // Nalu with length-header (AVC1)
@@ -607,7 +611,7 @@ class FLVDemuxer {
           naluSize >>>= 8;
       }
       if (naluSize > dataSize - lengthSize) {
-          Log.w(this.TAG, `Malformed Nalus near timestamp ${dts}, NaluSize > DataSize!`);
+          window.debug && console.log(this.TAG, `Malformed Nalus near timestamp ${dts}, NaluSize > DataSize!`);
           return;
       }
 
@@ -715,6 +719,7 @@ class FLVDemuxer {
         //add by wangxk
         track.codec = misc.codec;
         track.duration = meta.duration;
+        track.channelCount = meta.channelCount;
 
         meta.channelCount = misc.channelCount;
         meta.codec = misc.codec;
@@ -805,6 +810,10 @@ class FLVDemuxer {
       if (data == undefined) {
           return;
       }
+
+      //pts：显示时间，也就是接收方在显示器显示这帧的时间。单位为1/90000 秒
+      //dts：解码时间，也就是rtp包中传输的时间戳，表明解码的顺序。单位单位为1/90000 秒
+      //cts:偏移：cts = (pts - dts) / 90 。cts的单位是毫秒。
       let dts = this._timestampBase + tagTimestamp;
       let mp3Sample = {unit: data, length: data.byteLength, dts: dts, pts: dts};
 
