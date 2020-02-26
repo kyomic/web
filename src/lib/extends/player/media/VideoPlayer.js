@@ -73,6 +73,9 @@ class VideoPlayer extends AbstractPlayer{
 			case 'waiting':
 				this.showBuffering( true );
 				break;
+			case 'durationchange':
+				console.log("durationchange.duration = ", this.video.duration)
+				break;
 		}
 		this.emit( e.type, {type:e.type, target:this, originEvent: e});
 	}

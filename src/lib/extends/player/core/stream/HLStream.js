@@ -301,7 +301,6 @@ class HLStream extends AbstractStream{
                         window.debug && console.log(`main track:${trackName},container:${track.container},codecs[level/parsed]=[${track.levelCodec}/${track.codec}]`);
                         let initSegment = track.initSegment;
                         if (initSegment) {
-                            debugger;
                             this.appended = true;
                             // arm pending Buffering flag before appending a segment
                             this.pendingBuffering = true;
@@ -320,7 +319,6 @@ class HLStream extends AbstractStream{
                 var fragCurrent = this.fragCurrent;
                 var fragNew = data.frag;
                 data.id = 'main';
-                debugger;
                 if (fragCurrent && data.id === 'main' && fragNew.sn === fragCurrent.sn && fragNew.level === fragCurrent.level && !(data.type === 'audio' && this.altAudio) && // filter out main audio if audio track is loaded through audio stream controller
                 this._state === STATE.PARSING) {
                     var level = this._levels[this._level],
@@ -574,6 +572,7 @@ class HLStream extends AbstractStream{
               //this.tracks[trackName] = { codec: codec, container: track.container };
               track.buffer = sb;
             } catch (err) {
+                alert('error=='+ err);
               window.debug && console.error(`error while trying to add sourceBuffer:${err.message}`);
               //this.hls.trigger(Event.ERROR, { type: ErrorTypes.MEDIA_ERROR, details: ErrorDetails.BUFFER_ADD_CODEC_ERROR, fatal: false, err: err, mimeType: mimeType });
             }

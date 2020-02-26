@@ -163,7 +163,7 @@ class MP4Remuxer {
       this._initDTS = initDTS;
     }
   }
-  generateIS( audioTrack, videoTrack, timeOffset ){
+  generateIS2( audioTrack, videoTrack, timeOffset ){
     this.generatePTSDTS( audioTrack, videoTrack, timeOffset );
     let observer = this.observer,
       audioSamples = audioTrack.samples,
@@ -220,7 +220,6 @@ class MP4Remuxer {
         }
       };      
     }
-    debugger;
     console.log("initMP4", data)
     if (Object.keys(tracks).length) {
       observer.trigger( HLSEvent.FRAG_PARSING_INIT_SEGMENT, data);
@@ -229,7 +228,7 @@ class MP4Remuxer {
       observer.trigger(Event.ERROR, { type: ErrorTypes.MEDIA_ERROR, details: ErrorDetails.FRAG_PARSING_ERROR, fatal: false, reason: 'no audio/video samples found' });
     }
   }
-  generateIS2 (audioTrack, videoTrack, timeOffset) {
+  generateIS (audioTrack, videoTrack, timeOffset) {
     let observer = this.observer,
       audioSamples = audioTrack.samples,
       videoSamples = videoTrack.samples,
@@ -272,7 +271,6 @@ class MP4Remuxer {
         initPTS = initDTS = audioSamples[0].pts - audioTrack.inputTimeScale * timeOffset;
       }
     }
-    debugger;
     if (videoSamples.length) {
     //if (videoTrack.sps && videoTrack.pps && videoSamples.length) {
       // let's use input time scale as MP4 video timescale
@@ -342,7 +340,6 @@ class MP4Remuxer {
     if (nbSamples === 0) {
       return;
     }
-    debugger
     console.log("remuxVideo::::::", track, nbSamples, arguments)
     // Safari does not like overlapping DTS on consecutive fragments. let's use nextAvcDts to overcome this if fragments are consecutive
     if (isSafari) {

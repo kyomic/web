@@ -239,13 +239,19 @@ class FLVDemuxer {
     console.log("@@@@@@@@@MediaInfo", mediainfo)
 
     this.remuxer.remux( this._audioTrack, this._videoTrack, this._id3Track, this._txtTrack, 0 );
+    
+    
+    console.log("after resumex..................", this._audioTrack.samples.length, this._audioTrack.length)
     //throw new Error("end")
   }
   _onDataAvailable( audioTrack, videoTrack ){
     console.log("数据可用....", audioTrack, videoTrack)
     debugger;
-    this.observer.trigger( HLSEvent.FRAG_PARSING, {});
-    this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
+    //this.observer.trigger( HLSEvent.FRAG_PARSING, {});
+    setTimeout(_=>{
+      this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
+    },10000)
+    //this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
   }
   /** 
    * 一般情况只触发一次
