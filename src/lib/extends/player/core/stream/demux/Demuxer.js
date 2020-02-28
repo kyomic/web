@@ -31,7 +31,7 @@ class Demuxer {
     this.frag = null;
 
     let forwardMessage = function (ev, data) {
-      console.log("message", ev, data)
+      //console.log("message", ev, data)
       data = data || {};
       data.frag = this.frag;
       data.id = this.id;

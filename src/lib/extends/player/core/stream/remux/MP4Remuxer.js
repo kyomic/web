@@ -163,7 +163,7 @@ class MP4Remuxer {
       this._initDTS = initDTS;
     }
   }
-  generateIS2( audioTrack, videoTrack, timeOffset ){
+  generateIS( audioTrack, videoTrack, timeOffset ){
     this.generatePTSDTS( audioTrack, videoTrack, timeOffset );
     let observer = this.observer,
       audioSamples = audioTrack.samples,
@@ -178,6 +178,7 @@ class MP4Remuxer {
     if (computePTSDTS) {
       initPTS = initDTS = Infinity;
     }
+    debugger
 
     if (audioTrack.config ) {
       // let's use audio sampling rate as MP4 time scale.
@@ -228,7 +229,7 @@ class MP4Remuxer {
       observer.trigger(Event.ERROR, { type: ErrorTypes.MEDIA_ERROR, details: ErrorDetails.FRAG_PARSING_ERROR, fatal: false, reason: 'no audio/video samples found' });
     }
   }
-  generateIS (audioTrack, videoTrack, timeOffset) {
+  generateIS2 (audioTrack, videoTrack, timeOffset) {
     let observer = this.observer,
       audioSamples = audioTrack.samples,
       videoSamples = videoTrack.samples,
@@ -612,6 +613,14 @@ class MP4Remuxer {
     if (inputSamples.length === 0) {
       return;
     }
+
+    /** 没明白，不是force时，length=1忽略,这是和 FLV.js的差异
+    if (samples.length === 1 && !force) {
+        // If [sample count in current batch] === 1 && (force != true)
+        // Ignore and keep in demuxer's queue
+        return;
+    }  
+    */
 
     if (!contiguous) {
       if (!accurateTimeOffset) {

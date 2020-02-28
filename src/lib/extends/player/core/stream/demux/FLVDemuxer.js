@@ -42,6 +42,11 @@ class FLVDemuxer {
     this._timestampBase = 0;  // int32, in milliseconds
     this._timescale = 1000;
 
+    this._byteStart = undefined; //解码视频的起始字节
+    this._unusedChunk = new Uint8Array();  //解码片段时，未解码字节块
+
+    //如果非实时流 384K，否则512K
+    this._stashInitialSize = 1024 * 384; // default initial size: 384KB
 
     this._audioInitialMetadataDispatched = false;
     this._videoInitialMetadataDispatched = false;
@@ -71,6 +76,7 @@ class FLVDemuxer {
 
     this._mediaInfo = new MediaInfo();
     this._metadata = null;
+    this._unusedChunk = new Uint8Array();
   }
 
   static createTrack (type, duration) {
@@ -118,8 +124,156 @@ class FLVDemuxer {
     return false;
   }
 
+  append ( data, timeOffset, contiguous, accurateTimeOffset ){
+    if( typeof this._littleEndian == 'undefined'){
+        this._littleEndian = (function () {
+            let buf = new ArrayBuffer(2);
+            (new DataView(buf)).setInt16(0, 256, true);  // little-endian write
+            return (new Int16Array(buf))[0] === 256;  // platform-spec read, if equal then LE
+        })();
+    }
+    if( typeof this._byteStart == 'undefined'){
+      this._byteStart = 0;
+    }
+    let le = this._littleEndian;
+    let buffer = data.slice(0, data.byteLength);
+
+    let chunk = data.buffer;
+    let chunkLength = data.byteLength;
+    let unusedChunkLength = 0;
+
+    let offset = 0;
+    let byteStart = this._byteStart;
+    if (byteStart === 0) {  // buffer with FLV header
+        if (chunk.byteLength > 13) {
+            let probeData = FLVDemuxer.probeData(chunk);
+            console.log("probeData", probeData)
+            //offset = 9 (FileHeader到FileBody的字节数)
+
+            this._mediaInfo.hasAudio = probeData.hasAudioTrack;
+            this._mediaInfo.hasVideo = probeData.hasVideoTrack;
+            offset = probeData.dataOffset;
+        } else {
+            return 0;
+        }
+    }
+
+    if( this._unusedChunk.byteLength ){
+      unusedChunkLength = this._unusedChunk.byteLength;
+
+      let tmp = new Uint8Array( chunkLength + unusedChunkLength );
+      tmp.set(this._unusedChunk, 0)
+      tmp.set(data, unusedChunkLength)
+
+      buffer = tmp;
+      chunk = buffer.buffer;
+
+      //console.log("未解码长度:", unusedChunkLength,"拼装长度", chunkLength + unusedChunkLength,"chunk:", chunkLength)
+      this._unusedChunk = new Uint8Array();
+    }
+    if( this._firstParse ){
+        this._firstParse = false;
+        let v = new DataView(chunk, offset);
+        let prevTagSize0 = v.getUint32(0, !le);
+        if (prevTagSize0 !== 0) {
+            console.log("PrevTagSize0 !== 0 !!!")
+        }
+        offset += 4;
+    }
+    //offset = 13 (前13字节为文件头)
+    console.log("字节开始位置:",byteStart, '块大小', chunk.byteLength);
+
+    if( byteStart == 86507 ){
+      window.b = [];
+      debugger
+    }
+    if( byteStart == 94093){
+      debugger;
+    }
+    while (offset < chunk.byteLength) {
+      this._dispatch = true;
+      let v = new DataView(chunk, offset);
+      if (offset + 11 + 4 > chunk.byteLength) {
+          // data not enough for parsing an flv tag
+          break;
+      }
+
+      //实际上真正用到的只有三种type，8、9、18 分别对应，音频、视频和Script Data。
+      
+
+      /* (共11字节)
+      UI8 tag type
+      UI24 data size
+      UI24 timestamp
+      UI8 TimestampExtended
+      UI24 StreamID
+      */
+      let tagType = v.getUint8(0);
+      let dataSize = v.getUint32(0, !le) & 0x00FFFFFF;
+      if (offset + 11 + dataSize + 4 > chunk.byteLength) {
+          // data not enough for parsing actual data body
+          break;
+      }
+      if (tagType !== 8 && tagType !== 9 && tagType !== 18) {
+          console.log(this.TAG, `Unsupported tag type ${tagType}, skipped`);
+          // consume the whole tag (skip it)
+          offset += 11 + dataSize + 4;
+          continue;
+      }
+
+      let ts2 = v.getUint8(4);
+      let ts1 = v.getUint8(5);
+      let ts0 = v.getUint8(6);
+      let ts3 = v.getUint8(7);
+
+      let timestamp = ts0 | (ts1 << 8) | (ts2 << 16) | (ts3 << 24);
+      //add by wangxk
+
+      let streamId = v.getUint32(7, !le) & 0x00FFFFFF;
+      if (streamId !== 0) {
+          console.log(this.TAG, 'Meet tag which has StreamID != 0!');
+      }
+
+      let dataOffset = offset + 11;
+      let map = {8:"音频",9:"视频",18:"脚本"};
+      //console.log("tagType:", tagType, "(", map[tagType] ,")dataSize", dataSize, 'timestamp', timestamp)
+
+      switch (tagType) {
+          case 8:  // Audio
+              this._parseAudioData(chunk, dataOffset, dataSize, timestamp);
+              break;
+          case 9:  // Video
+              this._parseVideoData(chunk, dataOffset, dataSize, timestamp, byteStart + offset);
+              break;
+          case 18:  // ScriptDataObject
+              this._parseScriptData(chunk, dataOffset, dataSize);
+              break;
+      }
+
+      let prevTagSize = v.getUint32(11 + dataSize, !le);
+      if (prevTagSize !== 11 + dataSize) {
+          console.log(this.TAG, `Invalid PrevTagSize ${prevTagSize}`);
+      }
+      //console.log("#####################")
+      offset += 11 + dataSize + 4;  // tagBody + dataSize + prevTagSize
+
+      
+    }
+    // dispatch parsed frames to consumer (typically, the remuxer)
+    if (this._isInitialMetadataDispatched()) {
+      if (this._dispatch && (this._audioTrack.length || this._videoTrack.length)) {
+        this._onDataAvailable(this._audioTrack, this._videoTrack);
+      }
+    }
+    chunkLength = chunk.byteLength;
+    this._unusedChunk = buffer.slice( offset, chunkLength);
+    //offset
+    // consumed bytes, just equals latest offset index
+    this._byteStart += offset;
+    console.log("########consumed bytes:", offset)
+  }
   // feed incoming data to the front of the parsing pipeline
-  append (data, timeOffset, contiguous, accurateTimeOffset) {
+  append2 (data, timeOffset, contiguous, accurateTimeOffset) {
     if( typeof this._littleEndian == 'undefined'){
         this._littleEndian = (function () {
             let buf = new ArrayBuffer(2);
@@ -157,6 +311,7 @@ class FLVDemuxer {
     }
     //offset = 13 (前13字节为文件头)
     console.log("byteStart===",byteStart)
+
     while (offset < chunk.byteLength) {
       this._dispatch = true;
       let v = new DataView(chunk, offset);
@@ -204,7 +359,6 @@ class FLVDemuxer {
       let map = {8:"音频",9:"视频",18:"脚本"}
       //console.log("tagType:", tagType, "(", map[tagType] ,")dataSize", dataSize, 'timestamp', timestamp)
 
-
       switch (tagType) {
           case 8:  // Audio
               this._parseAudioData(chunk, dataOffset, dataSize, timestamp);
@@ -237,7 +391,7 @@ class FLVDemuxer {
 
   _onMediaInfo( mediainfo ){
     console.log("@@@@@@@@@MediaInfo", mediainfo)
-
+    debugger;
     this.remuxer.remux( this._audioTrack, this._videoTrack, this._id3Track, this._txtTrack, 0 );
     
     
@@ -245,13 +399,32 @@ class FLVDemuxer {
     //throw new Error("end")
   }
   _onDataAvailable( audioTrack, videoTrack ){
-    console.log("数据可用....", audioTrack, videoTrack)
-    debugger;
-    //this.observer.trigger( HLSEvent.FRAG_PARSING, {});
+    let samplesLength = 0;
+    if( audioTrack.samples ){
+      samplesLength += audioTrack.samples.length
+    }
+    if( videoTrack.samples ){
+      samplesLength += videoTrack.samples.length
+    }
+    console.log("remux----", samplesLength, audioTrack, videoTrack)
+
+    if( typeof window.s =='undefined'){
+      window.s = 0;
+    }
+    window.s += samplesLength;
+    console.log("samplesTotal", window.s)
+    //debugger;
+    this.observer.trigger( HLSEvent.FRAG_PARSING, {});
     setTimeout(_=>{
-      this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
+      //this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
     },10000)
-    //this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
+    this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
+
+    this._videoTrack.samples = [];
+    this._videoTrack.length = this._videoTrack.len = 0;
+    this._audioTrack.samples = [];
+    this._audioTrack.length = this._videoTrack.len = 0;;
+
   }
   /** 
    * 一般情况只触发一次
@@ -592,7 +765,6 @@ class FLVDemuxer {
       console.log("video metadata init......")
         this._videoInitialMetadataDispatched = true;
     }
-    debugger;
     // notify new metadata    
     this._dispatch = false;
     this._onTrackMetadata('video', meta);
@@ -653,10 +825,11 @@ class FLVDemuxer {
       if (keyframe) {
           avcSample.fileposition = tagPosition;
       }
+      if( window.b ){window.b.push( dts )}
       track.samples.push(avcSample);
       track.length += length;
     }
-    //console.log("AVCVideo:", this._videoTrack)
+    //console.log("AVC Video:", this._videoTrack)
   }
 
   _parseAudioData(arrayBuffer, dataOffset, dataSize, tagTimestamp) {
@@ -772,8 +945,10 @@ class FLVDemuxer {
       } else if (aacData.packetType === 1) {  // AAC raw frame data
         let dts = this._timestampBase + tagTimestamp;
         let aacSample = {unit: aacData.data, length: aacData.data.byteLength, dts: dts, pts: dts};
+        if( window.b ){window.b.push( dts )}
         track.samples.push(aacSample);
         track.length += aacData.data.length;
+        //console.log("ACC Audio",track)
       } else {
         window.debug && console.log(this.TAG, `Flv: Unsupported AAC data type ${aacData.packetType}`);
       }
