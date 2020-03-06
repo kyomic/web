@@ -221,7 +221,6 @@ class MP4 {
 
     // Track header box
     static tkhd(meta) {
-        debugger;
         let trackId = meta.id, duration = meta.duration;
         let width = meta.presentWidth, height = meta.presentHeight;
 
@@ -267,7 +266,6 @@ class MP4 {
 
     // Media header box
     static mdhd(meta) {
-        debugger
         let timescale = meta.timescale;
         let duration = meta.duration;
         return MP4.box(MP4.types.mdhd, new Uint8Array([
@@ -413,7 +411,6 @@ class MP4 {
     }
 
     static avc1(meta) {
-        debugger;
         let avcc = meta.avcc;
         let width = meta.codecWidth || meta.width, height = meta.codecHeight || meta.height;
 
