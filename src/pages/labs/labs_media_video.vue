@@ -68,6 +68,10 @@ export default {
   },
   methods:{
     play(url,idx){
+      var dom = document.querySelector(".imglayer")
+      dom.innerHTML = "";
+      player= new WebVideo({target: dom}) 
+
       let stream = new URLStream({url})
       player.attachStream( stream );
       player.play();
