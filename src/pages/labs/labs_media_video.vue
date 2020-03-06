@@ -26,6 +26,8 @@ import bufferUtils from '@/lib/extends/img/bufferUtils';
 import utils from '@/lib/core/utils'
 
 import WebVideo from '@/lib/extends/player/WebVideo'
+import StupidVideo from '@/lib/extends/player/StupidVideo';
+
 import { HLStream, BufferStream,URLStream } from '@/lib/extends/player/core/stream';
 import { FileReferenceProvider } from '@/lib/extends/player/data'
 let mountedId = 0;
@@ -118,8 +120,10 @@ export default {
     clearTimeout( mountedId )
     mountedId = setTimeout( _=>{
       var dom = document.querySelector(".imglayer")
-      player= new WebVideo({target: dom})    
-      this.onChange({target:{}})
+      //player= new WebVideo({target: dom})    
+      //this.onChange({target:{}})
+
+      player = new StupidVideo({target:dom});
 
       document.querySelector(".container").style.cssText = "display:block"
     },2000)

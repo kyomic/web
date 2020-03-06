@@ -28,7 +28,7 @@ class DemuxerInline{
 	}
 
 	push (data, decryptdata, initSegment, audioCodec, videoCodec, timeOffset, discontinuity, trackSwitch, contiguous, duration, accurateTimeOffset, defaultInitPTS) {
-		console.log("push", arguments)
+		//console.log("push", arguments)
 		if ((data.byteLength > 0) && (decryptdata != null) && (decryptdata.key != null) && (decryptdata.method === 'AES-128')) {
 			//TODO
 			let decrypter = this.decrypter;

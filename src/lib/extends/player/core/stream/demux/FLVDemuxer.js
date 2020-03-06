@@ -181,15 +181,8 @@ class FLVDemuxer {
         offset += 4;
     }
     //offset = 13 (前13字节为文件头)
-    console.log("字节开始位置:",byteStart, '块大小', chunk.byteLength);
+    //console.log("字节开始位置:",byteStart, '块大小', chunk.byteLength);
 
-    if( byteStart == 86507 ){
-      window.b = [];
-      debugger
-    }
-    if( byteStart == 94093){
-      debugger;
-    }
     while (offset < chunk.byteLength) {
       this._dispatch = true;
       let v = new DataView(chunk, offset);
@@ -391,7 +384,6 @@ class FLVDemuxer {
 
   _onMediaInfo( mediainfo ){
     console.log("@@@@@@@@@MediaInfo", mediainfo)
-    debugger;
     this.remuxer.remux( this._audioTrack, this._videoTrack, this._id3Track, this._txtTrack, 0 );
     
     
@@ -400,6 +392,7 @@ class FLVDemuxer {
   }
   _onDataAvailable( audioTrack, videoTrack ){
     let samplesLength = 0;
+    return;
     if( audioTrack.samples ){
       samplesLength += audioTrack.samples.length
     }
@@ -463,8 +456,8 @@ class FLVDemuxer {
       this._mediaInfo.height = onMetaData.height;
     }
     if (typeof onMetaData.duration === 'number') {  // duration
-      //let duration = Math.floor(onMetaData.duration * this._timescale);
-      let duration = onMetaData.duration;
+      let duration = Math.floor(onMetaData.duration * this._timescale);
+      //let duration = onMetaData.duration;
       this._duration = duration;
       this._mediaInfo.duration = duration;
     } else {
@@ -708,6 +701,9 @@ class FLVDemuxer {
       //add by wangxk
       track.width = meta.codecWidth;
       track.height = meta.codecHeight;
+      track.presentWidth = meta.codecWidth;
+      track.presentHeight = meta.codecHeight;
+
       track.codec = codecString;
       track.duration = meta.duration;
       track.pixelRatio = [ meta.sarRatio.width, meta.sarRatio.height ] 
@@ -752,6 +748,8 @@ class FLVDemuxer {
     //debugger;
     meta.avcc = new Uint8Array(dataSize);
     meta.avcc.set(new Uint8Array(arrayBuffer, dataOffset, dataSize), 0);
+    this._audioTrack.avcc = meta.avcc;
+    this._videoTrack.avcc = meta.avcc;
     window.debug && window.console.log(this.TAG, 'Parsed AVCDecoderConfigurationRecord');
 
     
