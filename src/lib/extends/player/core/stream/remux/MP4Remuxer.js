@@ -212,6 +212,7 @@ class MP4Remuxer {
       // we use input time scale straight away to avoid rounding issues on frame duration / cts computation
       const inputTimeScale = videoTrack.inputTimeScale;
       videoTrack.timescale = inputTimeScale;
+      debugger
       tracks.video = {
         container: 'video/mp4',
         codec: videoTrack.codec,

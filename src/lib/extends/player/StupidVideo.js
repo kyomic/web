@@ -21,7 +21,7 @@ class StupidVideo{
         media.addEventListener('loadedmetadata', this.onVideoEvent.bind(this) );
         media.addEventListener('ended', this.onVideoEvent.bind(this) );
         media.addEventListener('error', this.onVideoEvent.bind(this) );
-        
+
         var ms = this.mediaSource = new MediaSource();
         ms.addEventListener('sourceopen', this.onMediaSourceEvent.bind(this));
         ms.addEventListener('sourceended', this.onMediaSourceEvent.bind(this));
@@ -162,7 +162,7 @@ class StupidVideo{
 
 				//this.sourceBuffer[segment.type].appendBuffer(segment.data);
 				this.sourceBuffer[segment.type].appendBuffer(b);
-				console.log('*** appendBuffer ***', segment.data)
+				console.log('*** appendBuffer ***', b,uint8)
 			}catch(e){
 				console.error('*** appendBuffer ***', e)
 				this.mp4segments.unshift(segment);
