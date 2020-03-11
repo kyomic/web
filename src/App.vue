@@ -76,14 +76,12 @@
         </el-row>      
         <!-- 内容区结束 -->  
         <div class="footer">
-            <div class="info" style="display:none">
-                @copyright
-            </div>
-            <div class=" mobile-footer-menu hidden-sm-and-up">
-                <HomeMenu></HomeMenu>  
-                <a class="beian" target='_blank'>鄂ICP备06007021号</a>
-            </div>
-            
+            <div class="inner">
+                <div class=" mobile-footer-menu hidden-sm-and-up">
+                  <HomeMenu></HomeMenu> 
+                </div>
+                <a href="http://beian.miit.gov.cn/" class="beian" target='_blank'>鄂ICP备06007021号</a>
+            </div>            
         </div>
     </div>
   
@@ -316,7 +314,9 @@ export default {
 .mobile-footer-menu{
     width: 100%;
     background: white;
-    margin-top: 5*@rem;
+}
+.footer .inner{
+  padding: 5px 0;
 }
 .beian{
   color: #ccc;
