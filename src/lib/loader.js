@@ -102,7 +102,7 @@ class FetchLoader extends AbstractLoader{
         	chunk:chunk, 
         	start: byteStart, end: this._receivedLength
         }
-        console.log("###receive data:", data)
+        //console.log("###receive data:", data)
         this.emit('data',{type:'data', data: data })
         this.read( reader )
       }

@@ -263,7 +263,7 @@ class FLVDemuxer {
     //offset
     // consumed bytes, just equals latest offset index
     this._byteStart += offset;
-    console.log("########consumed bytes:", offset)
+    //console.log("########consumed bytes:", offset)
   }
   // feed incoming data to the front of the parsing pipeline
   append2 (data, timeOffset, contiguous, accurateTimeOffset) {
@@ -392,7 +392,6 @@ class FLVDemuxer {
   }
   _onDataAvailable( audioTrack, videoTrack ){
     let samplesLength = 0;
-    return;
     if( audioTrack.samples ){
       samplesLength += audioTrack.samples.length
     }
@@ -902,6 +901,7 @@ class FLVDemuxer {
         track.codec = misc.codec;
         track.duration = meta.duration;
         track.channelCount = meta.channelCount;
+        track.audioSampleRate = meta.audioSampleRate;
 
         meta.channelCount = misc.channelCount;
         meta.codec = misc.codec;

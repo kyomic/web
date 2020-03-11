@@ -152,10 +152,12 @@ class MP4 {
           MP4.init();
         }
 
-        let movie = MP4.moov(tracks), result;
-        result = new Uint8Array(MP4.FTYP.byteLength + movie.byteLength);
-        result.set(MP4.FTYP);
-        result.set(movie, MP4.FTYP.byteLength);
+        var ftyp = MP4.box(MP4.types.ftyp, MP4.constants.FTYP);
+        var moov = MP4.moov(tracks);
+
+        var result = new Uint8Array(ftyp.byteLength + moov.byteLength);
+        result.set(ftyp, 0);
+        result.set(moov, ftyp.byteLength);
         return result;
     }
     // emit ftyp & moov
