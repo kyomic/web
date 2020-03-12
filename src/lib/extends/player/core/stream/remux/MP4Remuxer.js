@@ -178,8 +178,6 @@ class MP4Remuxer {
     if (computePTSDTS) {
       initPTS = initDTS = Infinity;
     }
-    debugger
-
     if (audioTrack.config ) {
       // let's use audio sampling rate as MP4 time scale.
       // rationale is that there is a integer nb of audio frames per audio sample (1024 for AAC)
@@ -212,7 +210,7 @@ class MP4Remuxer {
       // we use input time scale straight away to avoid rounding issues on frame duration / cts computation
       const inputTimeScale = videoTrack.inputTimeScale;
       videoTrack.timescale = inputTimeScale;
-      debugger
+      //debugger
       tracks.video = {
         container: 'video/mp4',
         codec: videoTrack.codec,
@@ -344,7 +342,7 @@ class MP4Remuxer {
     if (nbSamples === 0) {
       return;
     }
-    console.log("remuxVideo::::::", track, nbSamples, arguments)
+    //console.log("remuxVideo::::::", track, nbSamples, arguments)
     // Safari does not like overlapping DTS on consecutive fragments. let's use nextAvcDts to overcome this if fragments are consecutive
     if (isSafari) {
       // also consider consecutive fragments as being contiguous (even if a level switch occurs),
@@ -459,6 +457,7 @@ class MP4Remuxer {
       this.observer.trigger(Event.ERROR, { type: ErrorTypes.MUX_ERROR, details: ErrorDetails.REMUX_ALLOC_ERROR, fatal: false, bytes: mdatSize, reason: `fail allocating video mdat ${mdatSize}` });
       return;
     }
+    //console.log("### mdatsize", mdatSize)
     let view = new DataView(mdat.buffer);
     view.setUint32(0, mdatSize);
     mdat.set(MP4.types.mdat, 4);
@@ -549,7 +548,7 @@ class MP4Remuxer {
     track.samples = outputSamples;
     debugger;
     track.sequenceNumber++
-    moof = MP4.moof(track.sequenceNumber, firstDTS, track);
+    moof = MP4.moof(track, firstDTS, track);
     track.samples = [];
 
     let data = {
@@ -565,10 +564,9 @@ class MP4Remuxer {
       nb: outputSamples.length,
       dropped: dropped
     };
-    console.log("parseMP4(video)", data, "moof:", moof.byteLength,"mdat:", mdat.byteLength)
-    debugger;
+    //console.log("parseMP4(video)", data, "moof:", moof.byteLength,"mdat:", mdat.byteLength)
     //console.log("parseMP4", data)
-    //this.observer.trigger( HLSEvent.FRAG_PARSING_DATA, data);
+    this.observer.trigger( HLSEvent.FRAG_PARSING_DATA, data);
     return data;
   }
 
@@ -608,7 +606,6 @@ class MP4Remuxer {
     inputSamples.forEach(function (sample) {
       sample.pts = sample.dts = ptsNormalize(sample.pts - initDTS, timeOffset * inputTimeScale);
     });
-
     // filter out sample with negative PTS that are not playable anyway
     // if we don't remove these negative samples, they will shift all audio samples forward.
     // leading to audio overlap between current / next fragment
@@ -629,6 +626,7 @@ class MP4Remuxer {
     }  
     */
 
+    //debug by flv.js
     if (!contiguous) {
       if (!accurateTimeOffset) {
         // if frag are mot contiguous and if we cant trust time offset, let's use first sample PTS as next audio PTS
@@ -688,11 +686,12 @@ class MP4Remuxer {
           nextPts += inputSampleDuration;
           i++;
         } else {
-        // Otherwise, just adjust pts
+          // Otherwise, just adjust pts
           if (Math.abs(delta) > (0.1 * inputSampleDuration)) {
             // window.debug && console.log(`Invalid frame delta ${Math.round(delta + inputSampleDuration)} at PTS ${Math.round(pts / 90)} (should be ${Math.round(inputSampleDuration)}).`);
           }
-          sample.pts = sample.dts = nextPts;
+          //不明白 为啥要调整pts
+          //sample.pts = sample.dts = nextPts;
           nextPts += inputSampleDuration;
           i++;
         }
@@ -819,7 +818,7 @@ class MP4Remuxer {
         moof = new Uint8Array();
       } else {
         track.sequenceNumber++
-        moof = MP4.moof(track.sequenceNumber, firstPTS / scaleFactor, track);
+        moof = MP4.moof(track, firstPTS / scaleFactor, track);
       }
 
       track.samples = [];
@@ -837,9 +836,9 @@ class MP4Remuxer {
         hasVideo: false,
         nb: nbSamples
       };
-      console.log("parseMP4(audio)", audioData, "moof:", moof.byteLength,"mdat:", mdat.byteLength)
+      console.log("parseMP4(audio)", audioData, "moof:", moof.byteLength,"mdat:", mdat.byteLength, start,end)
       this.observer.trigger( HLSEvent.FRAG_PARSING_DATA, audioData);
-      debugger;
+
       return audioData;
     }
     return null;

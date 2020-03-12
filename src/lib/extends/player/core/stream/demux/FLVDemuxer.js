@@ -125,6 +125,7 @@ class FLVDemuxer {
   }
 
   append ( data, timeOffset, contiguous, accurateTimeOffset ){
+    //debugger
     if( typeof this._littleEndian == 'undefined'){
         this._littleEndian = (function () {
             let buf = new ArrayBuffer(2);
@@ -137,7 +138,11 @@ class FLVDemuxer {
     }
     let le = this._littleEndian;
     let buffer = data.slice(0, data.byteLength);
-
+    if( !window.bs ){
+      window.bs = 0;
+    }
+    console.log("append.......",data.byteLength, window.bs)
+    window.bs += data.byteLength
     let chunk = data.buffer;
     let chunkLength = data.byteLength;
     let unusedChunkLength = 0;
@@ -157,7 +162,11 @@ class FLVDemuxer {
             return 0;
         }
     }
+    if( byteStart  == 1060 ){
+      debugger;
+    }
 
+    console.log("byteStart", byteStart)
     if( this._unusedChunk.byteLength ){
       unusedChunkLength = this._unusedChunk.byteLength;
 
@@ -168,7 +177,7 @@ class FLVDemuxer {
       buffer = tmp;
       chunk = buffer.buffer;
 
-      //console.log("未解码长度:", unusedChunkLength,"拼装长度", chunkLength + unusedChunkLength,"chunk:", chunkLength)
+      console.log("未解码长度:", unusedChunkLength,"拼装长度", chunkLength + unusedChunkLength,"chunk:", chunkLength)
       this._unusedChunk = new Uint8Array();
     }
     if( this._firstParse ){
@@ -182,7 +191,8 @@ class FLVDemuxer {
     }
     //offset = 13 (前13字节为文件头)
     //console.log("字节开始位置:",byteStart, '块大小', chunk.byteLength);
-
+    this._videoTrack.samples = [];
+    this._audioTrack.samples = [];
     while (offset < chunk.byteLength) {
       this._dispatch = true;
       let v = new DataView(chunk, offset);
@@ -632,7 +642,6 @@ class FLVDemuxer {
     }
 
     let offset = 6;
-    console.log("SPS Count", spsCount)
     for (let i = 0; i < spsCount; i++) {
       let len = v.getUint16(offset, !le);  // sequenceParameterSetLength
       offset += 2;
@@ -645,7 +654,6 @@ class FLVDemuxer {
       let sps = new Uint8Array(arrayBuffer, dataOffset + offset, len);
       track.sps = [sps];
       offset += len;
-      console.log("sps", sps)
       let config = SPSParser.parseSPS(sps);
       if (i !== 0) {
           // ignore other sps's config

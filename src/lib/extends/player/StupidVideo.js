@@ -11,6 +11,8 @@ class StupidVideo{
 		this.video = document.createElement("video");
 		this.video.setAttribute("controls",true)
 		this.video.setAttribute("autoplay",true)
+
+		this.debugChannel = 'audio';
 		root.appendChild( this.video )
 
 		this.demuxer = new Demuxer( this );
@@ -56,7 +58,7 @@ class StupidVideo{
 	}
 
 	onMediaSourceEvent(e){
-		console.log('on mediasource event:',e)
+		//console.log('on mediasource event:',e)
 		switch(e.type){
 			case 'sourceopen':
 				this.load();
@@ -65,7 +67,7 @@ class StupidVideo{
 	}
 
 	onDemuxEvent( e , data){
-		console.log("on demux event", e, data)
+		//console.log("on demux event", e, data)
 		let self = this;
 		let mediaSource = this.mediaSource;
         switch( e.type ){            
@@ -74,20 +76,24 @@ class StupidVideo{
             	let tracks = data.tracks;
             	if( !this.sourceBuffer || Object.keys(this.sourceBuffer).length === 0){
             		this.sourceBuffer = {};
+
             		for (let trackName in tracks){
-            			track = tracks[ trackName ];
-            			let codec = track.levelCodec || track.codec;
-            			let mimeType = `${track.container};codecs=${codec}`;
-            			console.log( trackName, codec, mimeType );
-            			try {
-				            let sb = this.sourceBuffer[trackName] = mediaSource.addSourceBuffer(mimeType);
-				            sb.addEventListener('updateend', this.onSourceBufferEvent.bind(this, track));
-				            sb.addEventListener('error', this.onSourceBufferEvent.bind(this, track));
-			              	track.buffer = sb;
-			            } catch (err) {
-			            	alert(err)
-			            }
-			            console.log("track", track)
+            			if( trackName == this.debugChannel){
+            				track = tracks[ trackName ];
+	            			let codec = track.levelCodec || track.codec;
+	            			let mimeType = `${track.container};codecs=${codec}`;
+	            			console.log( trackName, codec, mimeType );
+	            			try {
+					            let sb = this.sourceBuffer[trackName] = mediaSource.addSourceBuffer(mimeType);
+					            sb.addEventListener('updateend', this.onSourceBufferEvent.bind(this, track));
+					            sb.addEventListener('error', this.onSourceBufferEvent.bind(this, track));
+				              	track.buffer = sb;
+				            } catch (err) {
+				            	alert(err)
+				            }
+				            console.log("track", track)
+            			}
+            			
             		}
             				                
             	}
@@ -97,23 +103,33 @@ class StupidVideo{
             	}
             	for (let trackName in tracks){
             		track = tracks[trackName];
-            		this.mp4segments.push({
-            			type:trackName,
-            			data:track.initSegment
-            		})
+            		if( trackName == this.debugChannel ){
+            			this.mp4segments.push({
+	            			type:trackName,
+	            			data:track.initSegment
+	            		})
+            		}
+            		
             	}
                 this.checkPedding();
                 break;
             case HLSEvent.FRAG_PARSING:
                 //由Demuxer主动触发
-                
+                this.checkPedding();
                 break;
             case HLSEvent.FRAG_PARSING_DATA:
+            	if( !window.PC ){
+            		window.PC = 1;
+            	}
+            	window.PC +=1;
+            	if( window.PC > 10 ){
+            		//throw new Error("*** Parsing data ***");
+            	}
             	if( !this.mp4segments ){
             		this.mp4segments = [];
             	}
-            	console.log("FRAG_PARSING_DATA:", data)
-            	
+            	//console.log("FRAG_PARSING_DATA:", data)
+            	if( data.type != this.debugChannel ) return;
             	var mp4segments = this.mp4segments;
             	[data.data1, data.data2].forEach(function (buffer) {
             		mp4segments.push({
@@ -130,13 +146,13 @@ class StupidVideo{
 	}
 
 	onSourceBufferEvent(data,e){
-		console.log("on sourcebuffer event:",e,data)
+		//console.log("on sourcebuffer event:",e,data)
 		switch(e.type){
 			case 'updateend':
 				this.checkPedding();
 				break;
 			case 'error':
-				debugger;
+				console.error('sourceBuffer error',data)
 				break;
 		}
 	}
@@ -164,7 +180,7 @@ class StupidVideo{
 		}
 		if( this.mp4segments.length){
 			let segment = this.mp4segments.shift();
-
+			
 			var debugBuffer = ''
 			if( segment.type =='video'){
 				//segment = this.mp4segments.shift();
@@ -185,10 +201,8 @@ class StupidVideo{
                 }
                 var uint8 = new Uint8Array( arr );
                 var b = uint8.buffer;
-
 				this.sourceBuffer[segment.type].appendBuffer(segment.data);
 				//this.sourceBuffer[segment.type].appendBuffer(uint8);
-				console.log('*** appendBuffer ***', b,uint8)
 				//throw new Error("***")
 			}catch(e){
 				console.error('*** appendBuffer ***', e)

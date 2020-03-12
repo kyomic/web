@@ -124,10 +124,11 @@ export default {
     clearTimeout( mountedId )
     mountedId = setTimeout( _=>{
       var dom = document.querySelector(".imglayer")
-      //player= new WebVideo({target: dom})    
-      //this.onChange({target:{}})
+      player= new StupidVideo({target: dom})    
+      
 
-      player = new StupidVideo({target:dom});
+      //player = new WebVideo({target:dom});
+      //this.onChange({target:{}})
 
       document.querySelector(".container").style.cssText = "display:block"
     },2000)

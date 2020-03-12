@@ -122,14 +122,18 @@ class Demuxer {
     const timeOffset = !isNaN(frag.startDTS) ? frag.startDTS : frag.start;
     const decryptdata = frag.decryptdata;
     const lastFrag = this.frag;
-    const discontinuity = !(lastFrag && (frag.cc === lastFrag.cc));
+    let discontinuity = !(lastFrag && (frag.cc === lastFrag.cc));
     const trackSwitch = !(lastFrag && (frag.level === lastFrag.level));
     const nextSN = lastFrag && (frag.sn === (lastFrag.sn + 1));
-    const contiguous = !trackSwitch && nextSN;
+    let contiguous = !trackSwitch && nextSN;
     if (discontinuity) {
       window.debug && console.log(`${this.id}:discontinuity detected`);
     }
 
+
+    //add by wangxk
+    //discontinuity = false;
+    //contiguous = true;
     if (trackSwitch) {
       window.debug && console.log(`${this.id}:switch detected`);
     }
