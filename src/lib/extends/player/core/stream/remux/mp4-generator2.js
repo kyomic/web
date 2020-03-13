@@ -225,7 +225,6 @@ class MP4 {
     static tkhd(meta) {
         let trackId = meta.id, duration = meta.duration;
         let width = meta.presentWidth, height = meta.presentHeight;
-
         return MP4.box(MP4.types.tkhd, new Uint8Array([
             0x00, 0x00, 0x00, 0x07,  // version(0) + flags
             0x00, 0x00, 0x00, 0x00,  // creation_time
@@ -487,7 +486,6 @@ class MP4 {
     // Track fragment box
     static traf(track, baseMediaDecodeTime) {
         let trackId = track.id;
-
         // Track fragment header box
         let tfhd = MP4.box(MP4.types.tfhd, new Uint8Array([
             0x00, 0x00, 0x00, 0x00,  // version(0) & flags

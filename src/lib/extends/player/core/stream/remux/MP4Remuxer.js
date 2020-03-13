@@ -114,6 +114,7 @@ class MP4Remuxer {
             window.debug && console.warn('regenerate InitSegment as video detected');
             this.generateIS(audioTrack, videoTrack, timeOffset);
           }
+          
           this.remuxVideo(videoTrack, videoTimeOffset, contiguous, audioTrackLength, accurateTimeOffset);
         }
       } else {
@@ -515,28 +516,31 @@ class MP4Remuxer {
       } else {
         compositionTimeOffset = Math.max(0, mp4SampleDuration * Math.round((avcSample.pts - avcSample.dts) / mp4SampleDuration));
       }
-
+      avcSample.key = avcSample.key || avcSample.isKeyframe;
       // console.log('PTS/DTS/initDTS/normPTS/normDTS/relative PTS : ${avcSample.pts}/${avcSample.dts}/${initDTS}/${ptsnorm}/${dtsnorm}/${(avcSample.pts/4294967296).toFixed(3)}');
       outputSamples.push({
         size: mp4SampleLength,
         // constant duration
         duration: mp4SampleDuration,
         cts: compositionTimeOffset,
+        //cts:avcSample.cts,
         flags: {
           isLeading: 0,
-          isDependedOn: 0,
+          isDependedOn: avcSample.key ? 1 : 0,
           hasRedundancy: 0,
           degradPrio: 0,
           dependsOn: avcSample.key ? 2 : 1,
           isNonSync: avcSample.key ? 0 : 1
         }
       });
+      console.log("_________cts", avcSample.cts, "mp4SampleDuration", mp4SampleDuration)
     }
     // next AVC sample DTS should be equal to last sample DTS + last sample duration (in PES timescale)
     this.nextAvcDts = lastDTS + mp4SampleDuration;
     let dropped = track.dropped;
-    track.len = 0;
+    //track.len = 0;
     track.nbNalu = 0;
+    track.len = track.length
     track.dropped = 0;
     if (outputSamples.length && navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
       let flags = outputSamples[0].flags;
@@ -550,8 +554,10 @@ class MP4Remuxer {
     track.sequenceNumber++
     moof = MP4.moof(track, firstDTS, track);
     track.samples = [];
+    track.len = 0;
 
     let data = {
+      byteIndex: window.byteIndex,
       data1: moof,
       data2: mdat,
       startPTS: firstPTS / timeScale,
@@ -564,9 +570,12 @@ class MP4Remuxer {
       nb: outputSamples.length,
       dropped: dropped
     };
-    //console.log("parseMP4(video)", data, "moof:", moof.byteLength,"mdat:", mdat.byteLength)
+    console.log("parseMP4(video)["+ window.byteIndex+"]", data, "moof:", moof.byteLength,"mdat:", mdat.byteLength, data.startPTS,data.endPTS)
     //console.log("parseMP4", data)
-    this.observer.trigger( HLSEvent.FRAG_PARSING_DATA, data);
+    if( window.byteIndex <=20 ){
+      this.observer.trigger( HLSEvent.FRAG_PARSING_DATA, data);
+    }
+    //this.observer.trigger( HLSEvent.FRAG_PARSING_DATA, data);
     return data;
   }
 
@@ -714,6 +723,7 @@ class MP4Remuxer {
         // contiguous fragments are consecutive fragments from same quality level (same level, new SN = old SN + 1)
         if (contiguous && track.isAAC) {
           // log delta
+          //debugger
           if (delta) {
             if (delta > 0 && delta < MAX_SILENT_FRAME_DURATION) {
               numMissingFrames = Math.round((pts - nextAudioPts) / inputSampleDuration);
@@ -836,7 +846,7 @@ class MP4Remuxer {
         hasVideo: false,
         nb: nbSamples
       };
-      console.log("parseMP4(audio)", audioData, "moof:", moof.byteLength,"mdat:", mdat.byteLength, start,end)
+      //console.log("parseMP4(audio)", audioData, "moof:", moof.byteLength,"mdat:", mdat.byteLength, start,end)
       this.observer.trigger( HLSEvent.FRAG_PARSING_DATA, audioData);
 
       return audioData;

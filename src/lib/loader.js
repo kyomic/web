@@ -60,12 +60,14 @@ class FetchLoader extends AbstractLoader{
     	console.log("res=====",res)   
       if (res.ok && (res.status >= 200 && res.status <= 299)) {          
           let lengthHeader = res.headers.get('Content-Length');
+          //屎，竟然为null
           if (lengthHeader != null) {
             this._contentLength = parseInt(lengthHeader);
             if (this._contentLength !== 0) {
               
             }
           }
+          console.log("文件大小", this._contentLength)
           //ReadableStreamDefaultReader
           
           this.read( res.body.getReader() )
@@ -86,6 +88,7 @@ class FetchLoader extends AbstractLoader{
       	data = {
       		start:this._range.start, end: this._range.end + this._receivedLength - 1
       	}
+      	console.log("读取完毕：", data)
       	this.emit('complete', {type:'complete', data:data})              
       } else {
       	if( this._status == LoaderStatus.ABORT ){

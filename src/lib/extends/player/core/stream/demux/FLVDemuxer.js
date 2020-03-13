@@ -165,8 +165,11 @@ class FLVDemuxer {
     if( byteStart  == 1060 ){
       debugger;
     }
-
-    console.log("byteStart", byteStart)
+    if( !window.byteIndex ){
+      window.byteIndex = 0;
+    }
+    window.byteIndex += 1;
+    console.log("byteStart", byteStart, "index", window.byteIndex)
     if( this._unusedChunk.byteLength ){
       unusedChunkLength = this._unusedChunk.byteLength;
 
@@ -239,7 +242,7 @@ class FLVDemuxer {
 
       let dataOffset = offset + 11;
       let map = {8:"音频",9:"视频",18:"脚本"};
-      //console.log("tagType:", tagType, "(", map[tagType] ,")dataSize", dataSize, 'timestamp', timestamp)
+      console.log("tagType:", tagType, "(", map[tagType] ,")dataSize", dataSize, 'timestamp', timestamp)
 
       switch (tagType) {
           case 8:  // Audio
