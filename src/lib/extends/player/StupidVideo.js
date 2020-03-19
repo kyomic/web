@@ -120,13 +120,6 @@ class StupidVideo{
                 this.checkPedding();
                 break;
             case HLSEvent.FRAG_PARSING_DATA:
-            	if( !window.PC ){
-            		window.PC = 1;
-            	}
-            	window.PC +=1;
-            	if( window.PC > 10 ){
-            		//throw new Error("*** Parsing data ***");
-            	}
             	if( !this.mp4segments ){
             		this.mp4segments = [];
             	}
@@ -168,6 +161,7 @@ class StupidVideo{
 	}
 	onSourceBufferUpdateEvent( data, e ){
 		console.log("updateend", data)
+		this.checkPedding();
 	}
 
 	load(){
@@ -235,7 +229,6 @@ class StupidVideo{
                 
                 sb.addEventListener( 'error', this.evtError )                
                 sb.addEventListener( 'updateend', this.evtUpdate )
-
 				this.sourceBuffer[segment.type].appendBuffer(segment.data);
 
 				window.appendIndex +=1;
