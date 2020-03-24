@@ -1,7 +1,8 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 window.debug = true;
-const Vue = require('vue');
+let Vue = require('vue');
+if( Vue.default ) Vue = Vue.default;
 import App from './labs.vue';
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'

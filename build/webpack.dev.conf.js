@@ -14,8 +14,8 @@ const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin')
 // build/webpack.dev.conf.js 大概在15行
 let externalConfig = JSON.parse(JSON.stringify(utils.externalConfig));  // 读取配置
 let externalModules = utils.getExternalModules(externalConfig); // 获取到合适路径和忽略模块
-//externalModules = {};
-//externalConfig = [];
+externalModules = {};
+externalConfig = [];
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
 

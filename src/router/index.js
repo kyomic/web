@@ -1,8 +1,9 @@
 //import Vue from 'vue';
 //import Router from 'vue-router';
-const Vue = require('vue');
-const Router = require('vue-router');
-
+let Vue = require('vue');
+let Router = require('vue-router');
+if( Vue.default) Vue = Vue.default;
+if( Router.default) Router = Router.default;
 //index去控制管理或web首页
 import index from '@/pages/index';
 import test from '@/pages/test'
