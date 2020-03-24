@@ -608,17 +608,14 @@ class MP4Remuxer {
 
     const isSafari = this.isSafari;
 
-    
-
     if (nbSamples === 0) {
       return;
     }
-
     var lastSample = null;
     /* concatenate the video data and construct the mdat in place
       (need 8 more bytes to fill length and mpdat type) */
-    let mdatSize = 8 + track.length;
 
+    let mdatSize = 8 + track.length;
     if( nbSamples > 1){
       lastSample = inputSamples.pop();
       mdatSize -= lastSample.length;
@@ -634,7 +631,6 @@ class MP4Remuxer {
         this._videoStashedLastSample = lastSample;
     }
     nbSamples = inputSamples.length;
-
 
     //console.log("remuxVideo::::::", track, nbSamples, arguments)
     // Safari does not like overlapping DTS on consecutive fragments. let's use nextAvcDts to overcome this if fragments are consecutive
@@ -677,7 +673,7 @@ class MP4Remuxer {
         inputSamples[i].dts += PTSDTSshift;
       }
     }
-    debugger;
+
     // compute first DTS and last DTS, normalize them against reference value
     let sample = inputSamples[0];
     firstDTS = Math.max(sample.dts, 0);
@@ -741,8 +737,9 @@ class MP4Remuxer {
       // ensure that computed value is greater or equal than sample DTS
       sample.pts = Math.max(sample.pts, sample.dts);
     }
-    console.log("naluLen", naluLen, "nbNalu", nbNalu)
-    //mdatSize = naluLen + (4 * nbNalu) + 8;
+
+    /* concatenate the video data and construct the mdat in place
+      (need 8 more bytes to fill length and mpdat type) */
     mdatSize = naluLen + (4 * nbNalu) + 8;
     try {
       mdat = new Uint8Array(mdatSize);
@@ -750,31 +747,38 @@ class MP4Remuxer {
       this.observer.trigger(Event.ERROR, { type: ErrorTypes.MUX_ERROR, details: ErrorDetails.REMUX_ALLOC_ERROR, fatal: false, bytes: mdatSize, reason: `fail allocating video mdat ${mdatSize}` });
       return;
     }
-    debugger;
     //console.log("### mdatsize", mdatSize)
-    
     let view = new DataView(mdat.buffer);
     view.setUint32(0, mdatSize);
     mdat.set(MP4.types.mdat, 4);
 
-
-    for (var i = 0; i < nbSamples; i++) {
+    for (let i = 0; i < nbSamples; i++) {
       let avcSample = inputSamples[i],
         avcSampleUnits = avcSample.units,
         mp4SampleLength = 0,
         compositionTimeOffset;
+
+      /*
+      for (let j = 0, nbUnits = avcSampleUnits.length; j < nbUnits; j++) {
+        let unit = avcSampleUnits[j],
+          unitData = unit.data,
+          unitDataLen = unit.data.byteLength;
+        view.setUint32(offset, unitDataLen);
+        offset += 4;
+        mdat.set(unitData, offset);
+        offset += unitDataLen;
+        mp4SampleLength += 4 + unitDataLen;
+      }
+      */
       // convert NALU bitstream to MP4 format (prepend NALU with size field)
-      for (var j = 0, nbUnits = avcSampleUnits.length; j < nbUnits; j++) {
+      for (let j = 0, nbUnits = avcSampleUnits.length; j < nbUnits; j++) {
         let unit = avcSampleUnits[j],
           unitData = unit.data,
           unitDataLen = unit.data.byteLength;
           mdat.set(unitData, offset);
           offset += unitDataLen;
           mp4SampleLength += unitDataLen;
-         // mp4SampleLength +=  4 +unitDataLen;
       }
-      //console.log("offset",offset,"blockLength", len,"i",i,"j",j )
-      debugger;
 
       if (!isSafari) {
         // expected sample duration is the Decoding Timestamp diff of consecutive samples
@@ -783,6 +787,7 @@ class MP4Remuxer {
         } else {
           let config = this.config,
             lastFrameDuration = avcSample.dts - inputSamples[i > 0 ? i - 1 : i].dts;
+            /** 精确帧时间**/
             if( lastSample ){
               lastFrameDuration = lastSample.dts - avcSample.dts;
             }
@@ -816,9 +821,7 @@ class MP4Remuxer {
         compositionTimeOffset = Math.max(0, mp4SampleDuration * Math.round((avcSample.pts - avcSample.dts) / mp4SampleDuration));
       }
       avcSample.key = avcSample.key || avcSample.isKeyframe;
-      //console.log(`PTS/DTS/initDTS/normPTS/normDTS/relative PTS : ${avcSample.pts}/${avcSample.dts}/${initDTS}/${(avcSample.pts/4294967296).toFixed(3)}`);
-      //console.log(`PTS/DTS/CTS/Duration: ${avcSample.pts}/${avcSample.dts}/${compositionTimeOffset}/${mp4SampleDuration}`)
-      console.log("pts",avcSample.pts, "dts",avcSample.dts, "duration", mp4SampleDuration)
+      // console.log('PTS/DTS/initDTS/normPTS/normDTS/relative PTS : ${avcSample.pts}/${avcSample.dts}/${initDTS}/${ptsnorm}/${dtsnorm}/${(avcSample.pts/4294967296).toFixed(3)}');
       outputSamples.push({
         size: mp4SampleLength,
         // constant duration
@@ -853,8 +856,6 @@ class MP4Remuxer {
     debugger;
     track.sequenceNumber++
     moof = MP4.moof(track, firstDTS, track);
-    //console.log(track);throw new Error('track')
-    console.log("firstDts", firstDTS)
     track.samples = [];
     track.len = 0;
 
