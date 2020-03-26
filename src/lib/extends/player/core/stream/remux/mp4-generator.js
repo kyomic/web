@@ -536,25 +536,37 @@ class MP4 {
   static avc1 (track) {
     let sps = [], pps = [], i, data, len;
     // assemble the SPSs
+    let width = track.width || track.codecWidth,
+      height = track.height || track.codecHeight,
+      hSpacing = track.pixelRatio[0],
+      vSpacing = track.pixelRatio[1];
 
-    for (i = 0; i < track.sps.length; i++) {
-      data = track.sps[i];
-      len = data.byteLength;
-      sps.push((len >>> 8) & 0xFF);
-      sps.push((len & 0xFF));
-      sps = sps.concat(makeArray(data)); // SPS
-    }
+    let avcc = null;
+    if( track.avcc ){
+      //flv.js is defined avcc data;
+      let len = track.avcc.byteLength;
+      data = new Uint8Array( len );
+      data.set( track.avcc.slice(0, len ), 0 );
+      avcc = MP4.box(MP4.types.avcC, data);
+    }else{
+      for (i = 0; i < track.sps.length; i++) {
+        data = track.sps[i];
+        len = data.byteLength;
+        sps.push((len >>> 8) & 0xFF);
+        sps.push((len & 0xFF));
+        sps = sps.concat(makeArray(data)); // SPS
+      }
 
-    // assemble the PPSs
-    for (i = 0; i < track.pps.length; i++) {
-      data = track.pps[i];
-      len = data.byteLength;
-      pps.push((len >>> 8) & 0xFF);
-      pps.push((len & 0xFF));
-      pps = pps.concat(makeArray(data));
-    }
+      // assemble the PPSs
+      for (i = 0; i < track.pps.length; i++) {
+        data = track.pps[i];
+        len = data.byteLength;
+        pps.push((len >>> 8) & 0xFF);
+        pps.push((len & 0xFF));
+        pps = pps.concat(makeArray(data));
+      }
 
-    let avcc = MP4.box(MP4.types.avcC, new Uint8Array([
+      avcc = MP4.box(MP4.types.avcC, new Uint8Array([
         0x01, // version
         sps[3], // profile
         sps[4], // profile compat
@@ -563,11 +575,10 @@ class MP4 {
         0xE0 | track.sps.length // 3bit reserved (111) + numOfSequenceParameterSets
       ].concat(sps).concat([
         track.pps.length // numOfPictureParameterSets
-      ]).concat(pps))), // "PPS"
-      width = track.width,
-      height = track.height,
-      hSpacing = track.pixelRatio[0],
-      vSpacing = track.pixelRatio[1];
+      ]).concat(pps))); // "PPS"
+    }
+
+      
 
     return MP4.box(MP4.types.avc1, new Uint8Array([
       0x00, 0x00, 0x00, // reserved
