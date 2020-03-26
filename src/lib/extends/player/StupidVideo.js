@@ -145,7 +145,6 @@ class StupidVideo{
 		//console.log("on sourcebuffer event:",e,data)
 		switch(e.type){
 			case 'updateend':
-				console.log("updateend....", window.byteIndex)
 				this.checkPedding();
 				break;
 			case 'error':

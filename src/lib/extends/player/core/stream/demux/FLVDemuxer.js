@@ -36,6 +36,7 @@ class FLVDemuxer {
   constructor (observer, remuxer) {
     this.observer = observer;
     this.remuxer = remuxer;
+    this.remuxer.flv = true;
     this._littleEndian = undefined;
     this._dispatch = false;
 
@@ -162,14 +163,6 @@ class FLVDemuxer {
             return 0;
         }
     }
-    if( byteStart  == 1060 ){
-      debugger;
-    }
-    if( !window.byteIndex ){
-      window.byteIndex = 0;
-    }
-    window.byteIndex += 1;
-    console.log("byteStart", byteStart, "index", window.byteIndex)
     if( this._unusedChunk.byteLength ){
       unusedChunkLength = this._unusedChunk.byteLength;
 
@@ -411,24 +404,8 @@ class FLVDemuxer {
     if( videoTrack.samples ){
       samplesLength += videoTrack.samples.length
     }
-    console.log("remux----", samplesLength, audioTrack, videoTrack)
-
-    if( typeof window.s =='undefined'){
-      window.s = 0;
-    }
-    window.s += samplesLength;
-    console.log("samplesTotal", window.s)
-    //debugger;
     this.observer.trigger( HLSEvent.FRAG_PARSING, {});
-    setTimeout(_=>{
-      //this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
-    },10000)
     this.remuxer.remux(audioTrack, videoTrack, this._id3Track, this._txtTrack, 0 );
-
-    this._videoTrack.samples = [];
-    this._videoTrack.length = this._videoTrack.len = 0;
-    this._audioTrack.samples = [];
-    this._audioTrack.length = this._videoTrack.len = 0;;
 
   }
   /** 
@@ -812,13 +789,14 @@ class FLVDemuxer {
       if (unitType === 5) {  // IDR
           keyframe = true;
       }
-
-      let data = new Uint8Array(arrayBuffer, dataOffset + offset, lengthSize + naluSize);
+      let size = lengthSize + naluSize; 
+      //Uint8Array(data,byteOffset, length)
+      let data = new Uint8Array(arrayBuffer, dataOffset + offset, size);
       let unit = {type: unitType, data: data};
       units.push(unit);
       length += data.byteLength;
 
-      offset += lengthSize + naluSize;
+      offset += size;
     }
 
     if (units.length) {

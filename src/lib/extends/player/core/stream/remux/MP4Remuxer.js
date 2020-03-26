@@ -58,6 +58,7 @@ class MP4Remuxer {
     const userAgent = navigator.userAgent;
     this.isSafari = vendor && vendor.indexOf('Apple') > -1 && userAgent && !userAgent.match('CriOS');
     this.ISGenerated = false;
+    this.flv = false;
   }
 
   destroy () {
@@ -501,23 +502,16 @@ class MP4Remuxer {
           unitData = unit.data,
           unitDataLen = unit.data.byteLength;
         view.setUint32(offset, unitDataLen);
-        //offset += 4;
+        if( !this.flv ) offset += 4;
         mdat.set(unitData, offset);
         offset += unitDataLen;
-        mp4SampleLength +=unitDataLen;
-       // mp4SampleLength +=4+unitDataLen;
+        //搞不定为啥ts和flv的mdat长度为啥不一样
+        if( !this.flv ){
+          mp4SampleLength +=4+unitDataLen;
+        }else{
+          mp4SampleLength +=unitDataLen;
+        }
       }
-      /*
-      
-      for (let j = 0, nbUnits = avcSampleUnits.length; j < nbUnits; j++) {
-        let unit = avcSampleUnits[j],
-          unitData = unit.data,
-          unitDataLen = unit.data.byteLength;
-          mdat.set(unitData, offset);
-          offset += unitDataLen;
-          mp4SampleLength += unitDataLen;
-      }
-      */
 
       if (!isSafari) {
         // expected sample duration is the Decoding Timestamp diff of consecutive samples
@@ -602,7 +596,6 @@ class MP4Remuxer {
     track.len = 0;
 
     let data = {
-      byteIndex: window.byteIndex,
       data1: moof,
       data2: mdat,
       startPTS: firstPTS / timeScale,
@@ -615,7 +608,7 @@ class MP4Remuxer {
       nb: outputSamples.length,
       dropped: dropped
     };
-    console.log("parseMP4(video)["+ window.byteIndex+"]", data,data.startPTS,data.endPTS,data.startDTS,data.endDTS)
+    console.log("parseMP4(video)", data,data.startPTS,data.endPTS,data.startDTS,data.endDTS)
     //console.log("parseMP4", data)
     this.observer.trigger( HLSEvent.FRAG_PARSING_DATA, data);
     return data;
