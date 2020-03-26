@@ -37,6 +37,28 @@ export default {
   components:{},
   data() {
     return {
+      temp:{
+        value1:['龙须面','北京烤鸭']
+      },
+      options: [{
+          value: '选项1',
+          label: '黄金糕'
+        }, {
+          value: '选项2',
+          label: '双皮奶'
+        }, {
+          value: '选项3',
+          label: '蚵仔煎'
+        }, {
+          value: '选项4',
+          label: '龙须面'
+        }, {
+          value: '选项5',
+          label: '北京烤鸭'
+        }],
+        value1: [],
+        value2: [],
+
       epid_idx:0,
       epids:[
         "https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_9b68ca7a2eb570f791113a0d1801e038.mp4",
@@ -68,6 +90,11 @@ export default {
     }
   },
   methods:{
+    onClick(){
+      console.log('click')
+      this.temp.value1 = ['龙须面','北京烤鸭','黄金糕','双皮奶']
+      console.log(this)
+    },
     play(url,idx){
       var dom = document.querySelector(".imglayer")
       dom.innerHTML = "";
@@ -109,9 +136,8 @@ export default {
         }catch(e){
           console.error(e)
         }
-       
+        stream = new HLStream( {url: "http://web.fun.tv/demo/tt.m3u8" })
         //stream = new HLStream( {url: "http://test.fun.tv/flv.m3u8" })
-        //
         stream = new BufferStream( {url: "http://test.fun.tv/test.flv" } )
         //stream = new URLStream({url:"https://gss3.baidu.com/6LZ0ej3k1Qd3ote6lo7D0j9wehsv/tieba-smallvideo/60_9b68ca7a2eb570f791113a0d1801e038.mp4"})
         player.attachStream( stream );
