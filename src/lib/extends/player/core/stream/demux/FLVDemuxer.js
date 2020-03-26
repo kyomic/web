@@ -242,7 +242,7 @@ class FLVDemuxer {
 
       let dataOffset = offset + 11;
       let map = {8:"音频",9:"视频",18:"脚本"};
-      console.log("tagType:", tagType, "(", map[tagType] ,")dataSize", dataSize, 'timestamp', timestamp)
+      //console.log("tagType:", tagType, "(", map[tagType] ,")dataSize", dataSize, 'timestamp', timestamp)
 
       switch (tagType) {
           case 8:  // Audio
@@ -468,8 +468,8 @@ class FLVDemuxer {
       this._mediaInfo.height = onMetaData.height;
     }
     if (typeof onMetaData.duration === 'number') {  // duration
-      let duration = Math.floor(onMetaData.duration * this._timescale);
-      //let duration = onMetaData.duration;
+      //let duration = Math.floor(onMetaData.duration * this._timescale);
+      let duration = onMetaData.duration;
       this._duration = duration;
       this._mediaInfo.duration = duration;
     } else {
@@ -760,6 +760,7 @@ class FLVDemuxer {
     meta.avcc.set(new Uint8Array(arrayBuffer, dataOffset, dataSize), 0);
     this._audioTrack.avcc = meta.avcc;
     this._videoTrack.avcc = meta.avcc;
+    //debugger;
     window.debug && window.console.log(this.TAG, 'Parsed AVCDecoderConfigurationRecord');
 
     
