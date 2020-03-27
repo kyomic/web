@@ -12,7 +12,7 @@ class StupidVideo{
 		this.video.setAttribute("controls",true)
 		this.video.setAttribute("autoplay",true)
 
-		this.debugChannel = 'video';
+		this.debugChannel = 'audio';
 		root.appendChild( this.video )
 
 		this.demuxer = new Demuxer( this );
@@ -80,7 +80,7 @@ class StupidVideo{
             		this.sourceBuffer = {};
 
             		for (let trackName in tracks){
-            			if( trackName == this.debugChannel){
+            			if( !this.debugChannel || (trackName == this.debugChannel)){
             				track = tracks[ trackName ];
 	            			let codec = track.levelCodec || track.codec;
 	            			let mimeType = `${track.container};codecs=${codec}`;
@@ -105,7 +105,7 @@ class StupidVideo{
             	}
             	for (let trackName in tracks){
             		track = tracks[trackName];
-            		if( trackName == this.debugChannel ){
+            		if( !this.debugChannel || (trackName == this.debugChannel) ){
             			this.mp4segments.push({
 	            			type:trackName,
 	            			data:track.initSegment
@@ -124,7 +124,7 @@ class StupidVideo{
             		this.mp4segments = [];
             	}
             	//console.log("FRAG_PARSING_DATA:", data)
-            	if( data.type != this.debugChannel ) return;
+            	if( this.debugChannel && data.type != this.debugChannel ) return;
             	var mp4segments = this.mp4segments;
             	[data.data1, data.data2].forEach(function (buffer) {
             		mp4segments.push({

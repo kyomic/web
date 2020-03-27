@@ -172,8 +172,7 @@ class FLVDemuxer {
 
       buffer = tmp;
       chunk = buffer.buffer;
-
-      console.log("未解码长度:", unusedChunkLength,"拼装长度", chunkLength + unusedChunkLength,"chunk:", chunkLength)
+      //console.log("未解码长度:", unusedChunkLength,"拼装长度", chunkLength + unusedChunkLength,"chunk:", chunkLength)
       this._unusedChunk = new Uint8Array();
     }
     if( this._firstParse ){
@@ -289,7 +288,7 @@ class FLVDemuxer {
     if (byteStart === 0) {  // buffer with FLV header
         if (chunk.byteLength > 13) {
             let probeData = FLVDemuxer.probeData(chunk);
-            console.log("probeData", probeData)
+            //console.log("probeData", probeData)
             //offset = 9 (FileHeader到FileBody的字节数)
 
             this._mediaInfo.hasAudio = probeData.hasAudioTrack;
@@ -309,7 +308,7 @@ class FLVDemuxer {
         offset += 4;
     }
     //offset = 13 (前13字节为文件头)
-    console.log("byteStart===",byteStart)
+    //console.log("byteStart===",byteStart)
 
     while (offset < chunk.byteLength) {
       this._dispatch = true;

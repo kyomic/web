@@ -80,14 +80,11 @@ class BufferStream extends AbstractStream{
 
     }
 
-    attachEvent(){
-       
+    attachEvent(){       
         this.loader = new Loader();
         console.log("loader", this.loader)
         this.loader.on('data', res=>{
-            this.demuxer.push( res.data.chunk, [], '','', {
-                cc:0,
-            } )
+            this.demuxer.push( res.data.chunk, [], '','', {cc:0})
         })
 
 
@@ -146,8 +143,8 @@ class BufferStream extends AbstractStream{
         switch( evt.type ){            
             case HLSEvent.FRAG_PARSING_INIT_SEGMENT:
                 var fragCurrent = this.fragCurrent;
-                debugger;
                 const fragNew = data.frag;
+                console.log("initSegment",data)
                 if ( true ) {
                     let tracks = data.tracks, trackName, track;
                     // if audio track is expected to come from audio stream controller, discard any coming from main
@@ -159,18 +156,20 @@ class BufferStream extends AbstractStream{
                     // loop through tracks that are going to be provided to bufferController
                     for (trackName in tracks) {
                         track = tracks[trackName];
+
+                        this.pendingTracks[trackName] = track;
+
                         window.debug && console.log(`main track:${trackName},container:${track.container},codecs[level/parsed]=[${track.levelCodec}/${track.codec}]`);
                         let initSegment = track.initSegment;
                         if (initSegment) {
-                            if( trackName == 'video'){
-                                this.appended = true;
+                            this.appended = true;
                             // arm pending Buffering flag before appending a segment
                             this.pendingBuffering = true;
                             this.pushTrack( { type: trackName, data: initSegment, parent: 'main', content: 'initSegment' } )
-                            }
                             
                         }
                     }
+                    this._state = STATE.IDLE;
                     // trigger handler right now
                     this.tick();
                 }
@@ -182,15 +181,14 @@ class BufferStream extends AbstractStream{
             case HLSEvent.FRAG_PARSING_DATA:
                 var fragCurrent = this.fragCurrent;
                 var fragNew = data.frag;
-
                 data.id = 'main';
+                console.log("parsing..........", this._state)
                 if ( data.id === 'main'  && // filter out main audio if audio track is loaded through audio stream controller
                 this._state === STATE.PARSING) {                   
                     if (isNaN(data.endPTS)) {
                         data.endPTS = data.startPTS + fragCurrent.duration;
                         data.endDTS = data.startDTS + fragCurrent.duration;
                     }
-
                     if (data.hasAudio === true) {
                         //TODO
                         //frag.addElementaryStream(loader_fragment.ElementaryStreamTypes.AUDIO);
@@ -205,9 +203,6 @@ class BufferStream extends AbstractStream{
 
                     
 
-                    if( data ){
-                        console.log("Parsed:", data.data1.byteLength, data.data2.byteLength)
-                    }
                     /** TODO 
                     var drift = updateFragPTSDTS(level.details, frag, data.startPTS, data.endPTS, data.startDTS, data.endDTS),
                     hls = this.hls;
@@ -289,18 +284,14 @@ class BufferStream extends AbstractStream{
     }
 
     onSourceBufferEvent( evt ){
-        console.log("event:sourceBuffer", evt)
         switch(evt.type){
             case "updateend":
                 //流更新后，发现无可用字节 
                 this.appending = false;
                 this.doAppending();
                 this.onSBUpdateEnd();
-
-                this.mediaSource.endOfStream();
                 break;
             case "error":
-                debugger;
                 console.log("buffer error");
                 break;
         }
@@ -314,8 +305,7 @@ class BufferStream extends AbstractStream{
 
     /** 检测append的数据是否解析完 */
     _checkAppendedParsed(){
-        // trigger handler right now
-        
+        // trigger handler right now        
     }
 
 
@@ -341,22 +331,8 @@ class BufferStream extends AbstractStream{
                             // reset sourceBuffer ended flag before appending segment
                             sb.ended = false;
                             // window.debug && console.log(`appending ${segment.content} ${type} SB, size:${segment.data.length}, ${segment.parent}`);
-                            this.parent = segment.parent;
-                            
-                            if( type == 'video'){
-                                console.log("appendBuffer:", segment)
-                                var testBuffer = '{"0":0,"1":0,"2":0,"3":24,"4":102,"5":116,"6":121,"7":112,"8":105,"9":115,"10":111,"11":109,"12":0,"13":0,"14":0,"15":1,"16":105,"17":115,"18":111,"19":109,"20":97,"21":118,"22":99,"23":49,"24":0,"25":0,"26":2,"27":124,"28":109,"29":111,"30":111,"31":118,"32":0,"33":0,"34":0,"35":108,"36":109,"37":118,"38":104,"39":100,"40":0,"41":0,"42":0,"43":0,"44":0,"45":0,"46":0,"47":0,"48":0,"49":0,"50":0,"51":0,"52":0,"53":0,"54":3,"55":232,"56":0,"57":1,"58":151,"59":75,"60":0,"61":1,"62":0,"63":0,"64":1,"65":0,"66":0,"67":0,"68":0,"69":0,"70":0,"71":0,"72":0,"73":0,"74":0,"75":0,"76":0,"77":1,"78":0,"79":0,"80":0,"81":0,"82":0,"83":0,"84":0,"85":0,"86":0,"87":0,"88":0,"89":0,"90":0,"91":0,"92":0,"93":1,"94":0,"95":0,"96":0,"97":0,"98":0,"99":0,"100":0,"101":0,"102":0,"103":0,"104":0,"105":0,"106":0,"107":0,"108":64,"109":0,"110":0,"111":0,"112":0,"113":0,"114":0,"115":0,"116":0,"117":0,"118":0,"119":0,"120":0,"121":0,"122":0,"123":0,"124":0,"125":0,"126":0,"127":0,"128":0,"129":0,"130":0,"131":0,"132":0,"133":0,"134":0,"135":0,"136":255,"137":255,"138":255,"139":255,"140":0,"141":0,"142":1,"143":224,"144":116,"145":114,"146":97,"147":107,"148":0,"149":0,"150":0,"151":92,"152":116,"153":107,"154":104,"155":100,"156":0,"157":0,"158":0,"159":7,"160":0,"161":0,"162":0,"163":0,"164":0,"165":0,"166":0,"167":0,"168":0,"169":0,"170":0,"171":1,"172":0,"173":0,"174":0,"175":0,"176":0,"177":1,"178":151,"179":75,"180":0,"181":0,"182":0,"183":0,"184":0,"185":0,"186":0,"187":0,"188":0,"189":0,"190":0,"191":0,"192":0,"193":0,"194":0,"195":0,"196":0,"197":1,"198":0,"199":0,"200":0,"201":0,"202":0,"203":0,"204":0,"205":0,"206":0,"207":0,"208":0,"209":0,"210":0,"211":0,"212":0,"213":1,"214":0,"215":0,"216":0,"217":0,"218":0,"219":0,"220":0,"221":0,"222":0,"223":0,"224":0,"225":0,"226":0,"227":0,"228":64,"229":0,"230":0,"231":0,"232":1,"233":67,"234":0,"235":0,"236":1,"237":8,"238":0,"239":0,"240":0,"241":0,"242":1,"243":124,"244":109,"245":100,"246":105,"247":97,"248":0,"249":0,"250":0,"251":32,"252":109,"253":100,"254":104,"255":100,"256":0,"257":0,"258":0,"259":0,"260":0,"261":0,"262":0,"263":0,"264":0,"265":0,"266":0,"267":0,"268":0,"269":0,"270":3,"271":232,"272":0,"273":1,"274":151,"275":75,"276":85,"277":196,"278":0,"279":0,"280":0,"281":0,"282":0,"283":45,"284":104,"285":100,"286":108,"287":114,"288":0,"289":0,"290":0,"291":0,"292":0,"293":0,"294":0,"295":0,"296":118,"297":105,"298":100,"299":101,"300":0,"301":0,"302":0,"303":0,"304":0,"305":0,"306":0,"307":0,"308":0,"309":0,"310":0,"311":0,"312":86,"313":105,"314":100,"315":101,"316":111,"317":72,"318":97,"319":110,"320":100,"321":108,"322":101,"323":114,"324":0,"325":0,"326":0,"327":1,"328":39,"329":109,"330":105,"331":110,"332":102,"333":0,"334":0,"335":0,"336":20,"337":118,"338":109,"339":104,"340":100,"341":0,"342":0,"343":0,"344":1,"345":0,"346":0,"347":0,"348":0,"349":0,"350":0,"351":0,"352":0,"353":0,"354":0,"355":0,"356":36,"357":100,"358":105,"359":110,"360":102,"361":0,"362":0,"363":0,"364":28,"365":100,"366":114,"367":101,"368":102,"369":0,"370":0,"371":0,"372":0,"373":0,"374":0,"375":0,"376":1,"377":0,"378":0,"379":0,"380":12,"381":117,"382":114,"383":108,"384":32,"385":0,"386":0,"387":0,"388":1,"389":0,"390":0,"391":0,"392":231,"393":115,"394":116,"395":98,"396":108,"397":0,"398":0,"399":0,"400":155,"401":115,"402":116,"403":115,"404":100,"405":0,"406":0,"407":0,"408":0,"409":0,"410":0,"411":0,"412":1,"413":0,"414":0,"415":0,"416":139,"417":97,"418":118,"419":99,"420":49,"421":0,"422":0,"423":0,"424":0,"425":0,"426":0,"427":0,"428":1,"429":0,"430":0,"431":0,"432":0,"433":0,"434":0,"435":0,"436":0,"437":0,"438":0,"439":0,"440":0,"441":0,"442":0,"443":0,"444":0,"445":1,"446":96,"447":1,"448":8,"449":0,"450":72,"451":0,"452":0,"453":0,"454":72,"455":0,"456":0,"457":0,"458":0,"459":0,"460":0,"461":0,"462":1,"463":10,"464":120,"465":113,"466":113,"467":47,"468":102,"469":108,"470":118,"471":46,"472":106,"473":115,"474":0,"475":0,"476":0,"477":0,"478":0,"479":0,"480":0,"481":0,"482":0,"483":0,"484":0,"485":0,"486":0,"487":0,"488":0,"489":0,"490":0,"491":0,"492":0,"493":0,"494":0,"495":0,"496":24,"497":255,"498":255,"499":0,"500":0,"501":0,"502":53,"503":97,"504":118,"505":99,"506":67,"507":1,"508":77,"509":64,"510":31,"511":255,"512":225,"513":0,"514":30,"515":103,"516":77,"517":64,"518":31,"519":150,"520":98,"521":2,"522":193,"523":31,"524":203,"525":255,"526":128,"527":5,"528":128,"529":6,"530":8,"531":0,"532":0,"533":3,"534":0,"535":8,"536":0,"537":0,"538":3,"539":0,"540":244,"541":120,"542":193,"543":136,"544":144,"545":1,"546":0,"547":4,"548":104,"549":238,"550":188,"551":128,"552":0,"553":0,"554":0,"555":16,"556":115,"557":116,"558":116,"559":115,"560":0,"561":0,"562":0,"563":0,"564":0,"565":0,"566":0,"567":0,"568":0,"569":0,"570":0,"571":16,"572":115,"573":116,"574":115,"575":99,"576":0,"577":0,"578":0,"579":0,"580":0,"581":0,"582":0,"583":0,"584":0,"585":0,"586":0,"587":20,"588":115,"589":116,"590":115,"591":122,"592":0,"593":0,"594":0,"595":0,"596":0,"597":0,"598":0,"599":0,"600":0,"601":0,"602":0,"603":0,"604":0,"605":0,"606":0,"607":16,"608":115,"609":116,"610":99,"611":111,"612":0,"613":0,"614":0,"615":0,"616":0,"617":0,"618":0,"619":0,"620":0,"621":0,"622":0,"623":40,"624":109,"625":118,"626":101,"627":120,"628":0,"629":0,"630":0,"631":32,"632":116,"633":114,"634":101,"635":120,"636":0,"637":0,"638":0,"639":0,"640":0,"641":0,"642":0,"643":1,"644":0,"645":0,"646":0,"647":1,"648":0,"649":0,"650":0,"651":0,"652":0,"653":0,"654":0,"655":0,"656":0,"657":1,"658":0,"659":1}';
-                                testBuffer = JSON.parse( testBuffer );
-                                var arr = []
-                                for(var i in testBuffer){
-                                    arr.push(testBuffer[i])
-                                }
-                                var uint8 = new Uint8Array( arr );
-                                var b = uint8.buffer;
-                                debugger;
-                                sb.appendBuffer(b); 
-                            }
-                            
+                            this.parent = segment.parent;                            
+                            sb.appendBuffer(segment.data);                           
                             this.appendError = 0;
                             this.appended++;
                             this.appending = true;
@@ -364,9 +340,6 @@ class BufferStream extends AbstractStream{
                             segments.unshift(segment);
                         }
                     } else {
-                        // in case we don't have any source buffer matching with this segment type,
-                        // it means that Mediasource fails to create sourcebuffer
-                        // discard this segment, and trigger update end
                         this.onSBUpdateEnd();
                     }
                 } catch (err) {
@@ -390,22 +363,11 @@ class BufferStream extends AbstractStream{
             let mimeType = `${track.container};codecs=${codec}`;
             window.debug && console.log(`creating sourceBuffer(${mimeType})`);
             try {
-                console.log("bind event....................")
-              let sb = sourceBuffer[trackName] = mediaSource.addSourceBuffer(mimeType);
-              sb.addEventListener('updateend', this.evtOnSourceBufferEvent);
-              //sb.addEventListener('error', this.evtOnSourceBufferEvent);
-              sb.addEventListener('error',function(codec,trackName,tracks){
-                return function(){
-                    console.log('error')
-                    debugger;
-                    console.log(codec, trackName, tracks)
-                }
-              }(codec,trackName,tracks))
-              //this.tracks[trackName] = { codec: codec, container: track.container };
-              track.buffer = sb;
+                let sb = sourceBuffer[trackName] = mediaSource.addSourceBuffer(mimeType);
+                sb.addEventListener('updateend', this.evtOnSourceBufferEvent);
+                sb.addEventListener('error', this.evtOnSourceBufferEvent);
             } catch (err) {
-                console.error('sb error', err)
-              window.debug && console.error(`error while trying to add sourceBuffer:${err.message}`);
+                window.debug && console.error(`error while trying to add sourceBuffer:${err.message}`);
               //this.hls.trigger(Event.ERROR, { type: ErrorTypes.MEDIA_ERROR, details: ErrorDetails.BUFFER_ADD_CODEC_ERROR, fatal: false, err: err, mimeType: mimeType });
             }
           }
@@ -463,93 +425,10 @@ class BufferStream extends AbstractStream{
                     maxBufLen;
                 var level = this._level;//暂只处理单码率
                 
-                // compute max Buffer Length that we could get from this load level, based on level bitrate. don't buffer more than 60 MB and more than 30s
-                if (this._levels[level].hasOwnProperty('bitrate')) {
-                    maxBufLen = Math.max(8 * this.option.maxBufferSize / this._levels[level].bitrate, this.option.maxBufferLength);
-                    maxBufLen = Math.min(maxBufLen, this.option.maxMaxBufferLength);
-                } else {
-                    maxBufLen = this.option.maxBufferLength;
-                }
-                let levelDetails = this._levels[level].details;
-                console.log("level", level, "bufferLen", bufferLen, "maxBufLen", maxBufLen)
-                if( !levelDetails ){
-                    this._state = STATE.WAITING_LEVEL;
-                    this.load(this._levels[level].url, level );
-                    return;
-                }
-                if (bufferLen < maxBufLen ) {
+                maxBufLen = this.option.maxBufferLength || 600;
+                if (bufferLen < maxBufLen ) {                    
                     
-                    if( typeof levelDetails == 'undefined'){
-                        //等待码率切换
-                        return;
-                    }
-                    var fragments = levelDetails.fragments,
-                    fragLen = fragments.length,
-                    start = fragments[0].start,
-                    end = fragments[fragLen - 1].start + fragments[fragLen - 1].duration;
-                    console.log("fragLen", fragLen, start, end)
-                    var _frag = undefined;
-
-                    if (!_frag) {
-                        var foundFrag;
-                        if (bufferEnd < end) {
-                            foundFrag = BinarySearch.search(fragments,
-                            function(candidate) {
-                                //window.debug && console.log(`level/sn/start/end/bufEnd:${level}/${candidate.sn}/${candidate.start}/${(candidate.start+candidate.duration)}/${bufferEnd}`);
-                                // offset should be within fragment boundary
-                                if (candidate.start + candidate.duration <= bufferEnd) {
-                                    return 1;
-                                } else if (candidate.start > bufferEnd) {
-                                    return - 1;
-                                }
-                                return 0;
-                            });
-                        }else{
-                            foundFrag = fragments[fragLen - 1];// reach end of playlist
-                        }
-                        if( levelDetails.initSegment && !levelDetails.initSegment.data ){
-                            //mp4初始frag
-                            foundFrag = levelDetails.initSegment;
-                        }
-                        if( foundFrag ){
-                            _frag = foundFrag;
-                            start = foundFrag.start;
-                            //window.debug && console.log('find SN matching with pos:' +  bufferEnd + ':' + frag.sn);
-                            if (fragPrevious && _frag.level === fragPrevious.level && _frag.sn === fragPrevious.sn) {
-                                if (_frag.sn < levelDetails.endSN) {
-                                    _frag = fragments[_frag.sn + 1 - levelDetails.startSN];
-                                    //拖到上一段未，prev和cur的idx一致
-                                    window.debug && console.log('SN just loaded, load next one: ' + _frag.sn);
-                                }else{
-                                    if (!levelDetails.live) {
-                                        var mediaSource = this.mediaSource;
-                                        var state = mediaSource.readyState;
-                                        console.log("----------source state", state);
-                                        if (mediaSource && mediaSource.readyState === 'open') {
-                                            // ensure sourceBuffer are not in updating states
-                                            var sb = this.sourceBuffer;
-                                            if (! (sb.audio && sb.audio.updating || sb.video && sb.video.updating)) {
-                                                console.log('all media data available, signal endOfStream() to MediaSource');
-                                                //Notify the media element that it now has all of the media data
-                                                mediaSource.endOfStream();
-                                            }
-                                        }
-                                    }
-                                    _frag = null; //?看不懂
-                                }
-                            }
-                        }
-
-                        if( _frag ){
-                            if ( _frag.decryptdata && _frag.decryptdata.uri != null && _frag.decryptdata.key == null) {
-                                //TODO,有加密段
-                            }else{
-                                this.fragCurrent = _frag;
-                                this.startFragmentRequested = true;
-                                this.loadFrag( _frag );
-                            }
-                        }
-                    }
+                    this.checkPendingTracks();
                 }
                 break;
             case STATE.PARSING:
@@ -626,7 +505,93 @@ class BufferStream extends AbstractStream{
         this.loader.open( this.option.url );
         //this.loader.open( this.)
     }
-    play(){}
+
+    bufferInfo(pos, maxHoleDuration) {
+        var media = this.media,
+            vbuffered = media.buffered,
+            buffered = [],
+            i;
+        for (i = 0; i < vbuffered.length; i++) {
+            buffered.push({
+                start: vbuffered.start(i),
+                end: vbuffered.end(i)
+            });
+        }
+        return this.bufferedInfo(buffered, pos, maxHoleDuration);
+    }
+
+    bufferedInfo(buffered, pos, maxHoleDuration) {
+        var buffered2 = [],
+            // bufferStart and bufferEnd are buffer boundaries around current video position
+            bufferLen,
+            bufferStart,
+            bufferEnd,
+            bufferStartNext,
+            i;
+        // sort on buffer.start/smaller end (IE does not always return sorted buffered range)
+        buffered.sort(function(a, b) {
+            var diff = a.start - b.start;
+            if (diff) {
+                return diff;
+            } else {
+                return b.end - a.end;
+            }
+        });
+        // there might be some small holes between buffer time range
+        // consider that holes smaller than maxHoleDuration are irrelevant and build another
+        // buffer time range representations that discards those holes
+        for (i = 0; i < buffered.length; i++) {
+            var buf2len = buffered2.length;
+            if (buf2len) {
+                var buf2end = buffered2[buf2len - 1].end;
+                // if small hole (value between 0 or maxHoleDuration ) or overlapping (negative)
+                if (buffered[i].start - buf2end < maxHoleDuration) {
+                    // merge overlapping time ranges
+                    // update lastRange.end only if smaller than item.end
+                    // e.g.  [ 1, 15] with  [ 2,8] => [ 1,15] (no need to modify lastRange.end)
+                    // whereas [ 1, 8] with  [ 2,15] => [ 1,15] ( lastRange should switch from [1,8] to [1,15])
+                    if (buffered[i].end > buf2end) {
+                        buffered2[buf2len - 1].end = buffered[i].end;
+                    }
+                } else {
+                    // big hole
+                    buffered2.push(buffered[i]);
+                }
+            } else {
+                // first value
+                buffered2.push(buffered[i]);
+            }
+        }
+        for (i = 0, bufferLen = 0, bufferStart = bufferEnd = pos; i < buffered2.length; i++) {
+            var start = buffered2[i].start,
+            end = buffered2[i].end;
+            //window.debug && console.log('buf start/end:' + buffered.start(i) + '/' + buffered.end(i));
+            if (pos + maxHoleDuration >= start && pos < end) {
+                // play position is inside this buffer TimeRange, retrieve end of buffer position and buffer length
+                bufferStart = start;
+                bufferEnd = end + maxHoleDuration;
+                bufferLen = bufferEnd - pos;
+            } else if (pos + maxHoleDuration < start) {
+                bufferStartNext = start;
+            }
+        }
+        return {
+            len: bufferLen,
+            start: bufferStart,
+            end: bufferEnd,
+            nextStart: bufferStartNext
+        };
+    }
+
+    async play(){
+        if( this._state == STATE.PEDDING ){
+            this.load( this.option.url ).then(res=>{
+                super.play();
+            })
+        }else{
+            super.play();
+        }
+    }
 }
 
 export default BufferStream;

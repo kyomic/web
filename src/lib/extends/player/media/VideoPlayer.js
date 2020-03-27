@@ -63,7 +63,7 @@ class VideoPlayer extends AbstractPlayer{
 	}
 
 	onVideoEvent(e){
-		console.log('evt:',e.type)
+		//console.log('evt:',e.type)
 		switch( e.type ){
 			case 'canplaythrough':
 			case 'playing':

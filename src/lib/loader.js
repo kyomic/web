@@ -22,7 +22,7 @@ class AbstractLoader{
 		//内容长度
 		this._contentLength = null;
 		//收到的字节数
-    this._receivedLength = 0;
+    	this._receivedLength = 0;
 	}
 	open( source, range = null ){
 		range = range || { start:0, end:-1 };

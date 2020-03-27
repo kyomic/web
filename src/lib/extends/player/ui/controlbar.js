@@ -178,7 +178,7 @@ class ControlBar{
 	}
 
 	onPlayerEvent( e ){
-		console.log('onPlayerEvent', e)
+		//console.log('onPlayerEvent', e)
 		switch( e.type ){
 			case 'timeupdate':
 			case 'loadedmetadata':
