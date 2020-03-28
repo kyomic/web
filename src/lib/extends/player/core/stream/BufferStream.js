@@ -80,12 +80,9 @@ class BufferStream extends AbstractStream{
 
     }
 
-    attachEvent(){       
-        this.loader = new Loader();
-        console.log("loader", this.loader)
-        this.loader.on('data', res=>{
-            this.demuxer.push( res.data.chunk, [], '','', {cc:0})
-        })
+    attachEvent(){
+
+        
 
 
         this.on( HLSEvent.FRAG_PARSED, this.evtOnDemuxEvent );
@@ -502,7 +499,13 @@ class BufferStream extends AbstractStream{
     }
     
     startLoad(){
-        this.loader.open( this.option.url );
+        this.loader = new Loader({type:'range'});
+        console.log("loader", this.loader)
+        this.loader.on('data', res=>{
+            this.demuxer.push( res.data.chunk, [], '','', {cc:0})
+        })
+
+        this.loader.open( this.option, {start:0,end:100*1024} );
         //this.loader.open( this.)
     }
 
@@ -585,9 +588,7 @@ class BufferStream extends AbstractStream{
 
     async play(){
         if( this._state == STATE.PEDDING ){
-            this.load( this.option.url ).then(res=>{
-                super.play();
-            })
+            //this.loader.open( this.option.url );
         }else{
             super.play();
         }
