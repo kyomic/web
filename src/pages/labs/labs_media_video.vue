@@ -30,6 +30,8 @@ import StupidVideo from '@/lib/extends/player/StupidVideo';
 
 import { HLStream, BufferStream,URLStream } from '@/lib/extends/player/core/stream';
 import { FileReferenceProvider } from '@/lib/extends/player/data'
+import Stat from '@/lib/stat';
+
 let mountedId = 0;
 let player = null;
 export default {
@@ -147,12 +149,17 @@ export default {
     }
   },
   mounted(){  
+    
+   
+    
     //整出个bug,多次mounted的问题
     clearTimeout( mountedId )
     mountedId = setTimeout( _=>{
       var dom = document.querySelector(".imglayer")
       //player= new StupidVideo({target: dom})    
-      
+
+      Stat.initialize( dom )
+      return;
 
       player = new WebVideo({target:dom});
       this.onChange({target:{}})

@@ -2,6 +2,7 @@ import EventEmitter from 'event-emitter'
 import VideoPlayer from './media/VideoPlayer';
 import './ui/style.less'
 import '../../polyfill.js'
+import Stat from '@/lib/stat';
 class WebVideo{
 	constructor( option ){
 		window.debug = true;
